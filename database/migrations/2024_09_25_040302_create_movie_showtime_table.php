@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('movie_showtime', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('movie_id')->constrained('movies')->onDelete('cascade');
             $table->foreignId('showtime_id')->constrained('showtimes')->onDelete('cascade');
-            $table->timestamps();
         });
     }
 
