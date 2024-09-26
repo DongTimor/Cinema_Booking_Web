@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password', 30);
+            $table->string('name')->nullable(false);
+            $table->string('email')->unique()->nullable(false);
+            $table->timestamp('email_verified_at');
+            $table->string('password', 30)->nullable(false);
             $table->dateTime('release_time');
             $table->boolean('flag_deleted')->default(0);
             $table->date('expiry');
