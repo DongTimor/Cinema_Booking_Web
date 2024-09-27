@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable(false);
             $table->string('email')->unique()->nullable(false);
-            $table->timestamp('email_verified_at');
+            $table->timestamp('email_verified_at')->nullable()->change();
             $table->string('password')->nullable(false);
             $table->dateTime('release_time');
             $table->boolean('flag_deleted')->default(0);
