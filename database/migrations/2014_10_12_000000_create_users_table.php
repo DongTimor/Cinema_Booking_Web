@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -16,7 +17,7 @@ return new class extends Migration
             $table->string('name')->nullable(false);
             $table->string('email')->unique()->nullable(false);
             $table->timestamp('email_verified_at');
-            $table->string('password', 30)->nullable(false);
+            $table->string('password')->nullable(false);
             $table->dateTime('release_time');
             $table->boolean('flag_deleted')->default(0);
             $table->date('expiry');
