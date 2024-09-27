@@ -315,13 +315,11 @@ return [
             'url' => 'admin/blog',
             'can' => 'manage-blog',
         ],
-        ['header' => 'ACCOUNT'],
         [
             'text' => 'User',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-user',
         ],
-        ['header' => 'THEATER MANAGER'],
         [
             'text' => 'Movie',
             'url' => 'admin/settings',
