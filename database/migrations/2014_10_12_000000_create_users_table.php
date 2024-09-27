@@ -20,8 +20,7 @@ return new class extends Migration
             $table->string('password')->nullable(false);
             $table->dateTime('release_time')->nullable();;
             $table->boolean('flag_deleted')->default(0);
-            $table->date('expiry')->nullable();;
-            $table->string('verification_code', 255);
+            $table->date('expiry')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
