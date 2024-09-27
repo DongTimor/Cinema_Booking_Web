@@ -16,11 +16,11 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable(false);
             $table->string('email')->unique()->nullable(false);
-            $table->timestamp('email_verified_at')->nullable()->change();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable(false);
-            $table->dateTime('release_time');
+            $table->dateTime('release_time')->nullable();;
             $table->boolean('flag_deleted')->default(0);
-            $table->date('expiry');
+            $table->date('expiry')->nullable();;
             $table->string('verification_code', 255);
             $table->rememberToken();
             $table->timestamps();
