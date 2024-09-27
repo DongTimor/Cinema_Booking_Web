@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('theaters', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('city_id')->constrained('cities')->onDelete('cascade');
-            $table->string('name', 50);
-            $table->string('phone', 12);
-            $table->timestamps();
+        Schema::create('role_user', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
         });
     }
 
@@ -25,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('theaters');
+        Schema::dropIfExists('role_user');
     }
 };

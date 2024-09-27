@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::create('movies', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->text('description')->nullable();
-            $table->string('trailer', 255)->nullable();
+            $table->string('name', 100)->nullable(false);
+            $table->text('description');
+            $table->string('trailer', 255);
+            $table->dateTime('start_time')->nullable(false);
+            $table->dateTime('end_time');
+            $table->integer('duration')->nullable(false);
+            $table->enum('status',['pending','completed'])->default('pending');
             $table->timestamps();
         });
     }
