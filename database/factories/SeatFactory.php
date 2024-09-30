@@ -17,7 +17,7 @@ class SeatFactory extends Factory
     public function definition(): array
     {
         return [
-            'auditorium_id' => \App\Models\Auditorium::factory(),
+            'auditorium_id' => \App\Models\Auditorium::inRandomOrder()->first()->id,
             'seat_number' => $this->faker->unique()->numberBetween(1, 100000)
         ];
     }
