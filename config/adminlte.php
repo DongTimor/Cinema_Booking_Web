@@ -327,7 +327,7 @@ return [
         ],
         [
             'text' => 'Auditorium',
-            'url' => 'admin/settings',
+            'url' => 'admin/auditoriums',
             'icon' => 'fas fa-fw fa-calendar',
         ],
         [
