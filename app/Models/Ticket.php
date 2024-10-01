@@ -11,7 +11,6 @@ class Ticket extends Model
     protected $fillable = ['user_id', 'seat_id', 'customer_id', 'showtime_id', 'price', 'status'];
     protected $guarded = ['id'];
 
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -31,6 +30,4 @@ class Ticket extends Model
     {
         return $this->belongsTo(Seat::class);
     }
-
-
 }
