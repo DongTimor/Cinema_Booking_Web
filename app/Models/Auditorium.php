@@ -12,7 +12,8 @@ class Auditorium extends Model
     protected $table = 'auditoriums';
 
     protected $fillable = [
-        'name'
+        'name',
+        'total'
     ];
     public function seats():HasMany
     {
