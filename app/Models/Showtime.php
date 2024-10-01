@@ -12,7 +12,7 @@ class Showtime extends Model
     use HasFactory;
     protected $fillable = [
         'start_time',
-        'endt_time'
+        'end_time'
     ];
     public function tickets():HasMany
     {
