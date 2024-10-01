@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Role extends Model
 {
@@ -30,5 +31,16 @@ class Role extends Model
         $role = Role::where('name',$name)->first();
 
         return $role->id;
+    }
+
+    public function updatePermissions($permissions)
+    {
+        return $this->permissions()->sync($permissions);
+    }
+
+    public function updateRole(array $data)
+    {
+        $this->fill($data);
+        return $this->save();
     }
 }
