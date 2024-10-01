@@ -19,8 +19,8 @@ class ShowtimeFactory extends Factory
         return [
             'start_time' => $this->faker->dateTime,
             'end_time' => $this->faker->dateTime,
-            'auditorium_id' => \App\Models\Auditorium::factory(),
-            'movie_id' => \App\Models\Movie::factory(),
+            'auditorium_id' => \App\Models\Auditorium::inRandomOrder()->first()->id,
+            'movie_id' => \App\Models\Movie::inRandomOrder()->first()->id,
         ];
     }
 }

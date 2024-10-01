@@ -17,10 +17,10 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => \App\Models\User::factory(),
-            'seat_id' => \App\Models\Seat::factory(),
-            'customer_id' => \App\Models\Customer::factory(),
-            'showtime_id' => \App\Models\Showtime::factory(),
+            'user_id' => \App\Models\User::inRandomOrder()->first()->id,
+            'seat_id' => \App\Models\Seat::inRandomOrder()->first()->id,
+            'customer_id' => \App\Models\Customer::inRandomOrder()->first()->id,
+            'showtime_id' => \App\Models\Showtime::inRandomOrder()->first()->id,
             'price' => $this->faker->randomFloat(2, 10, 100),
             'status' => $this->faker->randomElement(['ordered', 'unplaced', 'settled']),
         ];

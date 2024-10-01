@@ -17,7 +17,7 @@ class ImageFactory extends Factory
     public function definition(): array
     {
         return [
-            'movie_id' => \App\Models\Movie::factory(),
+            'movie_id' => \App\Models\Movie::inRandomOrder()->first()->id,
             'name' => $this->faker->imageUrl(),
         ];
     }
