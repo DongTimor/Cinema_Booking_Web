@@ -12,19 +12,11 @@ class Permission extends Model
 
     protected $fillable = [
         'name',
+        'flag_deleted',
     ];
 
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
-    }
-
-    public static function deletePermission()
-    {
-        static::deleting(function ($permission) {
-            $permission->roles()->detach();
-
-            Role::whereDoesntHave('permissions')->delete();
-        });
     }
 }

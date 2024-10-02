@@ -13,7 +13,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $permissions = Permission::all();
+        $permissions = Permission::where('flag_deleted',0)->get();
 
         return view('admin.permission.index', compact('permissions'));
     }
@@ -64,7 +64,16 @@ class PermissionController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $request->validate([
+            'name'=>'required|unique:permissions,name',
+        ],['name.required'=>'Permissions name in valid!','name.unique'=>'Permissions name in unique!']);
 
+        $name = $request->post('name');
+        $permission = Permission::find($id);
+        $permission->update([
+            'name' => $name
+        ]);
+        return redirect()->route('permissions.index');
     }
 
     /**
@@ -72,6 +81,10 @@ class PermissionController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $permission = Permission::where('id', $id)
+        ->where('flag_deleted',0)->first();
+        $permission->update([
+            'flag_deleted' => 1,
+        ]);
     }
 }
