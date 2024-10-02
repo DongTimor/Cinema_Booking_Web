@@ -111,7 +111,7 @@ return [
 
     'preloader' => [
         'enabled' => true,
-        'mode' => 'fullscreen',
+        'mode' => 'cwrapper',
         'img' => [
             'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
             'alt' => 'AdminLTE Preloader Image',
@@ -316,35 +316,28 @@ return [
             'can' => 'manage-blog',
         ],
         [
-            'text' => 'User',
-            'icon' => 'fas fa-fw fa-user',
+            'text' => 'Admin',
+            'icon' => 'fas fa-user-shield',
             'submenu' => [
                 [
                     'text' => 'User',
                     'url' => 'admin/users',
-                    'icon' => 'fas fa-fw fa-user',
-                    'label_color' => 'success',
-                    'submenu' => [
-                        [
-                            'text' => 'User',
-                            'url' => 'admin/users',
-                        ],
-                    ],
+                    'icon' => 'fas fa-users',
+                    'active' => ['admin/users*'],
                 ],
                 [
                     'text' => 'Role',
                     'url' => 'admin/roles',
-                    'icon' => 'fas fa-fw fa-user',
-
+                    'icon' => 'fas fa-pray',
+                    'active' => ['admin/roles*'],
                 ],
                 [
                     'text' => 'Permission',
                     'url' => 'admin/permissions',
-                    'icon' => 'fas fa-fw fa-user',
-
+                    'icon' => 'fas fa-address-card',
+                    'active' => ['admin/permissions*'],
                 ],
             ],
-
         ],
         [
             'text' => 'Movie',
