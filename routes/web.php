@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditoriumController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use Illuminate\Support\Facades\Auth;
@@ -16,9 +17,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Auth::routes();
 
@@ -37,5 +35,13 @@ Route::prefix('admin')->group(function () {
         Route::get('/create', [PermissionController::class, 'create'])->name('permissions.create');
         Route::post('/create', [PermissionController::class, 'store'])->name('permissions.store');
         Route::get('/{id}', [PermissionController::class, 'show'])->name('permissions.show');
+    });
+    Route::prefix('auditoriums')->group(function() {
+        Route::get('/',[AuditoriumController::class,'index'])->name('auditoriums.index');
+        Route::get('/create',[AuditoriumController::class,'create'])->name('auditoriums.create');
+        Route::post('/store',[AuditoriumController::class,'store'])->name('auditoriums.store');
+        Route::get('/{id}',[AuditoriumController::class,'edit'])->name('auditoriums.edit');
+        Route::put('/{id}',[AuditoriumController::class,'update'])->name('auditoriums.update');
+        Route::delete('/{id}',[AuditoriumController::class,'destroy'])->name('auditoriums.destroy');
     });
 });
