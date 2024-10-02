@@ -14,7 +14,6 @@ class SeatController extends Controller
     public function index()
     {
         $seats = Seat::all();
-        $users = User::all();
 
         return view('seat.index', compact('seats', 'users'));
     }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Ticket extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'seat_id', 'customer_id', 'showtime_id', 'price', 'status'];
+    protected $fillable = ['user_id', 'seat_id', 'customer_id', 'showtime_id', 'movie_id', 'price', 'status'];
     protected $guarded = ['id'];
 
     public function user(): BelongsTo
@@ -24,6 +24,11 @@ class Ticket extends Model
     public function showtime(): BelongsTo
     {
         return $this->belongsTo(Showtime::class);
+    }
+
+    public function movie(): BelongsTo
+    {
+        return $this->belongsTo(Movie::class);
     }
 
     public function seat(): BelongsTo

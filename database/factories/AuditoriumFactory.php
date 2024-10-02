@@ -17,7 +17,8 @@ class AuditoriumFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->word, // Tên ngẫu nhiên cho auditorium
+            'name' => $this->faker->word,
+            'total' => $this->faker->numberBetween(100, 200),
         ];
     }
 }

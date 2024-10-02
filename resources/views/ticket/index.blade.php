@@ -31,7 +31,7 @@
             <tr>
                 {{-- {{ dd($ticket ) }} --}}
                 <td>{!! $ticket->id !!}</td>
-                <td><a href="">{{ $ticket->showtime->movie->name }}</a></td>
+                <td><a href="">{{ $ticket->movie }}</a></td>
                 <td><a href="">{{ $ticket->customer->name }}</a></td>
                 <td><a href="">{{ $ticket->seat->auditorium->name }}</a></td>
                 <td><a href="">{{ $ticket->showtime->id }}</a></td>
