@@ -19,7 +19,7 @@
                 {{ $item->id }}
               </td>
               <td>
-                {{ $item->name }}
+                <a class="dropdown-item" href="{{ route('permissions.show', $item->id) }}">{{ $item->name }}</a>
               </td>
               <td>
                 <div class="btn-group">
@@ -28,11 +28,15 @@
                     </button>
                     <ul class="dropdown-menu">
                       <li><a class="dropdown-item" href="{{ route('permissions.show', $item->id) }}">Edit</a></li>
-                      <li><a class="dropdown-item" href="#">Delete</a></li>
+                      <li><a class="dropdown-item delete-button" data-id={{$item->id}} href="javascript:void(0);">Delete</a></li>
                     </ul>
                   </div>
               </td>
             </tr>
         @endforeach
     </table>
+@endsection
+
+@section('scripts')
+    <script src="{{asset("/js/deleteajax.js")}}" ></script>
 @endsection

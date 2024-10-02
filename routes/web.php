@@ -38,6 +38,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/create', [PermissionController::class, 'create'])->name('permissions.create');
         Route::post('/create', [PermissionController::class, 'store'])->name('permissions.store');
         Route::get('/{id}', [PermissionController::class, 'show'])->name('permissions.show');
+        Route::put('/{id}', [PermissionController::class, 'update'])->name('permissions.update');
+        Route::post('/delete/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
     });
     Route::prefix('auditoriums')->group(function() {
         Route::get('/',[AuditoriumController::class,'index'])->name('auditoriums.index');
