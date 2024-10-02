@@ -23,6 +23,7 @@ class TicketFactory extends Factory
             'showtime_id' => \App\Models\Showtime::inRandomOrder()->first()->id,
             'price' => $this->faker->randomFloat(2, 10, 100),
             'status' => $this->faker->randomElement(['ordered', 'unplaced', 'settled']),
+            'movie_id' => \App\Models\Movie::inRandomOrder()->first()->id,
         ];
     }
 }

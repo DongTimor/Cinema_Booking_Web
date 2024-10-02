@@ -41,19 +41,20 @@ Route::prefix('admin')->group(function () {
         Route::post('/create', [PermissionController::class, 'store'])->name('permissions.store');
         Route::get('/{id}', [PermissionController::class, 'show'])->name('permissions.show');
     });
+    Route::group(['prefix'=>'tickets', 'as'=>'tickets.'], function(){
+        Route::get('/',[TicketController::class, 'index'])->name('index');
+        Route::get('/edit/{ticket}',[TicketController::class, 'edit'])->name('edit');
+        Route::put('/update/{ticket}',[TicketController::class, 'update'])->name('update');
+    });
+
+    Route::group(['prefix'=>'seats', 'as'=>'seats.'], function(){
+        Route::get('/',[SeatController::class, 'index'])->name('index');
+    });
+
+    Route::group(['prefix'=>'movies', 'as'=>'movies.'], function(){
+        Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('getShowtimes');
+    });
 });
 
-Route::group(['prefix'=>'tickets', 'as'=>'tickets.'], function(){
-    Route::get('/',[TicketController::class, 'index'])->name('index');
-    Route::get('/edit/{ticket}',[TicketController::class, 'edit'])->name('edit');
-    Route::put('/update/{ticket}',[TicketController::class, 'update'])->name('update');
-});
 
-Route::group(['prefix'=>'seats', 'as'=>'seats.'], function(){
-    Route::get('/',[SeatController::class, 'index'])->name('index');
-});
-
-Route::group(['prefix'=>'movies', 'as'=>'movies.'], function(){
-    Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('getShowtimes');
-});
 
