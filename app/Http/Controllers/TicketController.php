@@ -60,7 +60,6 @@ class TicketController extends Controller
             ->where('end_time', '>=', Carbon::now()->addMinutes($ticket->showtime->movie->duration));
         $seats = Seat::whereBelongsTo($ticket->showtime->auditorium)
             ->get();
-        dd($showtimes);
         return view('ticket.edit', compact('ticket', 'movies', 'users', 'customers', 'showtimes', 'seats'));
     }
 
