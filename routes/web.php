@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuditoriumController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\ShowtimeController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\SeatController;
 use App\Http\Controllers\TicketController;
@@ -61,6 +62,10 @@ Route::prefix('admin')->group(function () {
 
     Route::group(['prefix'=>'movies', 'as'=>'movies.'], function(){
         Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('getShowtimes');
+    });
+
+    Route::group(['prefix'=>'showtimes', 'as'=>'showtimes.'], function(){
+        Route::get('getSeats/{id}',[ShowtimeController::class, 'getSeats'])->name('getSeats');
     });
 });
 
