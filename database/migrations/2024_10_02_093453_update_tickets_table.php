@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('showtimes', function (Blueprint $table) {
+        Schema::table('tickets', function (Blueprint $table) {
             $table->foreignId('movie_id')->constrained('movies')->onDelete('cascade');
-
         });
     }
 
@@ -22,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('showtimes', function (Blueprint $table) {
+        Schema::table('tickets', function (Blueprint $table) {
             $table->dropForeign(['movie_id']);
         });
     }

@@ -23,7 +23,6 @@ class Seat extends Model
     {
         return $this->hasOne(Ticket::class);
     }
-
 }
 
 
