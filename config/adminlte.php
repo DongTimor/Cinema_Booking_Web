@@ -317,12 +317,38 @@ return [
         ],
         [
             'text' => 'User',
-            'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-user',
+            'submenu' => [
+                [
+                    'text' => 'User',
+                    'url' => 'admin/users',
+                    'icon' => 'fas fa-fw fa-user',
+                    'label_color' => 'success',
+                    'submenu' => [
+                        [
+                            'text' => 'User',
+                            'url' => 'admin/users',
+                        ],
+                    ],
+                ],
+                [
+                    'text' => 'Role',
+                    'url' => 'admin/roles',
+                    'icon' => 'fas fa-fw fa-user',
+
+                ],
+                [
+                    'text' => 'Permission',
+                    'url' => 'admin/permissions',
+                    'icon' => 'fas fa-fw fa-user',
+
+                ],
+            ],
+
         ],
         [
             'text' => 'Movie',
-            'url' => 'admin/settings',
+            'url' => 'admin/movies',
             'icon' => 'fas fa-fw fa-film',
         ],
         [
@@ -332,7 +358,7 @@ return [
         ],
         [
             'text' => 'Ticket',
-            'url' => 'admin/settings',
+            'url' => 'admin/tickets',
             'icon' => 'fas fa-fw fa-ticket-alt',
         ],
 
@@ -379,7 +405,7 @@ return [
 
     'plugins' => [
         'Datatables' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',

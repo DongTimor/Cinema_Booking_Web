@@ -14,12 +14,16 @@ class Showtime extends Model
         'start_time',
         'end_time'
     ];
-    public function tickets():HasMany
+    public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
     }
-    public function movies():BelongsTo
+    public function movie(): BelongsTo
     {
         return $this->belongsTo(Movie::class);
+    }
+    public function auditorium(): BelongsTo
+    {
+        return $this->belongsTo(Auditorium::class);
     }
 }
