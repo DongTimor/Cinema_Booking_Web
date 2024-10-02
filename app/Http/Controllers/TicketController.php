@@ -52,7 +52,7 @@ class TicketController extends Controller
     public function edit(Ticket $ticket)
     {
         // $ticket = Ticket::with('customer', 'showtime.movie', 'showtime.auditorium', 'seat', 'user')->find($ticket);
-        $movies = Movie::where('end_time', '>=', Carbon::now())
+        $movies = Movie::where('status', '=', 'pending')
         ->get();
         $users = User::all();
         $customers = Customer::all();

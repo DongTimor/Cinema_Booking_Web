@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\MovieController;
 use App\Http\Controllers\SeatController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Auth;
@@ -50,5 +51,9 @@ Route::group(['prefix'=>'tickets', 'as'=>'tickets.'], function(){
 
 Route::group(['prefix'=>'seats', 'as'=>'seats.'], function(){
     Route::get('/',[SeatController::class, 'index'])->name('index');
+});
+
+Route::group(['prefix'=>'movies', 'as'=>'movies.'], function(){
+    Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('getShowtimes');
 });
 
