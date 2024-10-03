@@ -12,15 +12,15 @@ class AuditoriumController extends Controller
         try {
             $auditorums = Auditorium::paginate(10);
             // return response()->json($auditorums);
-            return view('admin.auditorium.index', ['auditoriums' => $auditorums]);
+            return view('admin.auditoriums.index', ['auditoriums' => $auditorums]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
         }
- 
+
     }
 
     public function create() {
-        return view('admin.auditorium.create');
+        return view('admin.auditoriums.create');
     }
 
     public function store(Request $req){
@@ -49,7 +49,7 @@ class AuditoriumController extends Controller
     public function edit($id) {
         try{
             $auditorium = Auditorium::findOrFail($id);
-            return view('admin.auditorium.edit',compact('auditorium'));
+            return view('admin.auditoriums.edit',compact('auditorium'));
         }catch (\Exception $e) {
             return response()->json(['error' => 'Delete error', 'message' => $e->getMessage()], 500);
         }

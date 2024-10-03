@@ -17,10 +17,8 @@ class ShowtimeFactory extends Factory
     public function definition(): array
     {
         return [
-            'start_time' => $this->faker->dateTime,
-            'end_time' => $this->faker->dateTime,
-            'auditorium_id' => \App\Models\Auditorium::inRandomOrder()->first()->id,
-            'movie_id' => \App\Models\Movie::inRandomOrder()->first()->id,
+            'start_time' => $this->faker->time(),
+            'end_time' => $this->faker->time(),
         ];
     }
 }

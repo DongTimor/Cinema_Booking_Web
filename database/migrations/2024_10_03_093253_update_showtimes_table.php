@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('showtimes', function (Blueprint $table) {
             $table->dropColumn('movie_id');
             $table->dropForeign('showtimes_auditorium_id_foreign');
+            $table->dropColumn('auditorium_id');
         });
     }
 

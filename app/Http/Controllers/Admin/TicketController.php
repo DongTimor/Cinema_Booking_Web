@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Movie;
 use App\Models\Seat;
@@ -19,7 +20,7 @@ class TicketController extends Controller
     public function index()
     {
         $tickets = Ticket::with('customer', 'showtime.movie', 'showtime.auditorium', 'seat', 'user')->get();
-        return view('admin.ticket.index', compact('tickets'));
+        return view('admin.tickets.index', compact('tickets'));
     }
 
     /**
@@ -60,7 +61,7 @@ class TicketController extends Controller
             ->where('end_time', '>=', Carbon::now()->addMinutes($ticket->showtime->movie->duration));
         $seats = Seat::whereBelongsTo($ticket->showtime->auditorium)
             ->get();
-        return view('admin.ticket.edit', compact('ticket', 'movies', 'users', 'customers', 'showtimes', 'seats'));
+        return view('admin.tickets.edit', compact('ticket', 'movies', 'users', 'customers', 'showtimes', 'seats'));
     }
 
     /**

@@ -14,7 +14,8 @@ class ShowtimeController extends Controller
      */
     public function index()
     {
-        //
+        $showtimes = Showtime::all();
+        return view('admin.showtimes.index', compact('showtimes'));
     }
 
     /**
@@ -22,7 +23,7 @@ class ShowtimeController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.showtimes.create');
     }
 
     /**
@@ -30,7 +31,14 @@ class ShowtimeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
+        ]);
+        // dd($validated);
+
+        Showtime::create($validated);
+        return redirect()->route('showtimes.index');
     }
 
     /**
@@ -44,25 +52,31 @@ class ShowtimeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Showtime $showtime)
     {
-        //
+        return view('admin.showtimes.edit', compact('showtime'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Showtime $showtime)
     {
-        //
+        $validated = $request->validate([
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
+        ]);
+        $showtime->update($validated);
+        return redirect()->route('showtimes.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Showtime $showtime)
     {
-        //
+        $showtime->delete();
+        return redirect()->route('showtimes.index');
     }
 
     public function getSeats(string $id)
