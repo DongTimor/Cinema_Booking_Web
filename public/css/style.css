@@ -1,6 +1,5 @@
-.has-treeview {
-    background-color: #f4f6f942;
-    transition: all 0.2s ease-in-out;
+.nav-treeview {
+    background-color: #f4f6f942 !important;
 }
 
 .nav-sidebar .nav-item>.nav-link
