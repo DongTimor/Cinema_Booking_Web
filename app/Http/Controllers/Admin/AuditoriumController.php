@@ -12,7 +12,6 @@ class AuditoriumController extends Controller
     {
         try {
             $auditorums = Auditorium::paginate(10);
-            // return response()->json($auditorums);
             return view('admin.auditoriums.index', ['auditoriums' => $auditorums]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
