@@ -20,7 +20,6 @@ class TicketFactory extends Factory
             'user_id' => \App\Models\User::inRandomOrder()->first()->id,
             'seat_id' => \App\Models\Seat::inRandomOrder()->first()->id,
             'customer_id' => \App\Models\Customer::inRandomOrder()->first()->id,
-            // 'showtime_id' => \App\Models\Showtime::inRandomOrder()->first()->id,
             'price' => $this->faker->randomFloat(2, 10, 100),
             'status' => $this->faker->randomElement(['ordered', 'unplaced', 'settled']),
             'movie_id' => \App\Models\Movie::inRandomOrder()->first()->id,

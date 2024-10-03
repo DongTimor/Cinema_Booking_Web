@@ -35,8 +35,6 @@ class ShowtimeController extends Controller
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
         ]);
-        // dd($validated);
-
         Showtime::create($validated);
         return redirect()->route('showtimes.index');
     }
@@ -83,8 +81,8 @@ class ShowtimeController extends Controller
     {
         $showtime = Showtime::find($id);
         $seats = Seat::whereBelongsTo($showtime->auditorium)
-        ->whereDoesntHave('ticket')
-        ->get();
+            ->whereDoesntHave('ticket')
+            ->get();
         return response()->json($seats);
     }
 }
