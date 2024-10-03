@@ -15,7 +15,7 @@ class PermissionController extends Controller
     {
         $permissions = Permission::where('flag_deleted',0)->get();
 
-        return view('admin.permission.index', compact('permissions'));
+        return view('admin.permissions.index', compact('permissions'));
     }
 
     /**
@@ -23,7 +23,7 @@ class PermissionController extends Controller
      */
     public function create()
     {
-        return view('admin.permission.create');
+        return view('admin.permissions.create');
     }
 
     /**
@@ -48,7 +48,7 @@ class PermissionController extends Controller
     public function show(string $id)
     {
         $permission = Permission::where('id', $id)->first();
-        return view('admin.permission.show', compact('permission'));
+        return view('admin.permissions.show', compact('permission'));
     }
 
     /**

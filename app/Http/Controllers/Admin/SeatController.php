@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Seat;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class SeatController extends Controller
@@ -16,7 +16,7 @@ class SeatController extends Controller
         $seats = Seat::all();
 
 
-        return view('seat.index', compact('seats', ));
+        return view('seats.index', compact('seats', ));
     }
 
     /**

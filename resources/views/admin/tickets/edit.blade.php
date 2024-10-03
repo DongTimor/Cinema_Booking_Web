@@ -43,7 +43,7 @@
         <label for="showtime_id">Showtime</label>
         <x-adminlte-select name="showtime_id">
             @foreach ($showtimes as $showtime)
-                @if ($showtime->id === $ticket->showtime->id)
+                @if ($showtime->id == $ticket->showtime->id)
                     <option selected value="{{ $showtime->id }}">{{ $showtime->id }}</option>
                 @else
                     <option value="{{ $showtime->id }}">{{ $showtime->id }}</option>
