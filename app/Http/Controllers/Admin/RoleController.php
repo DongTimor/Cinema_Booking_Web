@@ -16,7 +16,7 @@ class RoleController extends Controller
     {
         $roles = Role::where('flag_deleted',0)->get();
 
-        return view('admin.role.index', compact('roles'));
+        return view('admin.roles.index', compact('roles'));
     }
 
     /**
@@ -25,7 +25,7 @@ class RoleController extends Controller
     public function create()
     {
         $permissions = Permission::all();
-        return view('admin.role.create', compact('permissions'));
+        return view('admin.roles.create', compact('permissions'));
     }
 
     /**
@@ -57,7 +57,7 @@ class RoleController extends Controller
         $permissions = Permission::all();
         $ids = $role->permissions->pluck('id')->toArray();
 
-        return view('admin.role.show', compact('role','permissions','ids'));
+        return view('admin.roles.show', compact('role','permissions','ids'));
     }
 
     /**

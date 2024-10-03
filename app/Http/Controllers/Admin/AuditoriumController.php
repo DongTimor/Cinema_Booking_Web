@@ -8,22 +8,24 @@ use Illuminate\Http\Request;
 
 class AuditoriumController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         try {
             $auditorums = Auditorium::paginate(10);
             // return response()->json($auditorums);
-            return view('admin.auditorium.index', ['auditoriums' => $auditorums]);
+            return view('admin.auditoriums.index', ['auditoriums' => $auditorums]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
         }
- 
     }
 
-    public function create() {
-        return view('admin.auditorium.create');
+    public function create()
+    {
+        return view('admin.auditoriums.create');
     }
 
-    public function store(Request $req){
+    public function store(Request $req)
+    {
         try {
             $validate = $req->validate([
                 'name' => 'required|string|max:255',
@@ -36,7 +38,8 @@ class AuditoriumController extends Controller
         }
     }
 
-    public function destroy($id) {
+    public function destroy($id)
+    {
         try {
             $auditorium = Auditorium::findOrFail($id);
             $auditorium->delete();
@@ -46,16 +49,18 @@ class AuditoriumController extends Controller
         }
     }
 
-    public function edit($id) {
-        try{
+    public function edit($id)
+    {
+        try {
             $auditorium = Auditorium::findOrFail($id);
-            return view('admin.auditorium.edit',compact('auditorium'));
-        }catch (\Exception $e) {
+            return view('admin.auditoriums.edit', compact('auditorium'));
+        } catch (\Exception $e) {
             return response()->json(['error' => 'Delete error', 'message' => $e->getMessage()], 500);
         }
     }
 
-    public function update(Request $req, $id) {
+    public function update(Request $req, $id)
+    {
         try {
             $validate = $req->validate([
                 'name' => 'required|string|max:255',

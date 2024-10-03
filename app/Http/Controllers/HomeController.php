@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Movie;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -25,4 +26,12 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+    public function getMovies()
+    {
+        $movies = Movie::find(30);
+        return response()->json($movies);
+    }
 }
+
+
