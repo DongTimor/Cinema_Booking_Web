@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Movie;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
 
@@ -12,7 +15,8 @@ class MovieController extends Controller
      */
     public function index()
     {
-        //
+        $movies = Movie::paginate(10);
+        return view('admin.movie.feature.index',compact('movies'));
     }
 
     /**
@@ -20,7 +24,12 @@ class MovieController extends Controller
      */
     public function create()
     {
-        //
+        try{
+            $categories = Category::all();
+            return view('admin.movie.feature.create',compact('categories'));
+        }catch (\Exception $e){
+            return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**

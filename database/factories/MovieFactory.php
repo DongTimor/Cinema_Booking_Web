@@ -27,3 +27,4 @@ class MovieFactory extends Factory
         ];
     }
 }
+

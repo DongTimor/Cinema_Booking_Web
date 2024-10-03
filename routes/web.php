@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\AuditoriumController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\MovieController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SeatController;
 use App\Http\Controllers\Admin\ShowtimeController;
 use App\Http\Controllers\Admin\TicketController;
-use App\Http\Controllers\MovieController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -60,10 +61,27 @@ Route::prefix('admin')->group(function () {
         Route::get('/',[SeatController::class, 'index'])->name('index');
     });
 
-    Route::group(['prefix'=>'movies', 'as'=>'movies.'], function(){
-        Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('getShowtimes');
-    });
 
+    Route::prefix('movies')->group(function() {
+        Route::prefix('categories')->group(function(){
+            Route::get('/',[CategoryController::class,'index'])->name('movies.categories.index');
+            Route::get('/create',[CategoryController::class,'create'])->name('movies.categories.create');
+            Route::post('/create',[CategoryController::class,'store'])->name('movies.categories.store');
+            Route::get('/{id}',[CategoryController::class,'edit'])->name('movies.categories.edit');
+            Route::put('/{id}',[CategoryController::class,'update'])->name('movies.categories.update');
+            Route::delete('/{id}',[CategoryController::class,'destroy'])->name('movies.categories.destroy');
+        });
+        Route::prefix('features')->group(function(){
+            Route::get('/',[MovieController::class,'index'])->name('movies.features.index');
+            Route::get('/create',[MovieController::class,'create'])->name('movies.features.create');
+            Route::post('/create',[MovieController::class,'store'])->name('movies.features.store');
+            Route::get('/{id}',[MovieController::class,'edit'])->name('movies.features.edit');
+            Route::put('/{id}',[MovieController::class,'update'])->name('movies.features.update');
+            Route::delete('/{id}',[MovieController::class,'destroy'])->name('movies.features.destroy');
+        });
+        Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('movies.getShowtimes');
+      
+    });
     Route::group(['prefix'=>'showtimes', 'as'=>'showtimes.'], function(){
         Route::get('/',[ShowtimeController::class, 'index'])->name('index');
         Route::get('/create',[ShowtimeController::class, 'create'])->name('create');
@@ -74,6 +92,4 @@ Route::prefix('admin')->group(function () {
         Route::delete('/delete/{showtime}',[ShowtimeController::class, 'destroy'])->name('destroy');
     });
 });
-
-
 

@@ -339,20 +339,35 @@ return [
                 ],
             ],
         ],
-        [
-            'text' => 'Movie',
-            'url' => 'admin/movies',
-            'icon' => 'fas fa-fw fa-film',
-        ],
+       
         [
             'text' => 'Auditorium',
-            'url' => 'admin/settings',
+            'url' => 'admin/auditoriums',
             'icon' => 'fas fa-fw fa-calendar',
         ],
         [
             'text' => 'Ticket',
             'url' => 'admin/tickets',
             'icon' => 'fas fa-fw fa-ticket-alt',
+        ],
+        [
+            'text' => 'Movie',
+            'url' => 'admin/movies',
+            'icon' => 'fas fa-fw fa-film',
+            'submenu' => [
+                [
+                    'text' => 'Feature',
+                    'url' => 'admin/movies/features',
+                    'icon' => 'fas fa-home',
+                    'active' => ['admin/movies/features*'],
+                ],
+                [
+                    'text' => 'Category',
+                    'url' => 'admin/movies/categories',
+                    'icon' => 'fas fa-th-list',
+                    'active' => ['admin/movies/categories*'],
+                ],
+            ],
         ],
     ],
 
