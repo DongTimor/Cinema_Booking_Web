@@ -69,3 +69,4 @@ class AuditoriumController extends Controller
         }
     }
 }
+
