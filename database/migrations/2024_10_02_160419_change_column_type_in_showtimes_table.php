@@ -28,7 +28,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('showtimes', function (Blueprint $table) {
-            //
+            $table->foreignId('movie_id')->constrained('movies')->onDelete('cascade');
+        });
+
+        Schema::table('showtimes', function (Blueprint $table) {
+            $table->date('start_time')->change();
+            $table->date('end_time')->change();
+            $table->dropColumn('movie_id');
         });
     }
 };

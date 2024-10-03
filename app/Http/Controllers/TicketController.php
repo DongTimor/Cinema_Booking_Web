@@ -19,7 +19,7 @@ class TicketController extends Controller
     public function index()
     {
         $tickets = Ticket::with('customer', 'showtime.movie', 'showtime.auditorium', 'seat', 'user')->get();
-        return view('ticket.index', compact('tickets'));
+        return view('admin.ticket.index', compact('tickets'));
     }
 
     /**
@@ -60,7 +60,7 @@ class TicketController extends Controller
             ->where('end_time', '>=', Carbon::now()->addMinutes($ticket->showtime->movie->duration));
         $seats = Seat::whereBelongsTo($ticket->showtime->auditorium)
             ->get();
-        return view('ticket.edit', compact('ticket', 'movies', 'users', 'customers', 'showtimes', 'seats'));
+        return view('admin.ticket.edit', compact('ticket', 'movies', 'users', 'customers', 'showtimes', 'seats'));
     }
 
     /**
@@ -68,7 +68,7 @@ class TicketController extends Controller
      */
     public function update(Request $request, Ticket $ticket)
     {
-        return redirect()->route('tickets.index');
+        return redirect()->route('admin.tickets.index');
     }
 
     /**
