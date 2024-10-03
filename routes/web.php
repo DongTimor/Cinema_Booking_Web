@@ -92,4 +92,3 @@ Route::prefix('admin')->group(function () {
         Route::delete('/delete/{showtime}',[ShowtimeController::class, 'destroy'])->name('destroy');
     });
 });
-

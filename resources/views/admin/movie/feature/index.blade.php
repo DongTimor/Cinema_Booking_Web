@@ -9,7 +9,6 @@
             </a>
            
         </div>
-        {{-- <x-create-button /> --}}
         <table class="shadow-2xl border-2 border-cyan-200 w-full mt-2">
             <thead class="text-center">
                 <tr>
@@ -48,7 +47,7 @@
             </tbody>
         </table>
         <div class="mt-10">
-            {{-- {{ $auditoriums->links() }} --}}
+            {{ $movies->links() }}
         </div>
     </div>
 @endsection
