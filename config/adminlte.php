@@ -339,7 +339,7 @@ return [
                 ],
             ],
         ],
-       
+
         [
             'text' => 'Auditorium',
             'url' => 'admin/auditoriums',
@@ -406,6 +406,16 @@ return [
     */
 
     'plugins' => [
+        'BsCustomFileInput' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => 'vendor/bs-custom-file-input/bs-custom-file-input.min.js',
+                ],
+            ],
+        ],
         'Datatables' => [
             'active' => true,
             'files' => [

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Auditorium;
 use App\Models\Category;
 use App\Models\Movie;
 use App\Models\Showtime;
@@ -30,14 +31,14 @@ class MovieController extends Controller
         }catch (\Exception $e){
             return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
         }
-    }
+        }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
     }
 
     /**
