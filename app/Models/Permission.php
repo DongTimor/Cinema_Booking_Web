@@ -19,4 +19,29 @@ class Permission extends Model
     {
         return $this->belongsToMany(Role::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function($permission){
+            Dashboard::create([
+                'activity' => "Created permission: {$permission->name}",
+                'url' => route('permissions.show',['id' => $permission->id])
+            ]);
+        });
+
+        static::updated(function($permission){
+            Dashboard::create([
+                'activity' => "Updated permission: {$permission->name}",
+                'url' => route('permissions.show',['id' => $permission->id])
+            ]);
+        });
+
+        static::deleted(function($permission){
+            Dashboard::create([
+                'activity' => "Deleted permission : {$permission->name}"
+            ]);
+        });
+    }
 }

@@ -43,4 +43,29 @@ class Role extends Model
         $this->fill($data);
         return $this->save();
     }
+
+    protected static function boot() 
+    {
+        parent::boot();
+
+        static::created(function ($role) {
+            Dashboard::create([
+                'activity' => "Created role: {$role->name}",
+                'url' => route('roles.show',['id' => $role->id])
+            ]);
+        });
+
+        static::updated(function ($role) {
+            Dashboard::created([
+                'activity' => "Updated {$role->name} role",
+                'url' => route('roles.show',['id' => $role->id])
+            ]);
+        });
+
+        static::deleted(function ($role){
+            Dashboard::created([
+                'activity' => "Deleted {$role} role"
+            ]);
+        });
+    }
 }
