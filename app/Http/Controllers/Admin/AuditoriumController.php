@@ -48,6 +48,16 @@ class AuditoriumController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        try {
+            $auditorium = Auditorium::findOrFail($id);
+            return view('admin.auditoriums.show', compact('auditorium'));
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Show error', 'message' => $e->getMessage()], 500);
+        }
+    }
+    
     public function edit($id)
     {
         try {

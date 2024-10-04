@@ -316,6 +316,11 @@ return [
             'can' => 'manage-blog',
         ],
         [
+            'text' => 'Dashboard',
+            'url' => 'admin/dashboards',
+            'icon' => 'fas fa-tv',
+        ],
+        [
             'text' => 'Admin',
             'icon' => 'fas fa-user-shield',
             'submenu' => [
