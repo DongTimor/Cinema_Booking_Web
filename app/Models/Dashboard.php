@@ -9,5 +9,4 @@ class Dashboard extends Model
 {
     use HasFactory;
     protected $fillable = ['activity','url'];
- 
 }

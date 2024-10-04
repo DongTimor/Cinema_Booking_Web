@@ -50,14 +50,14 @@ class Auditorium extends Model
                 }
                 Dashboard::create([
                     'activity' => $activity, 
-                    'url' => route('auditoriums.show', ['id' => $auditorium->id]) // Generate URL for the updated auditorium
+                    'url' => route('auditoriums.show', ['id' => $auditorium->id]) 
                 ]);
             }
         });
 
         static::deleted(function ($auditorium) {
             Dashboard::create([
-                'activity' => "Deleted auditorium: {$auditorium->name}", // Log auditorium deletion
+                'activity' => "Deleted auditorium: {$auditorium->name}", 
             ]);
         });
     }

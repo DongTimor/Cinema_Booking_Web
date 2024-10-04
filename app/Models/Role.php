@@ -44,7 +44,6 @@ class Role extends Model
         return $this->save();
     }
 
-
     protected static function boot() 
     {
         parent::boot();
