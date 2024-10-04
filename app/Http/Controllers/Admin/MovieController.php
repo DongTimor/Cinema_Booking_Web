@@ -17,7 +17,7 @@ class MovieController extends Controller
     public function index()
     {
         $movies = Movie::paginate(10);
-        return view('admin.movie.feature.index',compact('movies'));
+        return view('admin.movies.feature.index',compact('movies'));
     }
 
     /**
@@ -27,7 +27,7 @@ class MovieController extends Controller
     {
         try{
             $categories = Category::all();
-            return view('admin.movie.feature.create',compact('categories'));
+            return view('admin.movies.feature.create',compact('categories'));
         }catch (\Exception $e){
             return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
         }

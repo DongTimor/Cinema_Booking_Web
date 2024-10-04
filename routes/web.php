@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditoriumController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MovieController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
@@ -47,6 +48,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/',[AuditoriumController::class,'index'])->name('auditoriums.index');
         Route::get('/create',[AuditoriumController::class,'create'])->name('auditoriums.create');
         Route::post('/store',[AuditoriumController::class,'store'])->name('auditoriums.store');
+        Route::get('show/{id}',[AuditoriumController::class,'show'])->name('auditoriums.show');
         Route::get('/{id}',[AuditoriumController::class,'edit'])->name('auditoriums.edit');
         Route::put('/{id}',[AuditoriumController::class,'update'])->name('auditoriums.update');
         Route::delete('/{id}',[AuditoriumController::class,'destroy'])->name('auditoriums.destroy');
@@ -68,6 +70,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/create',[CategoryController::class,'create'])->name('movies.categories.create');
             Route::post('/create',[CategoryController::class,'store'])->name('movies.categories.store');
             Route::get('/{id}',[CategoryController::class,'edit'])->name('movies.categories.edit');
+            Route::get('/show/{id}',[CategoryController::class,'show'])->name('movies.categories.show');
             Route::put('/{id}',[CategoryController::class,'update'])->name('movies.categories.update');
             Route::delete('/{id}',[CategoryController::class,'destroy'])->name('movies.categories.destroy');
         });
@@ -91,5 +94,9 @@ Route::prefix('admin')->group(function () {
         Route::put('/update/{showtime}',[ShowtimeController::class, 'update'])->name('update');
         Route::delete('/delete/{showtime}',[ShowtimeController::class, 'destroy'])->name('destroy');
         Route::get('/getShowtimesOfDuration/{duration}',[ShowtimeController::class, 'getShowtimesOfDuration'])->name('getShowtimesOfDuration');
+    });
+    Route::prefix('dashboards')->group(function(){
+        Route::get('/',[DashboardController::class, 'index'])->name('dashboards.index');
+     
     });
 });

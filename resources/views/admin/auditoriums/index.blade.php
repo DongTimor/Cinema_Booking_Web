@@ -7,9 +7,7 @@
                     <h1 class="group-hover:text-[50px]">+</h1>
                 </div>
             </a>
-           
         </div>
-        {{-- <x-create-button /> --}}
         <table class="shadow-2xl border-2 border-cyan-200 w-full mt-2">
             <thead class="text-center">
                 <tr>
