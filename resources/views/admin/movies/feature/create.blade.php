@@ -7,7 +7,7 @@
 @section('content')
     <div class="">
         <h1>Create Movie</h1>
-        <form action="{{ route('movies.features.store') }}" method="POST">
+        <form action="{{ route('movies.features.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div style="display: flex; flex-direction: row; gap: 30px;">
                 <x-adminlte-input id="name" name="name" label="Name*" fgroup-class="w-100" />
@@ -48,8 +48,8 @@
                     @endforeach
                 </x-adminlte-select>
             </div>
-            <x-adminlte-input-file id="images" name="images[]" label="Upload files"
-                placeholder="Choose multiple files..." igroup-size="lg" legend="Choose" multiple accept="image/*">
+            <x-adminlte-input-file id="images" name="image_id[]" label="Upload files"
+                placeholder="Choose multiple files..." igroup-size="lg" legend="Choose" multiple accept="image/jpeg, image/png, image/jpg">
                 <x-slot name="prependSlot">
                     <div class="input-group-text text-primary">
                         <i class="fas fa-file-upload"></i>
