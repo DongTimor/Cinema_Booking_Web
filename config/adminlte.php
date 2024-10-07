@@ -316,6 +316,11 @@ return [
             'can' => 'manage-blog',
         ],
         [
+            'text' => 'Dashboard',
+            'url' => 'admin/dashboards',
+            'icon' => 'fas fa-tv',
+        ],
+        [
             'text' => 'Admin',
             'icon' => 'fas fa-user-shield',
             'submenu' => [
@@ -339,7 +344,7 @@ return [
                 ],
             ],
         ],
-       
+
         [
             'text' => 'Auditorium',
             'url' => 'admin/auditoriums',
@@ -406,6 +411,16 @@ return [
     */
 
     'plugins' => [
+        'BsCustomFileInput' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => 'vendor/bs-custom-file-input/bs-custom-file-input.min.js',
+                ],
+            ],
+        ],
         'Datatables' => [
             'active' => true,
             'files' => [

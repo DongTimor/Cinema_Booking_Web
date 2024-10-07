@@ -16,4 +16,28 @@ class Category extends Model
     {
         return $this->belongsToMany(Movie::class, 'movie_id');
     }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function($category){
+            Dashboard::create([
+                'activity' => "Created category: {$category->name}",
+                'url' => route('movies.categories.show',['id' => $category->id]),
+            ]);
+        });
+
+        static::updated(function($category){
+            Dashboard::create([
+                'activity' => "Updated {$category->getOriginal('name')} category: name from {$category->getOriginal('name')} to {$category->name}",
+                'url' => route('movies.categories.show',['id' => $category->id])
+            ]);
+        });
+
+        static::deleted(function($category){
+            Dashboard::create([
+                'activity' => "Deleted category: {$category->name} "
+            ]);
+        });
+    }
 }

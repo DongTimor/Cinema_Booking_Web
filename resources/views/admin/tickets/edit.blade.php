@@ -67,5 +67,5 @@
 @endsection
 
 @section('script')
-    <script src="{{ asset('js/ticket/ticket-edit.js') }}"></script>
+    <script src="{{ asset('js/tickets/ticket-edit.js') }}"></script>
 @endsection

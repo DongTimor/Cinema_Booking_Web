@@ -14,7 +14,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::paginate(10);
-        return view('admin.movie.category.index',compact('categories'));
+        return view('admin.movies.category.index',compact('categories'));
     }
 
     /**
@@ -22,7 +22,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('admin.movie.category.create');
+        return view('admin.movies.category.create');
     }
 
     /**
@@ -41,6 +41,16 @@ class CategoryController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        try {
+            $category = Category::findOrFail($id);
+            return view('admin.movies.category.show', compact('category'));
+        } catch (\Exception $e) {
+            abort(404, 'Category not found');
+        }
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -49,7 +59,7 @@ class CategoryController extends Controller
    
         try{
             $category = Category::findOrFail($id);
-            return view('admin.movie.category.edit',compact('category'));
+            return view('admin.movies.category.edit',compact('category'));
         } catch (\Exception $e){
             return response()->json(['error' => 'Open error', 'message' => $e->getMessage()], 500);
         }
