@@ -69,7 +69,6 @@ Route::prefix('admin')->group(function () {
         Route::get('/',[SeatController::class, 'index'])->name('index');
     });
 
-
     Route::prefix('movies')->group(function() {
         Route::prefix('categories')->group(function(){
             Route::get('/',[CategoryController::class,'index'])->name('movies.categories.index');
@@ -101,8 +100,5 @@ Route::prefix('admin')->group(function () {
         Route::delete('/delete/{showtime}',[ShowtimeController::class, 'destroy'])->name('destroy');
         Route::get('/getShowtimesOfDuration/{duration}',[ShowtimeController::class, 'getShowtimesOfDuration'])->name('getShowtimesOfDuration');
     });
-    Route::prefix('dashboards')->group(function(){
-        Route::get('/',[DashboardController::class, 'index'])->name('dashboards.index');
-     
-    });
+    Route::get('/',[DashboardController::class, 'index'])->middleware('permissions')->name('dashboards.index');
 });
