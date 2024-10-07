@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ValidDate;
 use Illuminate\Foundation\Http\FormRequest;
 
 class MovieRequest extends FormRequest
@@ -22,11 +23,11 @@ class MovieRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:movies,name',
             'duration' => 'required|integer',
             'description' => 'string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
+            'start_date' => ['required', new ValidDate],
+            'end_date' => ['required', new ValidDate],
             'category_id' => 'array',
             'trailer' => 'required|url',
             'image_id' => 'array',
