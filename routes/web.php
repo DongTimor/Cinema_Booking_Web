@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SeatController;
 use App\Http\Controllers\Admin\ShowtimeController;
 use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,11 @@ Route::prefix('admin')->group(function () {
         Route::put('/{id}', [RoleController::class, 'update'])->name('roles.update');
         Route::post('/delete/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
     });
+    Route::prefix('users')->group(function() {
+        Route::get('/',[UserController::class, 'index'])->name('users.index');
+        Route::get('/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/create',[UserController::class,'store'])->name('users.store');
+    });
     Route::prefix('permissions')->group(function() {
         Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
         Route::get('/create', [PermissionController::class, 'create'])->name('permissions.create');
@@ -62,7 +68,6 @@ Route::prefix('admin')->group(function () {
     Route::group(['prefix'=>'seats', 'as'=>'seats.'], function(){
         Route::get('/',[SeatController::class, 'index'])->name('index');
     });
-
 
     Route::prefix('movies')->group(function() {
         Route::prefix('categories')->group(function(){
@@ -95,8 +100,5 @@ Route::prefix('admin')->group(function () {
         Route::delete('/delete/{showtime}',[ShowtimeController::class, 'destroy'])->name('destroy');
         Route::get('/getShowtimesOfDuration/{duration}',[ShowtimeController::class, 'getShowtimesOfDuration'])->name('getShowtimesOfDuration');
     });
-    Route::prefix('dashboards')->group(function(){
-        Route::get('/',[DashboardController::class, 'index'])->name('dashboards.index');
-     
-    });
+    Route::get('/',[DashboardController::class, 'index'])->middleware('permissions')->name('dashboards.index');
 });
