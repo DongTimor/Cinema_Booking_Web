@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MovieRequest;
+use App\Models\Auditorium;
 use App\Models\Category;
 use App\Models\Movie;
 use App\Models\Showtime;
@@ -30,14 +32,35 @@ class MovieController extends Controller
         }catch (\Exception $e){
             return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
         }
-    }
+        }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(MovieRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $validated['start_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['start_date'])->format('Y-m-d');
+        $validated['end_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['end_date'])->format('Y-m-d');
+        try {
+            $movie = Movie::create($validated);
+            if($request->hasFile('image_id')){
+                $images = $request->file('image_id');
+                foreach($images as $image){
+                    $path = $image->storeAs('public/images', $image->getClientOriginalName());
+                    $publicPath = str_replace('public/', 'http://localhost/storage/', $path);
+                    $movie->images()->create([
+                        'name' => $publicPath,
+                    ]);
+                }
+            }
+            if($request->has('category_id')){
+                $movie->categories()->attach($request->category_id);
+            }
+            return redirect(route('movies.features.index'));
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**

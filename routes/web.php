@@ -83,7 +83,7 @@ Route::prefix('admin')->group(function () {
             Route::delete('/{id}',[MovieController::class,'destroy'])->name('movies.features.destroy');
         });
         Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('movies.getShowtimes');
-      
+
     });
     Route::group(['prefix'=>'showtimes', 'as'=>'showtimes.'], function(){
         Route::get('/',[ShowtimeController::class, 'index'])->name('index');
@@ -93,6 +93,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/edit/{showtime}',[ShowtimeController::class, 'edit'])->name('edit');
         Route::put('/update/{showtime}',[ShowtimeController::class, 'update'])->name('update');
         Route::delete('/delete/{showtime}',[ShowtimeController::class, 'destroy'])->name('destroy');
+        Route::get('/getShowtimesOfDuration/{duration}',[ShowtimeController::class, 'getShowtimesOfDuration'])->name('getShowtimesOfDuration');
     });
     Route::prefix('dashboards')->group(function(){
         Route::get('/',[DashboardController::class, 'index'])->name('dashboards.index');

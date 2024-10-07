@@ -15,8 +15,8 @@ class Movie extends Model
         'name',
         'description',
         'trailer',
-        'start_time',
-        'end_time',
+        'start_date',
+        'end_date',
         'duration',
         'status',
     ];
@@ -28,12 +28,12 @@ class Movie extends Model
 
     public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class, 'category_id');
+        return $this->belongsToMany(Category::class);
     }
 
-    public function showtimes(): HasMany
+    public function showtimes(): BelongsToMany
     {
-        return $this->hasMany(Showtime::class);
+        return $this->belongsToMany(Showtime::class);
     }
 
     public function tickets(): HasMany

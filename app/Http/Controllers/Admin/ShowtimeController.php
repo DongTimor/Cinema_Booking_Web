@@ -85,4 +85,10 @@ class ShowtimeController extends Controller
             ->get();
         return response()->json($seats);
     }
+
+    public function getShowtimesOfDuration($duration)
+    {
+        $showtimes = Showtime::whereRaw('TIMESTAMPDIFF(MINUTE, start_time, end_time) > ?', [$duration])->get();
+        return response()->json($showtimes);
+    }
 }
