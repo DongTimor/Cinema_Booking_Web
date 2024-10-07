@@ -15,12 +15,15 @@ class ValidDate implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        //
+        if (!$this->passes($attribute, $value)) {
+            $fail($this->message());
+        }
     }
+
     public function passes($attribute, $value)
     {
         try {
-            Carbon::createFromFormat('d/m/Y', $value);
+            Carbon::createFromFormat('m/d/Y', $value);
             return true;
         } catch (\Exception $e) {
             return false;
@@ -32,6 +35,6 @@ class ValidDate implements ValidationRule
      */
     public function message()
     {
-        return 'The :attribute field must be a valid date in the format dd/mm/yyyy.';
+        return 'The :attribute field must be a valid date in the format mm/dd/yyyy.';
     }
 }
