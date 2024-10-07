@@ -50,7 +50,7 @@ class MovieController extends Controller
                     $path = $image->storeAs('public/images', $image->getClientOriginalName());
                     $publicPath = str_replace('public/', 'http://localhost/storage/', $path);
                     $movie->images()->create([
-                        'name' => $publicPath,
+                        'url' => $publicPath,
                     ]);
                 }
             }

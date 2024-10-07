@@ -10,8 +10,8 @@
         <form action="{{ route('movies.features.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div style="display: flex; flex-direction: row; gap: 30px;">
-                <x-adminlte-input id="name" name="name" label="Name*" fgroup-class="w-100" />
-                <x-adminlte-input type="number" name="duration" label="Duration (minutes)*" fgroup-class="w-30" />
+                <x-adminlte-input id="name" name="name" label="Name*" fgroup-class="w-100" value="{{ old('name') }}" />
+                <x-adminlte-input type="number" name="duration" label="Duration (minutes)*" fgroup-class="w-30" value="{{ old('duration') }}" />
             </div>
             <div class="form-group d-flex justify-content-between" style="width: 100% !important; gap: 50px">
                 <div class="form-group d-flex flex-column justify-content-between">
@@ -19,7 +19,7 @@
                     <div class="input-group date" id="starttimepicker" style="width: max-content !important;"
                         data-target-input="nearest">
                         <input id="start_date" name="start_date" type="text" class="form-control datetimepicker-input"
-                            data-target="#starttimepicker" />
+                            data-target="#starttimepicker" value="{{ old('start_date') }}" />
                         <div class="input-group-append" data-target="#starttimepicker" data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
@@ -33,7 +33,7 @@
                     <div class="input-group date" id="endtimepicker" style="width: max-content !important;"
                         data-target-input="nearest">
                         <input id="end_date" name="end_date" type="text" class="form-control datetimepicker-input"
-                            data-target="#endtimepicker" />
+                            data-target="#endtimepicker" value="{{ old('end_date') }}" />
                         <div class="input-group-append" data-target="#endtimepicker" data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
@@ -43,12 +43,12 @@
                     </div>
                 </div>
                 <x-adminlte-select class="select2" name="category_id[]" label="Categories*" fgroup-class="w-100" multiple>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+@foreach ($categories as $category)
+                        <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                     @endforeach
                 </x-adminlte-select>
             </div>
-            <x-adminlte-input-file id="images" name="image_id[]" label="Upload files"
+            <x-adminlte-input-file id="images" name="image_id[]" label="Upload files" value="{{ old('image_id') }}"
                 placeholder="Choose multiple files..." igroup-size="lg" legend="Choose" multiple accept="image/jpeg, image/png, image/jpg">
                 <x-slot name="prependSlot">
                     <div class="input-group-text text-primary">
@@ -56,9 +56,9 @@
                     </div>
                 </x-slot>
             </x-adminlte-input-file>
-            <x-adminlte-input name="trailer" label="Trailer" />
+            <x-adminlte-input name="trailer" label="Trailer" value="{{ old('trailer') }}" />
             <x-adminlte-textarea name="description" label="Description" rows=6 igroup-size="sm"
-                placeholder="Insert description...">
+                placeholder="Insert description..." value="{{ old('description') }}">
                 <x-slot name="prependSlot">
                     <div class="input-group-text bg-dark">
                         <i class="fas fa-lg fa-file-alt text-warning"></i>
@@ -79,10 +79,10 @@
     <script type="text/javascript">
         $(function() {
             $('#starttimepicker').datetimepicker({
-                format: 'DD/MM/YYYY'
+                format: 'MM/DD/YYYY'
             });
             $('#endtimepicker').datetimepicker({
-                format: 'DD/MM/YYYY'
+                format: 'MM/DD/YYYY'
             });
         });
     </script>
