@@ -7,7 +7,6 @@
                     <h1 class="group-hover:text-[50px]">+</h1>
                 </div>
             </a>
-           
         </div>
         <table class="shadow-2xl border-2 border-cyan-200 w-full mt-2">
             <thead class="text-center">
@@ -34,8 +33,8 @@
                             <p>{{$movie->status}}</p>
                         </div>
                         <div class="flex gap-2">
-                            <a href="" class="absolute right-24 top-6 no-underline font-bold">Edit</a>
-                            <form action="" method="POST" class="absolute right-7 top-4">
+                            <a href="{{route('movies.features.edit',$movie->id)}}" class="absolute right-24 top-6 no-underline font-bold">Edit</a>
+                            <form action="{{route('movies.features.destroy',$movie->id)}}" method="POST" class="absolute right-7 top-4">
                         </div>
                             @csrf
                             @method('DELETE')
