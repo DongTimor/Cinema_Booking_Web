@@ -22,8 +22,8 @@ class MovieRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => 'required|string|max:255|unique:movies,name',
+        $rules = [
+            'name' => 'required|string|max:255',
             'duration' => 'required|integer',
             'description' => 'string',
             'start_date' => ['required', new ValidDate],
@@ -32,5 +32,11 @@ class MovieRequest extends FormRequest
             'trailer' => 'required|url',
             'image_id' => 'array',
         ];
+
+        if ($this->isMethod('post')) {
+            $rules['name'] .= '|unique:movies,name';
+        }
+
+        return $rules;
     }
 }

@@ -64,7 +64,7 @@ class AuditoriumController extends Controller
             $auditorium = Auditorium::findOrFail($id);
             return view('admin.auditoriums.edit', compact('auditorium'));
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Delete error', 'message' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Navigate error', 'message' => $e->getMessage()], 500);
         }
     }
 
