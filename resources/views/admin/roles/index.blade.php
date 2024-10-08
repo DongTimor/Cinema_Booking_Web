@@ -11,7 +11,6 @@
     <tr>
         <th>ID</th>
         <th>Name</th>
-        <th>Status</th>
         <th>Action</th>
     </tr>
     @foreach ($roles as $item)
