@@ -40,4 +40,9 @@ class Movie extends Model
     {
         return $this->hasMany(Ticket::class);
     }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(Schedule::class);
+    }
 }

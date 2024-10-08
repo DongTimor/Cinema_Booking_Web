@@ -48,7 +48,7 @@ class MovieController extends Controller
                 $images = $request->file('image_id');
                 foreach($images as $image){
                     $path = $image->storeAs('public/images', $image->getClientOriginalName());
-                    $publicPath = str_replace('public/', 'http://localhost/storage/', $path);
+                    $publicPath = str_replace('public/', 'http://localhost/storage/images/', $path);
                     $movie->images()->create([
                         'url' => $publicPath,
                     ]);

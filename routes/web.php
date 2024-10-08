@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SeatController;
 use App\Http\Controllers\Admin\ShowtimeController;
 use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Admin\ScheduleController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -63,6 +64,15 @@ Route::prefix('admin')->group(function () {
         Route::get('/',[SeatController::class, 'index'])->name('index');
     });
 
+    Route::group(['prefix'=>'schedules', 'as'=>'schedules.'], function(){
+        Route::get('/',[ScheduleController::class, 'index'])->name('index');
+        Route::get('/create',[ScheduleController::class, 'create'])->name('create');
+        Route::post('/create',[ScheduleController::class, 'store'])->name('store');
+        Route::get('/{id}',[ScheduleController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}',[ScheduleController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}',[ScheduleController::class, 'destroy'])->name('destroy');
+    });
+
 
     Route::prefix('movies')->group(function() {
         Route::prefix('categories')->group(function(){
@@ -94,9 +104,11 @@ Route::prefix('admin')->group(function () {
         Route::put('/update/{showtime}',[ShowtimeController::class, 'update'])->name('update');
         Route::delete('/delete/{showtime}',[ShowtimeController::class, 'destroy'])->name('destroy');
         Route::get('/getShowtimesOfDuration/{duration}',[ShowtimeController::class, 'getShowtimesOfDuration'])->name('getShowtimesOfDuration');
+        Route::get('/getDullicateShowtimes/{id}/{date}',[ShowtimeController::class, 'getDullicateShowtimes'])->name('getDullicateShowtimes');
+        Route::get('/getAvailableShowtimes/{id}/{date}',[ShowtimeController::class, 'getAvailableShowtimes'])->name('getAvailableShowtimes');
     });
     Route::prefix('dashboards')->group(function(){
         Route::get('/',[DashboardController::class, 'index'])->name('dashboards.index');
-     
+
     });
 });

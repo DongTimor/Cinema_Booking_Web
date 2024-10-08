@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Auditorium;
 use App\Models\Seat;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
@@ -89,6 +90,34 @@ class ShowtimeController extends Controller
     public function getShowtimesOfDuration($duration)
     {
         $showtimes = Showtime::whereRaw('TIMESTAMPDIFF(MINUTE, start_time, end_time) > ?', [$duration])->get();
+        return response()->json($showtimes);
+    }
+
+
+    public function getDullicateShowtimes(string $id, $date)
+    {
+        $showtimes = Auditorium::find($id)->schedules()
+            ->whereDate('date', $date)
+            ->whereHas('showtimes')
+            ->with('showtimes')
+            ->get()
+            ->pluck('showtimes')
+            ->flatten()
+            ->unique('id');
+        return response()->json($showtimes);
+    }
+
+    public function getAvailableShowtimes(string $id, $date)
+    {
+        $dullicateShowtimes = Auditorium::find($id)->schedules()
+            ->whereDate('date', $date)
+            ->whereHas('showtimes')
+            ->with('showtimes')
+            ->get()
+            ->pluck('showtimes')
+            ->flatten()
+            ->unique('id');
+        $showtimes = Showtime::whereNotIn('id', $dullicateShowtimes->pluck('id'))->get();
         return response()->json($showtimes);
     }
 }
