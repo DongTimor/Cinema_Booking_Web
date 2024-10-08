@@ -14,7 +14,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $roles = Role::where('flag_deleted',0)->get();
+        $roles = Role::all();
 
         return view('admin.roles.index', compact('roles'));
     }
@@ -100,11 +100,10 @@ class RoleController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $role = Role::where('id', $id)
-        ->where('flag_deleted',0)->first();
-
-        $role->update([
-            'flag_deleted' => 1,
-        ]);
+        $role = Role::find($id);
+        if ($role) {
+            $role->delete();
+        }
+        return redirect()->route('roles.index');
     }
 }

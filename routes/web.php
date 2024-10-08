@@ -5,11 +5,14 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MovieController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SeatController;
 use App\Http\Controllers\Admin\ShowtimeController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\ScheduleController;
+use App\Http\Controllers\Admin\UserController;
+use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -29,13 +32,20 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::prefix('admin')->group(function () {
+    Route::get('/profile',[ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/{id}',[ProfileController::class, 'update'])->name('profile.update');
     Route::prefix('roles')->group(function() {
         Route::get('/', [RoleController::class, 'index'])->name('roles.index');
         Route::get('/create', [RoleController::class, 'create'])->name('roles.create');
         Route::post('/create', [RoleController::class, 'store'])->name('roles.store');
         Route::get('/{id}', [RoleController::class, 'show'])->name('roles.show');
         Route::put('/{id}', [RoleController::class, 'update'])->name('roles.update');
-        Route::post('/delete/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
+        Route::delete('/delete/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
+    });
+    Route::prefix('users')->group(function() {
+        Route::get('/',[UserController::class, 'index'])->name('users.index');
+        Route::get('/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/create',[UserController::class,'store'])->name('users.store');
     });
     Route::prefix('permissions')->group(function() {
         Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
@@ -43,7 +53,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/create', [PermissionController::class, 'store'])->name('permissions.store');
         Route::get('/{id}', [PermissionController::class, 'show'])->name('permissions.show');
         Route::put('/{id}', [PermissionController::class, 'update'])->name('permissions.update');
-        Route::post('/delete/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+        Route::delete('/delete/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
     });
     Route::prefix('auditoriums')->group(function() {
         Route::get('/',[AuditoriumController::class,'index'])->name('auditoriums.index');
@@ -107,8 +117,5 @@ Route::prefix('admin')->group(function () {
         Route::get('/getDullicateShowtimes/{id}/{date}',[ShowtimeController::class, 'getDullicateShowtimes'])->name('getDullicateShowtimes');
         Route::get('/getAvailableShowtimes/{id}/{date}',[ShowtimeController::class, 'getAvailableShowtimes'])->name('getAvailableShowtimes');
     });
-    Route::prefix('dashboards')->group(function(){
-        Route::get('/',[DashboardController::class, 'index'])->name('dashboards.index');
-
-    });
+    Route::get('/',[DashboardController::class, 'index'])->middleware('permissions')->name('dashboards.index');
 });
