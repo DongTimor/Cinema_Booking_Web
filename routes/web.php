@@ -69,11 +69,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/edit/{ticket}',[TicketController::class, 'edit'])->name('edit');
         Route::put('/update/{ticket}',[TicketController::class, 'update'])->name('update');
     });
-
     Route::group(['prefix'=>'seats', 'as'=>'seats.'], function(){
         Route::get('/',[SeatController::class, 'index'])->name('index');
     });
-
     Route::group(['prefix'=>'schedules', 'as'=>'schedules.'], function(){
         Route::get('/',[ScheduleController::class, 'index'])->name('index');
         Route::get('/create',[ScheduleController::class, 'create'])->name('create');
@@ -82,8 +80,6 @@ Route::prefix('admin')->group(function () {
         Route::put('/update/{id}',[ScheduleController::class, 'update'])->name('update');
         Route::delete('/delete/{id}',[ScheduleController::class, 'destroy'])->name('destroy');
     });
-
-
     Route::prefix('movies')->group(function() {
         Route::prefix('categories')->group(function(){
             Route::get('/',[CategoryController::class,'index'])->name('movies.categories.index');
@@ -103,7 +99,6 @@ Route::prefix('admin')->group(function () {
             Route::delete('/{id}',[MovieController::class,'destroy'])->name('movies.features.destroy');
         });
         Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('movies.getShowtimes');
-
     });
     Route::group(['prefix'=>'showtimes', 'as'=>'showtimes.'], function(){
         Route::get('/',[ShowtimeController::class, 'index'])->name('index');

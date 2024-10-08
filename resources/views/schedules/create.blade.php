@@ -15,20 +15,16 @@
             margin-top: 20px;
             display: flex;
             align-items: center;
-            /* Vertically centers the text */
             justify-content: center;
-            /* Horizontally centers the text */
             text-align: center;
         }
 
         .timeline::before {
             content: none;
-            /* Removes any content from the before pseudo-element */
         }
 
         .showtime {
             position: absolute !important;
-            /* Change to absolute */
             top: 0;
             height: 100%;
             background-color: rgba(0, 123, 255, 0.5);
@@ -36,15 +32,12 @@
             border-radius: 5px;
             display: flex;
             align-items: center;
-            /* Vertically centers the text */
             justify-content: center;
-            /* Horizontally centers the text */
             text-align: center;
         }
 
         .ready {
             position: absolute !important;
-            /* Change to absolute */
             top: 0;
             height: 100%;
             background-color: rgba(236, 158, 55, 0.692);
@@ -86,44 +79,43 @@
         @csrf
         <div style="display: flex; flex-direction: column; align-items: start;margin-bottom: 20px;">
             <x-adminlte-select id="movie" name="movie_id" label="Movie*" fgroup-class="w-100">
-            <option value="-1">--Select Movie First--</option>
-            @foreach ($movies as $movie)
-                <option value="{{ $movie->id }}">{{ $movie->name }}</option>
-            @endforeach
-        </x-adminlte-select>
-        <x-adminlte-button type="submit" label="Add new movie" theme="success" />
-    </div>
-    <div style="display: flex; flex-direction: row; align-items: start;margin-bottom: 20px; gap: 20px;">
-        <div>
-            <label for="datepicker">Select Date*</label>
-            <div class="input-group date" id="datepicker" style="width: max-content !important;"
-                data-target-input="nearest">
-                <input id="date" placeholder="--Select Movie First--" disabled id="date" name="date"
-                    type="text" class="form-control datetimepicker-input" data-target="#datepicker"
-                    value="{{ old('date') }}" />
-                <div class="input-group-append" data-target="#datepicker" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                </div>
-                @error('date')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
-            </div>
+                <option value="-1">--Select Movie First--</option>
+                @foreach ($movies as $movie)
+                    <option value="{{ $movie->id }}">{{ $movie->name }}</option>
+                @endforeach
+            </x-adminlte-select>
+            <x-adminlte-button type="submit" label="Add new movie" theme="success" />
         </div>
-
-        <x-adminlte-select id="auditorium" name="auditorium_id" label="Auditorium*" fgroup-class="w-100" disabled>
-            <option value="-1">--Select Date First--</option>
-            @foreach ($auditoriums as $auditorium)
-                <option value="{{ $auditorium->id }}">{{ $auditorium->name }}</option>
-            @endforeach
+        <div style="display: flex; flex-direction: row; align-items: start;margin-bottom: 20px; gap: 20px;">
+            <div>
+                <label for="datepicker">Select Date*</label>
+                <div class="input-group date" id="datepicker" style="width: max-content !important;"
+                    data-target-input="nearest">
+                    <input id="date" placeholder="--Select Movie First--" disabled id="date" name="date"
+                        type="text" class="form-control datetimepicker-input" data-target="#datepicker"
+                        value="{{ old('date') }}" />
+                    <div class="input-group-append" data-target="#datepicker" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                    @error('date')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+            <x-adminlte-select id="auditorium" name="auditorium_id" label="Auditorium*" fgroup-class="w-100" disabled>
+                <option value="-1">--Select Date First--</option>
+                @foreach ($auditoriums as $auditorium)
+                    <option value="{{ $auditorium->id }}">{{ $auditorium->name }}</option>
+                @endforeach
+            </x-adminlte-select>
+        </div>
+        <label for="timeline">Schedule</label>
+        <div class="timeline">Schedule Empty</div>
+        </div>
+        <x-adminlte-select class="select2" name="showtime" label="Showtime*" fgroup-class="w-100" multiple>
+            <option disabled value="-1">--Select Showtime First--</option>
         </x-adminlte-select>
-    </div>
-    <label for="timeline">Schedule</label>
-    <div class="timeline">Schedule Empty</div>
-    </div>
-    <x-adminlte-select class="select2" name="showtime" label="Showtime*" fgroup-class="w-100" multiple>
-        <option disabled value="-1">--Select Showtime First--</option>
-    </x-adminlte-select>
-    <x-adminlte-button type="submit" label="Create" theme="primary" />
+        <x-adminlte-button type="submit" label="Create" theme="primary" />
     </form>
 @endsection
 @section('scripts')
