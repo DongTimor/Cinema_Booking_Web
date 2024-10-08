@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Customer extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'phone_number', 'address', 'gender', 'date_of_birth'];
+    protected $fillable = ['name', 'phone_number', 'address', 'gender', 'date_of_birth', 'email'];
     protected $guarded = ['id'];
 
     function tickets():HasMany

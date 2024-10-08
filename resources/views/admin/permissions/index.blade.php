@@ -24,19 +24,21 @@
               <td>
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                      ...
+                        ...
                     </button>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="{{ route('permissions.show', $item->id) }}">Edit</a></li>
-                      <li><a class="dropdown-item delete-button" data-id={{$item->id}} href="javascript:void(0);">Delete</a></li>
+                        <li><a class="dropdown-item" href="{{ route('permissions.show', $item->id) }}">Edit</a></li>
+                        <li>
+                            <form action="{{ route('permissions.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this role: {{ $item->name }}?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="dropdown-item">Delete</button>
+                            </form>
+                        </li>
                     </ul>
-                  </div>
+                </div>
               </td>
             </tr>
         @endforeach
     </table>
-@endsection
-
-@section('scripts')
-    <script src="{{asset("/js/deleteajax.js")}}" ></script>
 @endsection

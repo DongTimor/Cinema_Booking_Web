@@ -15,7 +15,6 @@
             <th>ID</th>
             <th>Name</th>
             <th>Email</th>
-            <th>Status</th>
         </tr>
          @foreach ($users as $item)
             <tr>
@@ -27,9 +26,6 @@
               </td>
               <td>
                 {{ $item->email }}
-              </td>
-              <td>
-                {{ $item->flag_deleted }}
               </td>
             </tr>
         @endforeach
