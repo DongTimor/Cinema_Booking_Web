@@ -13,7 +13,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $permissions = Permission::where('flag_deleted',0)->get();
+        $permissions = Permission::all();
 
         return view('admin.permissions.index', compact('permissions'));
     }
@@ -81,10 +81,10 @@ class PermissionController extends Controller
      */
     public function destroy(string $id)
     {
-        $permission = Permission::where('id', $id)
-        ->where('flag_deleted',0)->first();
-        $permission->update([
-            'flag_deleted' => 1,
-        ]);
+        $permission = Permission::find($id);
+        if ($permission) {
+            $permission->delete();
+        }
+        return redirect()->route('permissions.index');
     }
 }
