@@ -344,6 +344,11 @@ return [
                 ],
             ],
         ],
+        [
+            'text' => 'Customers',
+            'url' => 'admin/customers',
+            'icon' => 'fas fa-fw fa-user',
+        ],
 
         [
             'text' => 'Auditorium',
