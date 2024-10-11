@@ -83,7 +83,12 @@ class MovieController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try{
+            $movie = Movie::findOrFail($id);
+            return view('admin.movies.feature.show',compact('movie'));
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Show error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**

@@ -49,7 +49,7 @@ class Movie extends Model
             Dashboard::create([
                 'user_id' => auth()->id(), 
                 'activity' => "Created movie: {$movie->name}",
-                'url' => route('movies.categories.show',['id' => $movie->id]),
+                'url' => route('movies.features.show',['id' => $movie->id]),
             ]);
         });
 
@@ -57,7 +57,7 @@ class Movie extends Model
             Dashboard::create([
                 'user_id' => auth()->id(), 
                 'activity' => "Updated {$movie->getOriginal('name')} movie: name from {$movie->getOriginal('name')} to {$movie->name}",
-                'url' => route('movies.categories.show',['id' => $movie->id])
+                'url' => route('movies.features.show',['id' => $movie->id])
             ]);
         });
 
