@@ -107,31 +107,43 @@ class MovieController extends Controller
      * Update the specified resource in storage.
      */
     public function update(MovieRequest $request, string $id)
-    {
-        $validated = $request->validated();
-        $validated['start_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['start_date'])->format('Y-m-d');
-        $validated['end_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['end_date'])->format('Y-m-d');
-        try {
-            $movie = Movie::findOrFail($id);
-            $movie->update($validated);
-            if ($request->hasFile('image_id')) {
-                $images = $request->file('image_id');
-                foreach ($images as $image) {
-                    $imageName = time() . '_' . $image->getClientOriginalName();
-                    $imagePath = $image->storeAs('public/images', $imageName);
-                    $movie->images()->create([
-                        'url' => str_replace('public/', 'storage/', $imagePath),
-                    ]);
+{
+    $validated = $request->validated();
+    $validated['start_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['start_date'])->format('Y-m-d');
+    $validated['end_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['end_date'])->format('Y-m-d');
+
+    try {
+        $movie = Movie::findOrFail($id);
+        $movie->update($validated);
+        $existingImageUrls = $request->input('image_urls', []); 
+        $existingImageUrls = is_array($existingImageUrls) ? $existingImageUrls : explode(',', $existingImageUrls);
+        foreach ($movie->images as $image) {
+            if (!in_array($image->url, $existingImageUrls)) {
+                $imagePath = public_path(str_replace('storage/', 'public/', $image->url));
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
                 }
+                $image->delete();
             }
-            if ($request->has('category_id')) {
-                $movie->categories()->sync($request->category_id);
-            }
-            return redirect(route('movies.features.index'));
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Update error', 'message' => $e->getMessage()], 500);
         }
+        if ($request->hasFile('image_id')) {
+            $images = $request->file('image_id');
+            foreach ($images as $image) {
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $imagePath = $image->storeAs('public/images', $imageName);
+                $movie->images()->create([
+                    'url' => str_replace('public/', 'storage/', $imagePath),
+                ]);
+            }
+        }
+        if ($request->has('category_id')) {
+            $movie->categories()->sync($request->category_id);
+        }
+        return redirect(route('movies.features.index'));
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Update error', 'message' => $e->getMessage()], 500);
     }
+}
 
     /**
      * Remove the specified resource from storage.

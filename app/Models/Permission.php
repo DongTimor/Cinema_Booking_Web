@@ -26,6 +26,7 @@ class Permission extends Model
 
         static::created(function($permission){
             Dashboard::create([
+                'user_id' => auth()->id(), 
                 'activity' => "Created permission: {$permission->name}",
                 'url' => route('permissions.show',['id' => $permission->id])
             ]);
@@ -33,6 +34,7 @@ class Permission extends Model
 
         static::updated(function($permission){
             Dashboard::create([
+                'user_id' => auth()->id(), 
                 'activity' => "Updated permission: {$permission->name}",
                 'url' => route('permissions.show',['id' => $permission->id])
             ]);
@@ -40,6 +42,7 @@ class Permission extends Model
 
         static::deleted(function($permission){
             Dashboard::create([
+                'user_id' => auth()->id(), 
                 'activity' => "Deleted permission : {$permission->name}"
             ]);
         });
