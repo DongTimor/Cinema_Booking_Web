@@ -110,8 +110,8 @@ Route::prefix('admin')->group(function () {
 
     Route::get('/customers',[CustomerController::class, 'index'])->middleware('permissions')->name('customers.index');
     Route::get('/customers/create',[CustomerController::class, 'create'])->middleware('permissions')->name('customers.create');
-    Route::post('/customers/store',[CustomerController::class, 'store'])->middleware('permissions')->name('customers.store');
-    Route::get('/customers/{id}',[CustomerController::class, 'edit'])->middleware('permissions')->name('customers.edit');
-    Route::put('/customers/{id}',[CustomerController::class, 'update'])->middleware('permissions')->name('customers.update');
+    Route::post('/customers/create',[CustomerController::class, 'store'])->middleware('permissions')->name('customers.store');
+    Route::get('/customers/{id}',[CustomerController::class, 'edit'])->name('customers.edit');
+    Route::put('/customers/{id}',[CustomerController::class, 'update'])->name('customers.update');
     Route::delete('/customers/delete/{id}',[CustomerController::class, 'destroy'])->middleware('permissions')->name('customers.destroy');
 });

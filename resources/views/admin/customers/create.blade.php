@@ -10,7 +10,7 @@
         @if ($errors->has('name'))
             <span class="text-danger">{{ $errors->first('name') }}</span>
         @endif
-        </div>  
+        </div>
         <div class="mb-3">
             <label for="phone_number" class="form-label">Phone Number</label>
             <input type="text" class="form-control" name="phone_number" >
@@ -35,19 +35,19 @@
           </div>
           <div>
             <label for="date_of_birth" class="form-label">Birth Date</label>
-            <input type="date" class="form-control" name="day_of_birth" >
-          @if ($errors->has('day_of_birth'))
-              <span class="text-danger">{{ $errors->first('birth_date') }}</span>
+            <input type="date" class="form-control" name="date_of_birth" >
+          @if ($errors->has('date_of_birth'))
+              <span class="text-danger">{{ $errors->first('date_of_birth') }}</span>
           @endif
           </div>
           <div>
-            <label for="role" class="form-label">Role</label>
-            <select class="form-select" name="role">
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-                <option value="management">Management</option>
-            </select>
-          </div>
+            <label for="roles" class="form-label">Roles</label>
+            <x-adminlte-select name="roles[]" class='select2' multiple>
+                @foreach ($roles as $item)
+                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                @endforeach
+            </x-adminlte-select>
+        </div>
           <div>
             <label for="email" class="form-label">Email</label>
             <input type="email" class="form-control" name="email" >
