@@ -33,15 +33,29 @@ class CustomerController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:customers',
             'password' => 'required|string|min:8',
+            'email' => 'required|string|email|max:255|unique:customers',
+            'phone_number' => 'required|string|max:11',
         ]);
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Customer $customer)
-    {
-        //
+        $customer = Customer::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'phone_number' => $request->phone_number,
+            'address' => $request->address,
+            'gender' => $request->gender,
+            'date_of_birth' => $request->date_of_birth,
+            'image' => $request->image,
+            'status' => $request->status
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('public/images');
+        }
+        $customer->image = $imagePath;
+        $customer->save();
+        return redirect()->route('customers.index');
     }
 
     /**
@@ -49,22 +63,51 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer)
     {
-        //
+        $customer = Customer::where('id', $customer->id)->first();
+        return view('admin.customers.edit', compact('customer'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Customer $customer)
+    public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:customers,email,',
+            'password' => 'required|string|min:8',
+            'phone_number' => 'required|string|max:11',
+        ]);
+
+        $customer = Customer::where('id', $id)->first();
+        $customer->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'phone_number' => $request->phone_number,
+            'address' => $request->address,
+            'gender' => $request->gender,
+            'date_of_birth' => $request->date_of_birth,
+            'image' => $request->image,
+            'status' => $request->status
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('public/images');
+        }
+        $customer->image = $imagePath;
+        $customer->save();
+        return redirect()->route('customers.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Customer $customer)
+    public function destroy(string $id)
     {
-        //
+        $customer = Customer::where('id', $id)->first();
+        $customer->delete();
+        return redirect()->route('customers.index');
     }
 }
