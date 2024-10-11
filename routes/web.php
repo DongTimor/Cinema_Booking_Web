@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SeatController;
 use App\Http\Controllers\Admin\ShowtimeController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\CustomerController;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -106,4 +107,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/getShowtimesOfDuration/{duration}',[ShowtimeController::class, 'getShowtimesOfDuration'])->name('getShowtimesOfDuration');
     });
     Route::get('/',[DashboardController::class, 'index'])->middleware('permissions')->name('dashboards.index');
+
+    Route::get('/customers',[CustomerController::class, 'index'])->middleware('permissions')->name('customers.index');
+    Route::get('/customers/create',[CustomerController::class, 'create'])->middleware('permissions')->name('customers.create');
+    Route::post('/customers/store',[CustomerController::class, 'store'])->middleware('permissions')->name('customers.store');
+    Route::get('/customers/{id}',[CustomerController::class, 'edit'])->middleware('permissions')->name('customers.edit');
+    Route::put('/customers/{id}',[CustomerController::class, 'update'])->middleware('permissions')->name('customers.update');
+    Route::delete('/customers/delete/{id}',[CustomerController::class, 'destroy'])->middleware('permissions')->name('customers.destroy');
 });
