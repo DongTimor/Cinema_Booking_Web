@@ -87,6 +87,7 @@ Route::prefix('admin')->group(function () {
         Route::prefix('features')->group(function(){
             Route::get('/',[MovieController::class,'index'])->name('movies.features.index');
             Route::get('/create',[MovieController::class,'create'])->name('movies.features.create');
+            Route::get('show/{id}',[MovieController::class,'show'])->name('movies.features.show');
             Route::post('/upload-images', [MovieController::class, 'uploadImages'])->name('movies.features.uploadImages');
             Route::post('/create',[MovieController::class,'store'])->name('movies.features.store');
             Route::get('/{id}',[MovieController::class,'edit'])->name('movies.features.edit');

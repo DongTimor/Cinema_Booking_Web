@@ -317,7 +317,7 @@ return [
         ],
         [
             'text' => 'Dashboard',
-            'url' => 'admin/dashboards',
+            'url' => 'admin',
             'icon' => 'fas fa-tv',
         ],
         [
