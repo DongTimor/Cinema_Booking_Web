@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CustomerController extends Controller
 {
@@ -21,7 +23,8 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return view('admin.customers.create');
+        $roles = Role::all();
+        return view('admin.customers.create', compact('roles'));
     }
 
     /**
@@ -36,7 +39,6 @@ class CustomerController extends Controller
             'email' => 'required|string|email|max:255|unique:customers',
             'phone_number' => 'required|string|max:11',
         ]);
-
         $customer = Customer::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -46,12 +48,15 @@ class CustomerController extends Controller
             'gender' => $request->gender,
             'date_of_birth' => $request->date_of_birth,
             'image' => $request->image,
-            'status' => $request->status
+            'status' => $request->status ?? 0,
         ]);
-
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('public/images');
+            if ($customer->image) {
+                Storage::delete(str_replace('storage', 'public', $customer->image));
+            }
+            $url = $request->file('image')->store('public/images');
+            $imagePath = Storage::url($url);
         }
         $customer->image = $imagePath;
         $customer->save();
@@ -61,45 +66,49 @@ class CustomerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Customer $customer)
+    public function edit(string $id)
     {
-        $customer = Customer::where('id', $customer->id)->first();
-        return view('admin.customers.edit', compact('customer'));
+        $customer = Customer::findOrFail($id);
+        $roles = Role::all();
+        $ids = $customer->roles->pluck('id')->toArray();
+        return view('admin.customers.edit', compact('customer', 'roles', 'ids'));
     }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:customers,email,',
-            'password' => 'required|string|min:8',
-            'phone_number' => 'required|string|max:11',
-        ]);
-
-        $customer = Customer::where('id', $id)->first();
-        $customer->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'phone_number' => $request->phone_number,
-            'address' => $request->address,
-            'gender' => $request->gender,
-            'date_of_birth' => $request->date_of_birth,
-            'image' => $request->image,
-            'status' => $request->status
-        ]);
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('public/images');
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255',
+        'password' => 'required|string|min:8',
+        'phone_number' => 'required|string|max:11',
+    ]);
+    $customer = Customer::where('id', $id)->first();
+    $customer->update([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+        'phone_number' => $request->phone_number,
+        'address' => $request->address,
+        'gender' => $request->gender,
+        'date_of_birth' => $request->date_of_birth,
+        'image' => $request->image,
+        'status' => $request->status
+    ]);
+    $roles = $request->post('roles');
+    $customer->roles()->sync($roles);
+    if ($request->hasFile('image')) {
+        if ($customer->image) {
+            Storage::delete(str_replace('storage', 'public', $customer->image));
         }
-        $customer->image = $imagePath;
-        $customer->save();
-        return redirect()->route('customers.index');
+        $url = $request->file('image')->store('public/images');
+        $customer->image = Storage::url($url);
     }
+    $customer->save();
+    return redirect()->route('customers.index');
+}
 
     /**
      * Remove the specified resource from storage.

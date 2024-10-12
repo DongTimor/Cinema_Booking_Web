@@ -23,7 +23,7 @@
         <tr>
             <td>{{ $item->id }}</td>
             <td>
-                {{ $item->name }}
+                <a href="{{ route('customers.edit', $item->id) }}">{{ $item->name }}</a>
             </td>
             <td>
                 {{ $item->phone_number }}
@@ -53,11 +53,11 @@
                             <a class="dropdown-item" href="{{ route('customers.edit', $item->id) }}">Edit</a>
                         </li>
                         <li>
-                            {{-- <form action="{{ route('customers.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this role: {{ $item->name }}?');">
+                            <form action="{{ route('customers.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this role: {{ $item->name }}?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="dropdown-item">Delete</button>
-                            </form> --}}
+                            </form>
                         </li>
                     </ul>
                 </div>
