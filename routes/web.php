@@ -76,9 +76,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/',[ScheduleController::class, 'index'])->name('index');
         Route::get('/create',[ScheduleController::class, 'create'])->name('create');
         Route::post('/create',[ScheduleController::class, 'store'])->name('store');
-        Route::get('/{id}',[ScheduleController::class, 'edit'])->name('edit');
-        Route::put('/update/{id}',[ScheduleController::class, 'update'])->name('update');
-        Route::delete('/delete/{id}',[ScheduleController::class, 'destroy'])->name('destroy');
+        Route::get('/{schedule}',[ScheduleController::class, 'edit'])->name('edit');
+        Route::put('/{schedule}',[ScheduleController::class, 'update'])->name('update');
+        Route::delete('/{schedule}',[ScheduleController::class, 'destroy'])->name('destroy');
+        Route::get('/{schedule}/{showtime}',[ScheduleController::class, 'deleteShowtimes'])->name('deleteShowtimes');
     });
     Route::prefix('movies')->group(function() {
         Route::prefix('categories')->group(function(){
@@ -97,6 +98,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/{id}',[MovieController::class,'edit'])->name('movies.features.edit');
             Route::put('/{id}',[MovieController::class,'update'])->name('movies.features.update');
             Route::delete('/{id}',[MovieController::class,'destroy'])->name('movies.features.destroy');
+            Route::get('/getDuration/{id}',[MovieController::class, 'getDuration'])->name('movies.getDuration');
+            Route::get('/getDates/{id}',[MovieController::class, 'getDates'])->name('movies.getDates');
         });
         Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('movies.getShowtimes');
     });
@@ -107,10 +110,12 @@ Route::prefix('admin')->group(function () {
         Route::get('getSeats/{id}',[ShowtimeController::class, 'getSeats'])->name('getSeats');
         Route::get('/edit/{showtime}',[ShowtimeController::class, 'edit'])->name('edit');
         Route::put('/update/{showtime}',[ShowtimeController::class, 'update'])->name('update');
-        Route::delete('/delete/{showtime}',[ShowtimeController::class, 'destroy'])->name('destroy');
+        Route::delete('/{showtime}',[ShowtimeController::class, 'destroy'])->name('destroy');
         Route::get('/getShowtimesOfDuration/{duration}',[ShowtimeController::class, 'getShowtimesOfDuration'])->name('getShowtimesOfDuration');
-        Route::get('/getDullicateShowtimes/{id}/{date}',[ShowtimeController::class, 'getDullicateShowtimes'])->name('getDullicateShowtimes');
-        Route::get('/getAvailableShowtimes/{id}/{date}',[ShowtimeController::class, 'getAvailableShowtimes'])->name('getAvailableShowtimes');
+        Route::get('/getDullicateShowtimes/{auditoriums}/{date}',[ShowtimeController::class, 'getDullicateShowtimes'])->name('getDullicateShowtimes');
+        Route::get('/getAvailableShowtimes/{auditoriums}/{date}/{duration}',[ShowtimeController::class, 'getAvailableShowtimes'])->name('getAvailableShowtimes');
+        Route::get('/getAvailableShowtimesOfSchedule/{schedule}/{auditoriums}/{date}/{duration}',[ShowtimeController::class, 'getAvailableShowtimesOfSchedule'])->name('getAvailableShowtimesOfSchedule');
+        Route::get('/getShowtimesOfAuditorium/{auditorium}',[ShowtimeController::class, 'getShowtimesOfAuditorium'])->name('getShowtimesOfAuditorium');
     });
     Route::get('/',[DashboardController::class, 'index'])->middleware('permissions')->name('dashboards.index');
 });

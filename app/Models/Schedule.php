@@ -12,7 +12,8 @@ class Schedule extends Model
 
     protected $fillable = [
         'movie_id',
-        'date'
+        'date',
+        'auditorium_id',
     ];
 
     protected $guarded = [

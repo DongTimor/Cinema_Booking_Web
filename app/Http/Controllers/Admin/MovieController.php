@@ -137,4 +137,16 @@ class MovieController extends Controller
         $showtimes = Showtime::where('movie_id', $id)->get();
         return response()->json($showtimes);
     }
+
+    public function getDuration(string $id)
+    {
+        $movie = Movie::findOrFail($id);
+        return response()->json($movie->duration);
+    }
+
+    public function getDates(string $id)
+    {
+        $dates = Movie::findOrFail($id)->start_date;
+        return response()->json($dates);
+    }
 }

@@ -372,6 +372,12 @@ return [
                     'icon' => 'fas fa-th-list',
                     'active' => ['admin/movies/categories*'],
                 ],
+                [
+                    'text' => 'Schedule',
+                    'url' => 'admin/schedules',
+                    'icon' => 'fas fa-calendar-alt',
+                    'active' => ['admin/schedules*'],
+                ],
             ],
         ],
     ],

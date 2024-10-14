@@ -22,11 +22,12 @@ class ScheduleRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'movie_id' => 'required|exists:movies,id',
             'date' =>  ['required', new ValidDate],
             'auditorium_id' => 'required|exists:auditoriums,id',
             'showtime_id' => 'required|exists:showtimes,id',
         ];
+        return $rules;
     }
 }

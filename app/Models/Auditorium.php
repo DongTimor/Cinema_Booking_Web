@@ -27,9 +27,9 @@ class Auditorium extends Model
         return $this->hasMany(Showtime::class);
     }
 
-    public function schedules():BelongsToMany
+    public function schedules():HasMany
     {
-        return $this->belongsToMany(Schedule::class);
+        return $this->hasMany(Schedule::class);
     }
 
     protected static function boot()

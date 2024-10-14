@@ -19,9 +19,9 @@ class Showtime extends Model
     {
         return $this->hasMany(Ticket::class);
     }
-    public function movie(): BelongsTo
+    public function movie()
     {
-        return $this->belongsTo(Movie::class);
+        return $this->hasOneThrough(Movie::class, Schedule::class, 'movie_id', 'id', 'id', 'movie_id');
     }
     public function auditorium(): BelongsTo
     {

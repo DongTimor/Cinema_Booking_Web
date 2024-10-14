@@ -6,8 +6,10 @@ use App\Models\Movie;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ScheduleRequest;
 use App\Models\Auditorium;
 use App\Models\Showtime;
+use Carbon\Carbon;
 
 class ScheduleController extends Controller
 {
@@ -16,7 +18,15 @@ class ScheduleController extends Controller
      */
     public function index()
     {
-        //
+        $movies = Movie::all();
+        $auditoriums = Auditorium::all();
+        $schedules = Schedule::with(['movie'])->get()
+            ->map(function ($schedule) {
+                $schedule->setAttribute('movie_title', $schedule->movie->name);
+                return $schedule;
+            });
+
+        return view('schedules.index', compact('schedules', 'movies', 'auditoriums'));
     }
 
     /**
@@ -24,18 +34,38 @@ class ScheduleController extends Controller
      */
     public function create()
     {
-        $movies = Movie::all();
+        $movies = Movie::where('end_date', '>=', Carbon::today())->get();
         $auditoriums = Auditorium::all();
-        $showtimes = Showtime::all();
-        return view('schedules.create', compact('movies', 'auditoriums', 'showtimes'));
+        return view('schedules.create', compact('movies', 'auditoriums'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ScheduleRequest $request)
     {
-        //
+        $formattedDate = Carbon::createFromFormat('m/d/Y', $request->date)->format('Y-m-d');
+        $request['date'] = $formattedDate;
+        $existingSchedule = Schedule::where('movie_id', $request->movie_id)
+            ->where('auditorium_id', $request->auditorium_id)
+            ->where('date', $formattedDate)
+            ->first();
+        if ($existingSchedule) {
+            if ($request->has('showtime_id')) {
+                foreach ($request->showtime_id as $showtime) {
+                    $existingSchedule->showtimes()->attach($showtime);
+                }
+            }
+        } else {
+            $schedule = Schedule::create($request->all());
+            if ($request->has('showtime_id')) {
+                foreach ($request->showtime_id as $showtime) {
+                    $schedule->showtimes()->attach($showtime);
+                }
+            }
+        }
+
+        return redirect(route('schedules.index'));
     }
 
     /**
@@ -51,7 +81,11 @@ class ScheduleController extends Controller
      */
     public function edit(Schedule $schedule)
     {
-        //
+
+        $movies = Movie::all();
+        $auditoriums = Auditorium::all();
+        $showtimes = Showtime::all();
+        return view('schedules.edit', compact('schedule', 'movies', 'auditoriums', 'showtimes'));
     }
 
     /**
@@ -59,7 +93,8 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, Schedule $schedule)
     {
-        //
+        $schedule->showtimes()->sync($request->showtime_id);
+        return redirect(route('schedules.index'));
     }
 
     /**
@@ -67,6 +102,11 @@ class ScheduleController extends Controller
      */
     public function destroy(Schedule $schedule)
     {
-        //
+        $schedule->delete();
+    }
+
+    public function deleteShowtimes($scheduleId, $showtimeId)
+    {
+        Schedule::findOrFail($scheduleId)->showtimes()->detach($showtimeId);
     }
 }

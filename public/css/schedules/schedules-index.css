@@ -1,0 +1,69 @@
+.custom-event {
+    background-color: rgb(58, 121, 216);
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.custom-event:hover {
+    background-color: rgb(73, 73, 204);
+}
+
+.custom-event:active {
+    background-color: rgb(71, 123, 236);
+}
+
+.delete-showtime-button {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: rgb(224, 38, 38);
+    width: 20px;
+    height: 25px;
+    border-radius: 5px;
+
+    &:hover {
+        background-color: rgb(228, 78, 32);
+    }
+
+    &:active {
+        background-color: rgb(170, 40, 0);
+    }
+}
+
+.modal-body {
+    display: flex;
+    justify-content: space-around;
+
+    button {
+        width: 100px;
+    }
+}
+
+.fc {
+    background-color: #dddddd;
+}
+
+.fc .fc-toolbar-title,
+.fc .fc-daygrid-day-number {
+    color: #000000;
+}
+
+.fc-daygrid-day {
+    background-color: #f1f1f1;
+    border: 1px solid #000000;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+    background-color: #b5ff6f;
+}
+
+.fc .fc-daygrid-day-frame {
+    border: 1px solid #3130306b;
+}
+
+.fc .fc-timegrid-slot {
+    border: 1px solid #3130306b;
+}
