@@ -38,6 +38,7 @@ class Auditorium extends Model
 
         static::created(function ($auditorium) {
             Dashboard::create([
+                'user_id' => auth()->id(),
                 'activity' => "Created auditorium: {$auditorium->name}",
                 'url' => route('auditoriums.show', ['id' => $auditorium->id]),
             ]);
@@ -56,6 +57,7 @@ class Auditorium extends Model
                     $activity .= "total from {$auditorium->getOriginal('total')} to {$auditorium->total}";
                 }
                 Dashboard::create([
+                    'user_id' => auth()->id(),
                     'activity' => $activity,
                     'url' => route('auditoriums.show', ['id' => $auditorium->id])
                 ]);
@@ -64,6 +66,7 @@ class Auditorium extends Model
 
         static::deleted(function ($auditorium) {
             Dashboard::create([
+                'user_id' => auth()->id(),
                 'activity' => "Deleted auditorium: {$auditorium->name}",
             ]);
         });

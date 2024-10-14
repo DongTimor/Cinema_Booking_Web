@@ -41,8 +41,38 @@ class Movie extends Model
         return $this->hasMany(Ticket::class);
     }
 
+
     public function schedules(): HasMany
     {
         return $this->hasMany(Schedule::class);
     }
+
+     protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function($movie){
+            Dashboard::create([
+                'user_id' => auth()->id(),
+                'activity' => "Created movie: {$movie->name}",
+                'url' => route('movies.features.show',['id' => $movie->id]),
+            ]);
+        });
+
+        static::updated(function($movie){
+            Dashboard::create([
+                'user_id' => auth()->id(),
+                'activity' => "Updated {$movie->getOriginal('name')} movie: name from {$movie->getOriginal('name')} to {$movie->name}",
+                'url' => route('movies.features.show',['id' => $movie->id])
+            ]);
+        });
+
+        static::deleted(function($movie){
+            Dashboard::create([
+                'user_id' => auth()->id(),
+                'activity' => "Deleted movie: {$movie->name} "
+            ]);
+        });
+    }
+
 }

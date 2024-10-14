@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ShowtimeController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\CustomerController;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -94,6 +95,8 @@ Route::prefix('admin')->group(function () {
         Route::prefix('features')->group(function(){
             Route::get('/',[MovieController::class,'index'])->name('movies.features.index');
             Route::get('/create',[MovieController::class,'create'])->name('movies.features.create');
+            Route::get('show/{id}',[MovieController::class,'show'])->name('movies.features.show');
+            Route::post('/upload-images', [MovieController::class, 'uploadImages'])->name('movies.features.uploadImages');
             Route::post('/create',[MovieController::class,'store'])->name('movies.features.store');
             Route::get('/{id}',[MovieController::class,'edit'])->name('movies.features.edit');
             Route::put('/{id}',[MovieController::class,'update'])->name('movies.features.update');
@@ -118,4 +121,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/getShowtimesOfAuditorium/{auditorium}',[ShowtimeController::class, 'getShowtimesOfAuditorium'])->name('getShowtimesOfAuditorium');
     });
     Route::get('/',[DashboardController::class, 'index'])->middleware('permissions')->name('dashboards.index');
+
+    Route::get('/customers',[CustomerController::class, 'index'])->middleware('permissions')->name('customers.index');
+    Route::get('/customers/create',[CustomerController::class, 'create'])->middleware('permissions')->name('customers.create');
+    Route::post('/customers/create',[CustomerController::class, 'store'])->middleware('permissions')->name('customers.store');
+    Route::get('/customers/{id}',[CustomerController::class, 'edit'])->name('customers.edit');
+    Route::put('/customers/{id}',[CustomerController::class, 'update'])->name('customers.update');
+    Route::delete('/customers/delete/{id}',[CustomerController::class, 'destroy'])->middleware('permissions')->name('customers.destroy');
 });

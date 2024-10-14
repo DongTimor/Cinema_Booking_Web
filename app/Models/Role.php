@@ -50,6 +50,7 @@ class Role extends Model
 
         static::created(function ($role) {
             Dashboard::create([
+                'user_id' => auth()->id(), 
                 'activity' => "Created role: {$role->name}",
                 'url' => route('roles.show',['id' => $role->id])
             ]);
@@ -57,6 +58,7 @@ class Role extends Model
 
         static::updated(function ($role) {
             Dashboard::created([
+                'user_id' => auth()->id(), 
                 'activity' => "Updated {$role->name} role",
                 'url' => route('roles.show',['id' => $role->id])
             ]);
@@ -64,6 +66,7 @@ class Role extends Model
 
         static::deleted(function ($role){
             Dashboard::created([
+                'user_id' => auth()->id(), 
                 'activity' => "Deleted {$role} role"
             ]);
         });

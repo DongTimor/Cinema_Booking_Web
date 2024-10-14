@@ -22,6 +22,7 @@ class Category extends Model
 
         static::created(function($category){
             Dashboard::create([
+                'user_id' => auth()->id(), 
                 'activity' => "Created category: {$category->name}",
                 'url' => route('movies.categories.show',['id' => $category->id]),
             ]);
@@ -29,6 +30,7 @@ class Category extends Model
 
         static::updated(function($category){
             Dashboard::create([
+                'user_id' => auth()->id(), 
                 'activity' => "Updated {$category->getOriginal('name')} category: name from {$category->getOriginal('name')} to {$category->name}",
                 'url' => route('movies.categories.show',['id' => $category->id])
             ]);
@@ -36,6 +38,7 @@ class Category extends Model
 
         static::deleted(function($category){
             Dashboard::create([
+                'user_id' => auth()->id(), 
                 'activity' => "Deleted category: {$category->name} "
             ]);
         });

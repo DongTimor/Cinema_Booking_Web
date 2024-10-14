@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Dashboard extends Model
 {
     use HasFactory;
-    protected $fillable = ['activity','url'];
+    protected $fillable = ['user_id','activity','url'];
 }

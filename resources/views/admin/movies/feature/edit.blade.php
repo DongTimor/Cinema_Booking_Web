@@ -63,12 +63,14 @@
                     </div>
                 </x-slot>
             </x-adminlte-input-file>
+            <input type="hidden" name="image_urls" value="{{ implode(',', $movie->images->pluck('url')->toArray()) }}">
             <div class="flex gap-4">
                 @foreach ($images as $image)
-                <div class="relative">
-                    <img class="w-[150px] h-[200px]" src="{{ asset($image->url) }}" alt="Movie Image">
-                    <i class="far fa-times-circle absolute -top-3 bg-red-500 text-white rounded-full -right-3 text-2xl cursor-pointer"></i>
-                </div>
+                    <div class="relative">
+                        <img class="w-[150px] h-[200px]" src="{{ asset($image->url) }}" alt="Movie Image">
+                        <i id="delete-btn"
+                            class="far fa-times-circle absolute -top-3 bg-red-500 text-white rounded-full -right-3 text-2xl cursor-pointer"></i>
+                    </div>
                 @endforeach
             </div>
             <x-adminlte-input name="trailer" label="Trailer" value="{{ $movie->trailer }}" />
@@ -102,6 +104,41 @@
             });
             $('#endtimepicker').datetimepicker({
                 format: 'MM/DD/YYYY'
+            });
+
+            let new_image_arr = $('input[name="image_urls"]').val().split(',');
+            console.log('Initial image URLs:', new_image_arr);
+            $('.flex').on('click', '.fa-times-circle', function() {
+                var imageUrl = $(this).siblings('img').attr('src'); 
+                if ($(this).parent().attr('data-filename')) {
+                    var imageName = $(this).parent().attr('data-filename');
+                    new_image_arr = new_image_arr.filter(function(name) {
+                        return name !== imageName; 
+                    });
+                } else {
+                    var imageName = imageUrl.split('/').pop();
+                    new_image_arr = new_image_arr.filter(function(url) {
+                        return !url.includes(imageName); 
+                }
+                $(this).parent().remove();
+                $('input[name="image_urls"]').val(new_image_arr.join(','));
+            });
+            $('#images').on('change', function(e) {
+                var files = e.target.files; 
+                var imageContainer = $('.flex'); 
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    var imageUrl = URL.createObjectURL(file);
+                    var imageHtml = `
+                    <div class="relative" data-filename="${file.name}">
+                        <img class="w-[150px] h-[200px]" src="${imageUrl}" alt="New Movie Image">
+                        <i class="far fa-times-circle absolute -top-3 bg-red-500 text-white rounded-full -right-3 text-2xl cursor-pointer"></i>
+                    </div>
+                `;
+                    imageContainer.append(imageHtml);
+                    new_image_arr.push(file.name);
+                }
+                $('input[name="image_urls"]').val(new_image_arr.join(','));
             });
         });
     </script>
