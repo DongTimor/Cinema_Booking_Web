@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/5.11.5/main.min.css">
-    <link rel="stylesheet" href="{{ asset('css/schedules/schedules-index.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/schedules/index.css') }}">
 @endsection
 @section('content')
     <div class="d-flex justify-content-start align-items-center gap-3">
@@ -46,5 +46,5 @@
     <script>
         const schedules = JSON.parse('{!! json_encode($schedules) !!}');
     </script>
-    <script src="{{ asset('js/schedules/schedules-index.js') }}"></script>
+    <script src="{{ asset('js/schedules/index.js') }}"></script>
 @endsection

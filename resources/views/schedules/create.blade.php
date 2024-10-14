@@ -3,7 +3,7 @@
     <link
         href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css"
         rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/schedules/schedules-create.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/schedules/create.css') }}">
 @endsection
 @section('content')
     <form action="{{ route('schedules.store') }}" method="post">
@@ -60,5 +60,5 @@
             });
         });
     </script>
-    <script src="{{ asset('js/schedules/schedules-create.js') }}"></script>
+    <script src="{{ asset('js/schedules/create.js') }}"></script>
 @endsection
