@@ -69,14 +69,6 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Schedule $schedule)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Schedule $schedule)
