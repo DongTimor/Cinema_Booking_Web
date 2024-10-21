@@ -18,7 +18,7 @@ class ImageFactory extends Factory
     {
         return [
             'movie_id' => \App\Models\Movie::inRandomOrder()->first()->id,
-            'name' => $this->faker->imageUrl(),
+            'url' => $this->faker->imageUrl(),
         ];
     }
 }
