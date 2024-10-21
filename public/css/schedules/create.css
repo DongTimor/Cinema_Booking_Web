@@ -1,0 +1,81 @@
+.timeline {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    background-color: #f4f4f9;
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.timeline::before {
+    content: none;
+}
+
+.showtime1 {
+    position: absolute !important;
+    top: 0;
+    height: 100%;
+    background-color: rgba(0, 123, 255, 0.5);
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.showtime2 {
+    position: absolute !important;
+    top: 0;
+    height: 100%;
+    background-color: rgba(214, 58, 105, 0.5);
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.ready {
+    position: absolute !important;
+    top: 0;
+    height: 100%;
+    background-color: rgba(236, 158, 55, 0.692);
+    border: 1px solid #007bff;
+    border-radius: 5px;
+}
+
+.start-time1 {
+    position: absolute !important;
+    left: -15px;
+    bottom: -20px;
+    font-size: 12px;
+}
+
+.end-time1 {
+    position: absolute !important;
+    right: -15px;
+    bottom: -20px;
+    font-size: 12px;
+}
+
+.start-time2 {
+    position: absolute !important;
+    left: -15px;
+    top: -20px;
+    font-size: 12px;
+}
+
+.end-time2 {
+    position: absolute !important;
+    right: -15px;
+    top: -20px;
+    font-size: 12px;
+}
