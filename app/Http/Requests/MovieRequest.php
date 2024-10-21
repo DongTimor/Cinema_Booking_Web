@@ -30,7 +30,8 @@ class MovieRequest extends FormRequest
             'end_date' => ['required', new ValidDate],
             'category_id' => 'array',
             'trailer' => 'required|url',
-            'image_id' => 'array',
+            'image_arr' => 'array',
+
         ];
 
         if ($this->isMethod('post')) {

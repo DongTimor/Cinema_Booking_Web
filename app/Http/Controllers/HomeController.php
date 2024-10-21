@@ -24,13 +24,14 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $movies = Movie::with('images')->get(); 
+        return view('welcome',compact('movies'));
     }
 
-    public function getMovies()
+    public function detail($id)
     {
-        $movies = Movie::find(30);
-        return response()->json($movies);
+        $movie = Movie::findOrFail($id);
+        return view('customer.movie-detail',compact('movie'));
     }
 }
 

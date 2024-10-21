@@ -7,7 +7,7 @@
 @section('content')
     <div class="">
         <h1>Edit Movie</h1>
-        <form action="{{ route('movies.features.update', $movie->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('movies.features.update', $movie->id) }}" method="POST" enctype="multipart/form-data" id="update_form">
             @csrf
             @method('PUT')
             <div style="display: flex; flex-direction: row; gap: 30px;">
@@ -54,7 +54,7 @@
                     @endforeach
                 </x-adminlte-select>
             </div>
-            <x-adminlte-input-file id="images" name="image_id[]" label="Upload files" value="{{ $movie->image_id }}"
+            <x-adminlte-input-file id="images" name="image_id[]" label="Upload files" value="{{ $movie->image_id }}" 
                 placeholder="Choose multiple files..." igroup-size="lg" legend="Choose" multiple
                 accept="image/jpeg, image/png, image/jpg">
                 <x-slot name="prependSlot">
@@ -64,6 +64,7 @@
                 </x-slot>
             </x-adminlte-input-file>
             <input type="hidden" name="image_urls" value="{{ implode(',', $movie->images->pluck('url')->toArray()) }}">
+            {{-- <input type="file" name="image_arr[]" id="image_arr" class="hidden" value=""> --}}
             <div class="flex gap-4">
                 @foreach ($images as $image)
                     <div class="relative">
@@ -98,6 +99,12 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js">
     </script>
     <script type="text/javascript">
+        let image_arr = [];
+        function update_img_arr(event) {
+            const target = event.currentTarget
+            let files = target.files
+            image_arr = [...image_arr,...Array.from(files)]
+        }
         $(function() {
             $('#starttimepicker').datetimepicker({
                 format: 'MM/DD/YYYY'
@@ -105,9 +112,23 @@
             $('#endtimepicker').datetimepicker({
                 format: 'MM/DD/YYYY'
             });
-
+            $('#update_form').on("submit", async function(event) {
+                event.preventDefault();
+                const form = event.currentTarget
+                const formData = new FormData(form)
+                image_arr.forEach(imageFIle => {
+                    formData.append("image_arr[]", imageFIle, imageFIle.name)
+                });
+                await fetch(form.action, {
+                    method: "POST",
+                    body: formData,
+                })
+                window.location.href = "/admin/movies/features";
+            })
+            $('#images').change(
+                update_img_arr
+            );
             let new_image_arr = $('input[name="image_urls"]').val().split(',');
-            console.log('Initial image URLs:', new_image_arr);
             $('.flex').on('click', '.fa-times-circle', function() {
                 var imageUrl = $(this).siblings('img').attr('src'); 
                 if ($(this).parent().attr('data-filename')) {
@@ -120,6 +141,7 @@
                     new_image_arr = new_image_arr.filter(function(url) {
                         return !url.includes(imageName); 
                 }
+            )};
                 $(this).parent().remove();
                 $('input[name="image_urls"]').val(new_image_arr.join(','));
             });

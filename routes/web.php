@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\ShowtimeController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PaymentController;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -30,7 +32,11 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/booking/{id}',[HomeController::class,'detail'])->name('detail');
+Route::post('/momo-payment',[PaymentController::class,'momo_payment'])->name('momo-payment');
+Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
+
 Route::prefix('admin')->group(function () {
     Route::get('/profile',[ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/{id}',[ProfileController::class, 'update'])->name('profile.update');
