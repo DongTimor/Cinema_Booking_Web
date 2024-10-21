@@ -1,1 +1,0 @@
-<div>payment success</div>
