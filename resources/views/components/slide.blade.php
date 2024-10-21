@@ -34,5 +34,3 @@
       {{-- @endforeach --}}
     </div>
   </div>
-  
-  
