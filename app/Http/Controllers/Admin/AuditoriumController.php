@@ -57,7 +57,7 @@ class AuditoriumController extends Controller
             return response()->json(['error' => 'Show error', 'message' => $e->getMessage()], 500);
         }
     }
-    
+
     public function edit($id)
     {
         try {

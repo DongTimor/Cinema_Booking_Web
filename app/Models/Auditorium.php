@@ -27,14 +27,19 @@ class Auditorium extends Model
         return $this->hasMany(Showtime::class);
     }
 
+    public function schedules():HasMany
+    {
+        return $this->hasMany(Schedule::class);
+    }
+
     protected static function boot()
     {
         parent::boot();
 
         static::created(function ($auditorium) {
             Dashboard::create([
-                'user_id' => auth()->id(), 
-                'activity' => "Created auditorium: {$auditorium->name}", 
+                'user_id' => auth()->id(),
+                'activity' => "Created auditorium: {$auditorium->name}",
                 'url' => route('auditoriums.show', ['id' => $auditorium->id]),
             ]);
         });
@@ -52,17 +57,17 @@ class Auditorium extends Model
                     $activity .= "total from {$auditorium->getOriginal('total')} to {$auditorium->total}";
                 }
                 Dashboard::create([
-                    'user_id' => auth()->id(), 
-                    'activity' => $activity, 
-                    'url' => route('auditoriums.show', ['id' => $auditorium->id]) 
+                    'user_id' => auth()->id(),
+                    'activity' => $activity,
+                    'url' => route('auditoriums.show', ['id' => $auditorium->id])
                 ]);
             }
         });
 
         static::deleted(function ($auditorium) {
             Dashboard::create([
-                'user_id' => auth()->id(), 
-                'activity' => "Deleted auditorium: {$auditorium->name}", 
+                'user_id' => auth()->id(),
+                'activity' => "Deleted auditorium: {$auditorium->name}",
             ]);
         });
     }

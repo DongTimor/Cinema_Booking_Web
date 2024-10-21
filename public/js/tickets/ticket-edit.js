@@ -10,10 +10,14 @@ $(document).ready(function() {
             async function fetchShowtimes() {
                 const response = await fetch(baseUrl + "/admin/movies/getShowtimes/" + movieId);
                 const data = await response.json();
-                data.forEach(function(showtime) {
-                    showtimeSelect.append('<option value="' + showtime.id + '">' +
+                if (data) {
+                    data.forEach(function(showtime) {
+                        showtimeSelect.append('<option value="' + showtime.id + '">' +
                         showtime.id + '</option>');
-                });
+                    });
+                }else{
+                    showtimeSelect.append('<option value="-1">---No showtimes available---</option>');
+                }
             }
             fetchShowtimes();
         } else {
