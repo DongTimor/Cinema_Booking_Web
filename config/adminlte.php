@@ -393,6 +393,11 @@ return [
                 ],
             ],
         ],
+        [
+            'text' => 'Voucher',
+            'url' => '/vouchers',
+            'icon' => 'fas fa-tags',
+        ],
     ],
 
     /*
