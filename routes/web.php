@@ -64,14 +64,29 @@ Route::prefix('admin')->group(function () {
         Route::get('/{id}',[AuditoriumController::class,'edit'])->name('auditoriums.edit');
         Route::put('/{id}',[AuditoriumController::class,'update'])->name('auditoriums.update');
         Route::delete('/{id}',[AuditoriumController::class,'destroy'])->name('auditoriums.destroy');
+        Route::get('/getTotalSeats/{id}',[AuditoriumController::class,'getTotalSeats'])->name('auditoriums.getTotalSeats');
+        Route::get('/getTotalAvailableSeats/{id}',[AuditoriumController::class,'getTotalAvailableSeats'])->name('auditoriums.getTotalAvailableSeats');
+        Route::get('/getAuditoriumsOfShowtime/{date}/{movie}/{showtime}',[AuditoriumController::class, 'getAuditoriumsOfShowtime'])->name('auditoriums.getAuditoriumsOfShowtime');
     });
     Route::group(['prefix'=>'tickets', 'as'=>'tickets.'], function(){
         Route::get('/',[TicketController::class, 'index'])->name('index');
-        Route::get('/edit/{ticket}',[TicketController::class, 'edit'])->name('edit');
-        Route::put('/update/{ticket}',[TicketController::class, 'update'])->name('update');
+        Route::get('/create',[TicketController::class, 'create'])->name('create');
+        Route::post('/create',[TicketController::class, 'store'])->name('store');
+        Route::get('/{ticket}',[TicketController::class, 'edit'])->name('edit');
+        Route::put('/{ticket}',[TicketController::class, 'update'])->name('update');
+        Route::delete('/{ticket}',[TicketController::class, 'destroy'])->name('destroy');
+        Route::get('/getTicketsOfSchedule/{movie}/{date}/{auditorium}/{showtime}',[TicketController::class, 'getTicketsOfSchedule'])->name('getTicketsOfSchedule');
     });
     Route::group(['prefix'=>'seats', 'as'=>'seats.'], function(){
         Route::get('/',[SeatController::class, 'index'])->name('index');
+        Route::get('/create',[SeatController::class, 'create'])->name('create');
+        Route::get('/single-create',[SeatController::class, 'singleCreate'])->name('singleCreate');
+        Route::post('/create',[SeatController::class, 'store'])->name('store');
+        Route::get('/show/{seat}',[SeatController::class, 'show'])->name('show');
+        Route::get('/{seat}',[SeatController::class, 'edit'])->name('edit');
+        Route::put('/{seat}',[SeatController::class, 'update'])->name('update');
+        Route::delete('/{seat}',[SeatController::class, 'destroy'])->name('destroy');
+        Route::get('/getSeatsOfAuditorium/{auditorium}',[SeatController::class, 'getSeatsOfAuditorium'])->name('getSeatsOfAuditorium');
     });
     Route::group(['prefix'=>'schedules', 'as'=>'schedules.'], function(){
         Route::get('/',[ScheduleController::class, 'index'])->name('index');
@@ -81,6 +96,7 @@ Route::prefix('admin')->group(function () {
         Route::put('/{schedule}',[ScheduleController::class, 'update'])->name('update');
         Route::delete('/{schedule}',[ScheduleController::class, 'destroy'])->name('destroy');
         Route::get('/{schedule}/{showtime}',[ScheduleController::class, 'deleteShowtimes'])->name('deleteShowtimes');
+        Route::get('/getSchedule/{movie}/{date}/{auditorium}',[ScheduleController::class, 'getSchedule'])->name('getSchedule');
     });
     Route::prefix('movies')->group(function() {
         Route::prefix('categories')->group(function(){
@@ -103,6 +119,7 @@ Route::prefix('admin')->group(function () {
             Route::delete('/{id}',[MovieController::class,'destroy'])->name('movies.features.destroy');
             Route::get('/getDuration/{id}',[MovieController::class, 'getDuration'])->name('movies.getDuration');
             Route::get('/getDates/{id}',[MovieController::class, 'getDates'])->name('movies.getDates');
+            Route::get('/getSchedule/{id}',[MovieController::class, 'getSchedule'])->name('movies.getSchedule');
         });
         Route::get('getShowtimes/{id}',[MovieController::class, 'getShowtimes'])->name('movies.getShowtimes');
     });
@@ -119,6 +136,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/getAvailableShowtimes/{auditoriums}/{date}/{duration}',[ShowtimeController::class, 'getAvailableShowtimes'])->name('getAvailableShowtimes');
         Route::get('/getAvailableShowtimesOfSchedule/{schedule}/{auditoriums}/{date}/{duration}',[ShowtimeController::class, 'getAvailableShowtimesOfSchedule'])->name('getAvailableShowtimesOfSchedule');
         Route::get('/getShowtimesOfAuditorium/{auditorium}',[ShowtimeController::class, 'getShowtimesOfAuditorium'])->name('getShowtimesOfAuditorium');
+        Route::get('/getShowtimesOfMovieAndDate/{date}/{movie}',[ShowtimeController::class, 'getShowtimesOfMovieAndDate'])->name('getShowtimesOfAuditoriumAndDate');
     });
     Route::get('/',[DashboardController::class, 'index'])->middleware('permissions')->name('dashboards.index');
 
@@ -128,4 +146,5 @@ Route::prefix('admin')->group(function () {
     Route::get('/customers/{id}',[CustomerController::class, 'edit'])->name('customers.edit');
     Route::put('/customers/{id}',[CustomerController::class, 'update'])->name('customers.update');
     Route::delete('/customers/delete/{id}',[CustomerController::class, 'destroy'])->middleware('permissions')->name('customers.destroy');
+    Route::get('/getCustomerInfor/{id}',[CustomerController::class, 'getCustomerInfor'])->name('customers.getCustomerInfor');
 });

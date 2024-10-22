@@ -101,4 +101,16 @@ class ScheduleController extends Controller
     {
         Schedule::findOrFail($scheduleId)->showtimes()->detach($showtimeId);
     }
+
+    public function getSchedule($movieId, $date, $auditorium)
+    {
+        $schedule = Schedule::where('movie_id', $movieId)
+            ->whereDate('date', $date)
+            ->where('auditorium_id', $auditorium)
+            ->select('id')
+            ->first();
+
+        $id = $schedule ? $schedule->id : null;
+        return response()->json($id);
+    }
 }

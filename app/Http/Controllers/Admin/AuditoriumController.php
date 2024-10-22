@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Auditorium;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 
 class AuditoriumController extends Controller
@@ -81,5 +82,38 @@ class AuditoriumController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Update error', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function getTotalSeats($id)
+    {
+        $total = Auditorium::findOrFail($id)->total;
+        return $total;
+    }
+
+    public function getTotalAvailableSeats($id)
+    {
+        $total = Auditorium::findOrFail($id)->seats()->count();
+        return $total;
+    }
+
+    public function getAuditoriumsOfShowtime($date, $movie, $showtime)
+    {
+        $auditoriums = Schedule::whereDate('date', $date)
+            ->where('movie_id', $movie)
+            ->whereHas('showtimes', function ($query) use ($showtime) {
+                $query->where('id', $showtime); // Assuming 'id' is the column name for showtimes
+            })
+            ->with('auditorium') // Ensure the auditorium relationship is loaded
+            ->get()
+            ->map(function ($schedule) {
+                return [
+                    'auditorium_id' => $schedule->auditorium_id,
+                    'auditorium' => $schedule->auditorium->name
+                ];
+            })
+            ->unique('auditorium_id') // Ensure unique auditoriums
+            ->values(); // Reset the keys
+
+        return response()->json($auditoriums);
     }
 }
