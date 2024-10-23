@@ -38,7 +38,7 @@
         </select>
     </div>
     <div class="mb-3">
-        <label for="expires_at" class="form-label">Birth date</label>
+        <label for="expires_at" class="form-label">Expires at</label>
         <input type="date" class="form-control" name="expires_at" value="{{ \Carbon\Carbon::parse($voucher->expires_at)->format('Y-m-d') }}">
     @if ($errors->has('expires_at'))
         <span class="text-danger">{{ $errors->first('expires_at') }}</span>
