@@ -131,23 +131,19 @@ Route::prefix('admin')->group(function () {
     Route::get('/customers/{id}',[CustomerController::class, 'edit'])->name('customers.edit');
     Route::put('/customers/{id}',[CustomerController::class, 'update'])->name('customers.update');
     Route::delete('/customers/delete/{id}',[CustomerController::class, 'destroy'])->middleware('permissions')->name('customers.destroy');
-});
 
-Route::prefix('vouchers')->group(function () {
-    Route::get('/',[VoucherController::class, 'index'])->name('vouchers.index');
-    Route::get('/create',[VoucherController::class, 'create'])->name('vouchers.create');
-    Route::post('/create',[VoucherController::class, 'store'])->name('vouchers.store');
-    Route::get('/edit/{id}',[VoucherController::class, 'edit'])->name('vouchers.edit');
-    Route::put('/edit/{id}',[VoucherController::class, 'update'])->name('vouchers.update');
-    Route::delete('/delete/{id}',[VoucherController::class, 'destroy'])->name('vouchers.destroy');
+    Route::prefix('vouchers')->group(function () {
+        Route::get('/',[VoucherController::class, 'index'])->name('vouchers.index');
+        Route::get('/create',[VoucherController::class, 'create'])->name('vouchers.create');
+        Route::post('/create',[VoucherController::class, 'store'])->name('vouchers.store');
+        Route::get('/edit/{id}',[VoucherController::class, 'edit'])->name('vouchers.edit');
+        Route::put('/edit/{id}',[VoucherController::class, 'update'])->name('vouchers.update');
+        Route::delete('/delete/{id}',[VoucherController::class, 'destroy'])->name('vouchers.destroy');
+    });
 });
 
 Route::prefix('users')->group(function () {
     Route::prefix('/stock-voucher')->group(function () {
         Route::get('/',[VoucherStockController::class, 'index'])->name('voucher_stock.index');
     });
-});
-
-Route::prefix('management')->group(function () {
-    // dành cho những user có role  management
 });
