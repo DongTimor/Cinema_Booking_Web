@@ -41,7 +41,7 @@
             </select>
           </div>
           <div>
-            <label for="expires_at" class="form-label">Birth Date</label>
+            <label for="expires_at" class="form-label">Expires at</label>
             <input type="date" class="form-control" name="expires_at" >
           @if ($errors->has('expires_at'))
               <span class="text-danger">{{ $errors->first('expires_at') }}</span>
