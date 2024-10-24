@@ -119,4 +119,12 @@ class CustomerController extends Controller
         $customer->delete();
         return redirect()->route('customers.index');
     }
+
+    public function getCustomerInfor(string $id)
+    {
+        $customer = Customer::findOrFail($id)
+            ->select('id', 'name', 'email', 'phone_number', 'address', 'gender', 'date_of_birth')
+            ->first();
+        return response()->json($customer);
+    }
 }

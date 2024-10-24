@@ -354,6 +354,14 @@ return [
             'text' => 'Auditorium',
             'url' => 'admin/auditoriums',
             'icon' => 'fas fa-fw fa-calendar',
+            'submenu' => [
+                [
+                    'text' => 'Seat',
+                    'url' => 'admin/seats',
+                    'icon' => 'fas fa-chair',
+                    'active' => ['admin/seats*'],
+                ],
+            ],
         ],
         [
             'text' => 'Ticket',
