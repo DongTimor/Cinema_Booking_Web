@@ -31,12 +31,20 @@
                     </div>
                 </div>
             </div>
-            <x-adminlte-select id="auditorium" name="auditorium_id" label="Auditorium*" fgroup-class="w-100" disabled>
-                <option value="-1">--Select Date First--</option>
-                @foreach ($auditoriums as $auditorium)
-                    <option value="{{ $auditorium->id }}">{{ $auditorium->name }}</option>
-                @endforeach
-            </x-adminlte-select>
+            <div class="row w-100">
+                <div class="col-md-11">
+                    <x-adminlte-select id="auditorium" name="auditorium_id" label="Auditorium*" fgroup-class="w-100" disabled>
+                        <option value="-1">--Select Date First--</option>
+                        @foreach ($auditoriums as $auditorium)
+                            <option value="{{ $auditorium->id }}">{{ $auditorium->name }}</option>
+                        @endforeach
+                    </x-adminlte-select>
+                </div>
+                <div class="col-md-1 d-flex justify-content-start align-items-center pt-3">
+                    <x-adminlte-button type="button" icon="fas fa-plus" theme="success"
+                        onclick="window.location.href='/admin/auditoriums/create'" />
+                </div>
+            </div>
         </div>
         <label for="timeline">Schedule</label>
         <div class="timeline">Schedule Empty</div>

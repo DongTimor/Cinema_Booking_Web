@@ -62,9 +62,10 @@ class TicketController extends Controller
             ->get();
         $users = User::all();
         $customers = Customer::all();
+        $vouchers = Voucher::all();
         $seats = Seat::whereBelongsTo($ticket->schedule->auditorium)
             ->get();
-        return view('admin.tickets.edit', compact('ticket', 'users', 'customers', 'movies', 'seats'));
+        return view('admin.tickets.edit', compact('ticket', 'users', 'customers', 'movies', 'seats', 'vouchers'));
     }
 
     /**

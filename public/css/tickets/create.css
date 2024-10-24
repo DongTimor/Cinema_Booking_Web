@@ -146,8 +146,9 @@ html {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100%;
-    width: 100%;
+    width: 800px;
+    padding-bottom: 50px;
+    position: relative;
 }
 
 .voucher-body {
@@ -177,19 +178,19 @@ html {
 }
 
 .voucher-background .expiry {
-    margin-left: 450px;
+    margin-left: 600px;
     font-size: 16px;
     color: #ffffff;
+    margin-bottom: 30px;
 }
 
 .voucher-background .close-button {
     background-color: rgb(242, 80, 80);
-    margin-left: 535px;
-    margin-top: 80px;
     border-radius: 50%;
     width: 25px;
-    height: 40px;
-
+    height: 25px;
+    margin-left: 640px;
+    margin-top: 130px;
     &:hover {
         background-color: #FF6347;
     }
@@ -204,6 +205,14 @@ html {
 }
 
 .description {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.guide-description {
     width: 100%;
     display: flex;
     flex-direction: column;

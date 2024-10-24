@@ -40,4 +40,9 @@ class Ticket extends Model
     {
         return $this->belongsTo(Seat::class);
     }
+
+    public function voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class);
+    }
 }
