@@ -7,8 +7,10 @@
     margin-bottom: 0rem;
 }
 
-
-/* Add this rule to change the background color of select2-selection__choice */
 .select2-selection__choice {
     background-color: #0ac432  !important;
+}
+
+div.dataTables_wrapper div.dataTables_length select {
+    width: 55px !important;
 }

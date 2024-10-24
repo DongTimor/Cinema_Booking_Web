@@ -9,9 +9,9 @@ use App\Models\Customer;
 use App\Models\Movie;
 use App\Models\Schedule;
 use App\Models\Seat;
-use App\Models\Showtime;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -33,15 +33,9 @@ class TicketController extends Controller
     {
         $movies = Movie::whereDate('end_date', '>=', Carbon::now())
             ->get();
-        $users = User::all();
         $customers = Customer::all();
-        // $showtimes = $ticket->showtime->movie->showtimes
-        //     ->where('end_time', '>=', Carbon::now()->addMinutes($ticket->showtime->movie->duration));
-        // $seats = Seat::whereBelongsTo($ticket->showtime->auditorium)
-        //     ->get();
-        $auditoriums = Auditorium::all();
-        $showtimes = Showtime::all();
-        return view('admin.tickets.create', compact('movies', 'users', 'auditoriums', 'showtimes', 'customers'));
+        $vouchers = Voucher::all();
+        return view('admin.tickets.create', compact('movies', 'customers', 'vouchers'));
     }
 
     /**
@@ -60,14 +54,6 @@ class TicketController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Ticket $ticket)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Ticket $ticket)
@@ -76,14 +62,6 @@ class TicketController extends Controller
             ->get();
         $users = User::all();
         $customers = Customer::all();
-        // $showtimes = Schedule::where('id', $ticket->schedule_id)
-        //     ->with('showtimes')
-        //     ->get()
-        //     ->pluck('showtimes')
-        //     ->flatten();
-        // $auditoriums = Auditorium::where('id', $ticket->schedule->auditorium_id)
-        //     ->with('seats')
-        //     ->get();
         $seats = Seat::whereBelongsTo($ticket->schedule->auditorium)
             ->get();
         return view('admin.tickets.edit', compact('ticket', 'users', 'customers', 'movies', 'seats'));
@@ -92,9 +70,14 @@ class TicketController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Ticket $ticket)
+    public function update(TicketRequest $request, Ticket $ticket)
     {
-        return redirect()->route('admin.tickets.index');
+        try {
+            $ticket->update($request->all());
+            return response()->json(['message' => 'Cập nhật vé thành công', 'ticket' => $ticket]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -102,7 +85,12 @@ class TicketController extends Controller
      */
     public function destroy(Ticket $ticket)
     {
-        //
+        try {
+            $ticket->delete();
+            return response()->json(['message' => 'Ticket deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     public function getTicketsOfSchedule($movie, $date, $auditorium, $showtime)
@@ -111,16 +99,12 @@ class TicketController extends Controller
             ->whereDate('date', $date)
             ->where('auditorium_id', $auditorium)
             ->first();
-
         if (!$schedule) {
             return response()->json(['error' => 'Schedule not found'], 404);
         }
-
-        // Assuming the correct column name is 'showtime_column' instead of 'showtime_id'
         $tickets = Ticket::where('schedule_id', $schedule->id)
             ->where('showtime_id', $showtime) // Replace with the correct column name
             ->get();
-
         return response()->json($tickets);
     }
 }

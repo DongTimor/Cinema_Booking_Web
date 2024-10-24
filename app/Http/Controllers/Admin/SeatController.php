@@ -115,4 +115,16 @@ class SeatController extends Controller
         $seats = Seat::where('auditorium_id', $auditorium)->get();
         return response()->json($seats);
     }
+
+    public function getSeatNumber($id)
+    {
+        $seat = Seat::find($id);
+        return response()->json($seat->seat_number);
+    }
+
+    public function getSeatId($seat_number, $auditorium)
+    {
+        $seat = Seat::where('seat_number', $seat_number)->where('auditorium_id', $auditorium)->first();
+        return response()->json($seat->id);
+    }
 }

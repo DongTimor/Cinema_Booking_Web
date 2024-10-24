@@ -205,4 +205,10 @@ class MovieController extends Controller
         ];
         return response()->json($information);
     }
+
+    public function getPrice(string $id)
+    {
+        $movie = Movie::findOrFail($id);
+        return response()->json($movie->price);
+    }
 }

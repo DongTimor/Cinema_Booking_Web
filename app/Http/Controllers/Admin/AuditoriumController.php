@@ -101,9 +101,9 @@ class AuditoriumController extends Controller
         $auditoriums = Schedule::whereDate('date', $date)
             ->where('movie_id', $movie)
             ->whereHas('showtimes', function ($query) use ($showtime) {
-                $query->where('id', $showtime); // Assuming 'id' is the column name for showtimes
+                $query->where('id', $showtime);
             })
-            ->with('auditorium') // Ensure the auditorium relationship is loaded
+            ->with('auditorium')
             ->get()
             ->map(function ($schedule) {
                 return [
@@ -111,8 +111,8 @@ class AuditoriumController extends Controller
                     'auditorium' => $schedule->auditorium->name
                 ];
             })
-            ->unique('auditorium_id') // Ensure unique auditoriums
-            ->values(); // Reset the keys
+            ->unique('auditorium_id')
+            ->values();
 
         return response()->json($auditoriums);
     }

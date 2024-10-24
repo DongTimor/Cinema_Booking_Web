@@ -217,4 +217,10 @@ class ShowtimeController extends Controller
             ->unique('id');
         return response()->json($showtimes);
     }
+
+    public function getShowtimeOfSchedule($schedule)
+    {
+        $showtime = Schedule::find($schedule)->showtimes;
+        return response()->json($showtime);
+    }
 }

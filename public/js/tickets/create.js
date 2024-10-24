@@ -5,6 +5,10 @@ let seatChoosen = null;
 let seatStatus = 'unplaced';
 let successArray = [];
 let errorArray = [];
+let voucherId = null;
+let voucherValue = null;
+let voucherType = null;
+
 
 async function getCustomerInfor(id) {
     const response = await fetch(`${baseUrl}/getCustomerInfor/${id}`);
@@ -42,6 +46,12 @@ async function getTicketOfSchedule(movie, date, auditorium, showtime) {
     return ticket;
 }
 
+async function getPrice(id) {
+    const response = await fetch(`${baseUrl}/movies/features/getPrice/${id}`);
+    const price = await response.json();
+    return price;
+}
+
 async function resetFilter() {
     $('#date').empty();
     $('#showtime_id').empty();
@@ -71,6 +81,12 @@ async function createTicket() {
     const url = '/admin/tickets/create';
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     try {
+        if (customerInput) {
+            if (!$('#customer_id').val()) {
+                alert('Please select a customer.');
+                return;
+            }
+        }
         if (!$(movie_id).val()) {
             alert('Please select a movie.');
             return;
@@ -104,7 +120,8 @@ async function createTicket() {
                 customer_id: $('#customer_id').val(),
                 showtime_id: $('#showtime_id').val(),
                 schedule_id: scheduleId,
-                price: $('#price').val()
+                price: $('#price').val(),
+                voucher_id: voucherId
             };
             await fetch(url, {
                 method: 'POST',
@@ -116,7 +133,7 @@ async function createTicket() {
             })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(response.statusText);
+                        throw new Error(response.status);
                     }
                     return response.json();
                 })
@@ -151,6 +168,41 @@ function updateFetchSeatsModal(successArray, errorArray) {
     });
 
     $('#Fetch-Seats-Modal').modal('show');
+}
+
+async function selectVoucher(voucher) {
+    voucherId = voucher.dataset.id;
+    voucherValue = voucher.dataset.value;
+    voucherType = voucher.dataset.type;
+    $('#Show-Voucher-Modal').modal('hide');
+    $('#voucher-description').text("Giảm ngay " + voucher.dataset.value + (voucher.dataset.type === 'percent' ? '%' : 'VND') + " cho đơn hàng tiếp theo!");
+    $('#voucher-code').text(voucher.dataset.code);
+    $('#voucher-expiry').text("Hết hạn: " + voucher.dataset.expiry);
+    $('#voucher-body').css('display', 'flex');
+    if ($(movie_id).val()) {
+        let price = await getPrice($(movie_id).val());
+        if (voucherId) {
+            if (voucherType === 'percent') {
+                price = price * (1 - voucherValue / 100);
+            } else {
+                price = price - voucherValue;
+            }
+        }
+        $('#price').val(price);
+    }
+}
+
+
+
+async function deleteVoucher() {
+    voucherId = null;
+    voucherValue = null;
+    voucherType = null;
+    $('#voucher-body').css('display', 'none');
+    if ($(movie_id).val()) {
+        let price = await getPrice($(movie_id).val());
+        $('#price').val(price);
+    }
 }
 
 function switchCustomerInput() {
@@ -249,6 +301,10 @@ function applyStatus() {
     $('#Select-Status-Modal').modal('hide');
 }
 
+function openShowVoucherModal() {
+    $('#Show-Voucher-Modal').modal('show');
+}
+
 function backToIndex() {
     window.location.href = '/admin/tickets';
 }
@@ -284,6 +340,15 @@ $(document).ready(function () {
 
     $('#movie_name').on('change', async function () {
         $('#movie_id').val($(this).val());
+        let price = await getPrice($(this).val());
+        if (voucherId) {
+            if (voucherType === 'percent') {
+                price = price * (1 - voucherValue / 100);
+            } else {
+                price = price - voucherValue;
+            }
+        }
+        $('#price').val(price);
         if ($(this).val() !== '') {
             $('#date').prop('disabled', false);
         } else {
@@ -294,6 +359,15 @@ $(document).ready(function () {
 
     $('#movie_id').on('change', async function () {
         $('#movie_name').val($(this).val());
+        const price = await getPrice($(this).val());
+        if (voucherId) {
+            if (voucherType === 'percent') {
+                price = price * (1 - voucherValue / 100);
+            } else {
+                price = price - voucherValue;
+            }
+        }
+        $('#price').val(price);
         if ($(this).val() !== '') {
             $('#date').prop('disabled', false);
         } else {

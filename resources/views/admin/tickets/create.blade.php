@@ -16,17 +16,14 @@
                     <div class="card-body">
                         <div class="form-group row">
                             <div class="col-md-10">
-                                <x-adminlte-input name="user_name" label="Sealer" value="{{ Auth::user()->name }}"
-                                    disabled />
+                                <x-adminlte-input name="user_name" label="Sealer" value="{{ Auth::user()->name }}" disabled />
                             </div>
                             <div class="col-md-2">
-                                <x-adminlte-input style="text-align: center;" name="user_id" label="Sealer ID"
-                                    value="{{ Auth::user()->id }}" disabled />
+                                <x-adminlte-input style="text-align: center;" name="user_id" label="Sealer ID" value="{{ Auth::user()->id }}" disabled />
                             </div>
                         </div>
                         <label for="customer_id">Customer</label>
-                        <div
-                            style="margin-bottom: 20px; background-color:rgba(170, 160, 160, 0.062); padding: 10px; border-radius: 10px;">
+                        <div class="area">
                             <div class="row">
                                 <div class="col-md-10">
                                     <x-adminlte-select name="customer_id" required>
@@ -38,39 +35,46 @@
                                 </div>
                                 <span style="width: max-content; align-items: center;">Or</span>
                                 <div style="width: max-content; justify-content: flex-end;">
-                                    <x-adminlte-button id="switch-customer-input" label="No Account" theme="success"
-                                        onclick="switchCustomerInput()" />
+                                    <x-adminlte-button id="switch-customer-input" label="No Account" theme="success" onclick="switchCustomerInput()" />
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="openShowVoucherModal()">Show Voucher</button>
+                            <div id="voucher-body" class="voucher-body" style="display: none !important;">
+                                <div class="voucher-background"
+                                    style="background-image: url('{{ asset('images/voucher_background.jpg') }}');">
+                                    <button class="close-button" type="button" class="close" onclick="deleteVoucher()" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <h1 class="label">Voucher Giảm Giá</h1>
+                                    <p id="voucher-description" class="description">Nhận ngay cho đơn hàng tiếp theo!
+                                    </p>
+                                    <div id="voucher-code" class="code text-uppercase">ABCDF</div>
+                                    <div id="voucher-expiry" class="expiry">Hết hạn: 2024-10-22</div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-7">
-                                    <x-adminlte-input type="text" name="customer-name" id="customer-name" label="Name"
-                                        disabled />
+                                    <x-adminlte-input type="text" name="customer-name" id="customer-name" label="Name" disabled />
                                 </div>
                                 <div class="col-md-3">
-                                    <x-adminlte-input type="date" name="customer-date-of-birth"
-                                        id="customer-date-of-birth" label="Date of Birth" disabled />
+                                    <x-adminlte-input id="customer-date-of-birth" type="date" name="customer-date-of-birth" label="Date of Birth" disabled />
                                 </div>
                                 <div class="col-md-2">
-                                    <x-adminlte-input type="text" name="customer-gender" id="customer-gender"
-                                        label="Gender" disabled />
+                                    <x-adminlte-input type="text" name="customer-gender" id="customer-gender" label="Gender" disabled />
                                 </div>
                             </div>
-                            <x-adminlte-input type="email" name="customer-email" id="customer-email" label="Email"
-                                disabled />
+                            <x-adminlte-input type="email" name="customer-email" id="customer-email" label="Email" disabled />
                             <div class="row">
                                 <div class="col-md-4">
-                                    <x-adminlte-input type="text" name="customer-phone" id="customer-phone"
-                                        label="Phone" disabled />
+                                    <x-adminlte-input type="text" name="customer-phone" id="customer-phone" label="Phone" disabled />
                                 </div>
                                 <div class="col-md-8">
-                                    <x-adminlte-input type="text" name="customer-address" id="customer-address"
-                                        label="Address" disabled />
+                                    <x-adminlte-input type="text" name="customer-address" id="customer-address" label="Address" disabled />
                                 </div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <div class="col-md-8">
+                            <div class="col-md-7">
                                 <x-adminlte-select id="movie_name" name="movie_name" label="Movie" required>
                                     <option value="">-Select Movie-</option>
                                     @foreach ($movies as $movie)
@@ -86,6 +90,9 @@
                                     @endforeach
                                 </x-adminlte-select>
                             </div>
+                            <div class="col-md-1">
+                                <x-adminlte-input id="price" type="number" value="{{ $movie->price }}" name="price" label="Price" disabled />
+                            </div>
                             <div class="flex gap-1">
                                 <div class="col-md-2">
                                     <x-adminlte-select id="date" name="date" label="Date" required disabled>
@@ -93,36 +100,61 @@
                                     </x-adminlte-select>
                                 </div>
                                 <div class="col-md-5">
-                                    <x-adminlte-select id="showtime_id" name="showtime_id" label="Showtime" required
-                                        disabled>
+                                    <x-adminlte-select id="showtime_id" name="showtime_id" label="Showtime" required disabled>
                                         <option value="">-Select Showtime-</option>
                                     </x-adminlte-select>
                                 </div>
                                 <div class="w-full">
-                                    <x-adminlte-select id="auditorium_id" name="auditorium_id" label="Auditorium" required
-                                        disabled>
+                                    <x-adminlte-select id="auditorium_id" name="auditorium_id" label="Auditorium" required disabled>
                                         <option value="">-Select Auditorium-</option>
                                     </x-adminlte-select>
-                                </div>
-                                <div class="col-md-1">
-                                    <x-adminlte-input type="number" step="0.01" min="0" name="price"
-                                        id="price" label="Price" />
                                 </div>
                             </div>
                         </div>
                         <div class="seats_container_lable">
                             ----------Seats's Booking----------
                         </div>
+                        <div class="description">
+                            <div class="seats_container_description_container">
+                                <div class="seats_container_description_lable">
+                                    --Seats's Description--
+                                </div>
+                                <div id="seats_container_description" class="seats_container_description">
+                                    <div class="description-row">
+                                        <span class="span-1"></span>
+                                        <div>Empty</div>
+                                    </div>
+                                    <div class="description-row">
+                                        <span class="span-2"></span>
+                                        <div>Unplaced</div>
+                                    </div>
+                                    <div class="description-row">
+                                        <span class="span-3"></span>
+                                        <div>Ordered</div>
+                                    </div>
+                                    <div class="description-row">
+                                        <span class="span-4"></span>
+                                        <div>Settled</div>
+                                    </div>
+                                    <div class="description-row">
+                                        <span class="span-5"></span>
+                                        <div>Selected</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="seats_container" class="seats_container">
                             <p>Available Seats</p>
                         </div>
-                        <div id="another_seats_container_lable" class="seats_container_lable"
-                            style="display: none !important;">
+                        <div id="another_seats_container_lable" class="seats_container_lable" style="display: none !important;">
                             ----------Another Seats's Booking----------
                         </div>
                         <div id="another_seats_container" class="anotherseats_container">
                         </div>
-                        <button type="button" class="btn btn-primary" onclick="createTicket()">Create</button>
+                        <div class="create-button-container">
+                            <x-adminlte-button type="button" theme="success" label="Create" onclick="createTicket()" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -167,14 +199,65 @@
                     <ul id="errorList"></ul>
                 </div>
                 <div class="modal-footer">
-                    <x-adminlte-button id="back-to-index" label="All Tickets" theme="success"
-                        onclick="backToIndex()" />
+                    <x-adminlte-button id="back-to-index" label="All Tickets" theme="success" onclick="backToIndex()" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="Show-Voucher-Modal" tabindex="-1" role="dialog"
+        aria-labelledby="Show-Voucher-ModalLabel" aria-hidden="true">
+        <div class="modal-dialog main-dialog" role="document">
+            <div class="modal-content main-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="Show-Voucher-ModalLabel">Voucher List</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body main-body">
+                    <ul class="list-group">
+                        @foreach ($vouchers as $voucher)
+                            <div class="voucher" data-id="{{ $voucher->id }}" data-value="{{ $voucher->value }}"
+                                data-type="{{ $voucher->type }}" data-code="{{ $voucher->code }}"
+                                data-expiry="{{ $voucher->expires_at }}" onclick="selectVoucher(this)"
+                                style="background-image: url('{{ asset('images/voucher_background.jpg') }}');">
+                                <h1 class="label">Voucher Giảm Giá</h1>
+                                <p class="description">Nhận ngay {{ $voucher->value }}
+                                    {{ $voucher->type == 'percent' ? '%' : 'VND' }} cho đơn hàng tiếp theo!
+                                </p>
+                                <div class="code text-uppercase">{{ $voucher->code }}</div>
+                                <div class="expiry">Hết hạn: {{ $voucher->expires_at }}</div>
+                            </div>
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="modal-footer">
                 </div>
             </div>
         </div>
     </div>
 @stop
 @section('scripts')
+    <script>
+        $(document).ready(function() {
+            function formatOption(option) {
+                if (!option.id) {
+                    return option.text;
+                }
+                var imageUrl = $(option.element).data('image');
+                var $option = $(
+                    '<span><img src="' + imageUrl +
+                    '" class="img-flag" style="width: 20px; height: 20px; margin-right: 10px;" /> ' + option
+                    .text + '</span>'
+                );
+                return $option;
+            }
+            $('#voucher-select').select2({
+                templateResult: formatOption,
+                templateSelection: formatOption
+            });
+        });
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js">

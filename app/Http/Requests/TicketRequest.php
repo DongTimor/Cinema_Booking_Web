@@ -21,14 +21,25 @@ class TicketRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'user_id' => 'required|exists:users,id',
             'seat_id' => 'required|exists:seats,id',
             'status' => 'required',
             'customer_id' => 'nullable|exists:customers,id',
             'showtime_id' => 'required|exists:showtimes,id',
-            'price' => 'required',
             'schedule_id' => 'required|exists:schedules,id',
         ];
+
+        if ($this->isMethod('put')) {
+            $rules = [
+                'user_id' => 'sometimes|exists:users,id',
+                'seat_id' => 'exists:seats,id',
+                'customer_id' => 'sometimes|nullable',
+                'showtime_id' => 'sometimes',
+                'schedule_id' => 'sometimes',
+            ];
+        }
+
+        return $rules;
     }
 }
