@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Mail\Booking;
+use App\Models\Point;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
 
 class PaymentController extends Controller
 {
@@ -37,15 +42,17 @@ class PaymentController extends Controller
         $accessKey = 'klm05TvNBzhg7h7j';
         $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
         $orderInfo = "Thanh toán qua MoMo";
-        $amount = "50000";
+        $amount = $request->input('total_amount');
+        $voucherCode = $request->input('voucher_code'); 
+        Session::put('voucher_code', $voucherCode);
         $orderId = time() . "";
-        $redirectUrl = "http://localhost/momopayment/paymentsuccess"; // URL chuyển hướng về localhost
-        $ipnUrl = "http://localhost"; // URL cho IPN trên localhost (sẽ không hoạt động từ bên ngoài)
+        $redirectUrl = "http://localhost/momopayment/paymentsuccess"; 
+        $ipnUrl = "http://localhost"; 
         $extraData = "";
 
         $requestId = time() . "";
-        // $requestType = "payWithATM";
-        $requestType = "captureWallet";
+        $requestType = "payWithATM";
+        // $requestType = "captureWallet";
         $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&ipnUrl=" . $ipnUrl . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo . "&partnerCode=" . $partnerCode . "&redirectUrl=" . $redirectUrl . "&requestId=" . $requestId . "&requestType=" . $requestType;
         $signature = hash_hmac("sha256", $rawHash, $secretKey);
 
@@ -67,21 +74,43 @@ class PaymentController extends Controller
 
         $result = execPostRequest($endpoint, json_encode($data));
         $jsonResult = json_decode($result, true);
-
         return redirect()->to($jsonResult['payUrl']);
     }
 
     public function handleMoMoReturn(Request $request)
     {
-        // Nhận toàn bộ dữ liệu sau khi thanh toán thành công
         $allData = $request->all();
-
-        // Xử lý dữ liệu hoặc lưu vào cơ sở dữ liệu nếu cần thiết
+        $user = Auth::user();
+        $userVouchers = $user->vouchers->pluck('pivot.voucher_id');
+        $voucherCode = Session::get('voucher_code');
+        Session::forget('voucher_code'); 
         if (isset($allData['resultCode']) && $allData['resultCode'] == 0) {
-            Mail::to('vinhtoan552@gmail.com')->send(new Booking());
+            $amount = $allData['amount'];
+            $points = intval($amount / 1000);
+            $user = Auth::user();
+            $point = Point::firstOrCreate(
+                ['user_id' => $user->id],
+                ['total_points' => 0, 'points_earned' => 0, 'points_redeemed' => 0, 'ranking_level' => 'Bronze']
+            );
+            $point->total_points += $points;
+            $point->points_earned += $points;
+            $point->date_expire = now()->addMinute(5);
+            $point->last_updated = now();
+            $point->save();
+
+            if ($voucherCode) {
+                $voucher = Voucher::where('code', $voucherCode)->first();
+                if ($voucher && $userVouchers->contains($voucher->id)) {
+                    DB::table('user_voucher')
+                        ->where('user_id', $user->id)
+                        ->where('voucher_id', $voucher->id)
+                        ->update(['status' => 1]);
+                }
+            }
+            app(PointController::class)->checkAndUpdatePoints();
+            Mail::to($user->email)->send(new Booking());
             return redirect(route('home'));
         } else {
-            // Thanh toán thất bại
             return response()->json([
                 'message' => 'Thanh toán thất bại',
                 'data' => $allData
@@ -91,13 +120,8 @@ class PaymentController extends Controller
 
     public function handleMoMoIPN(Request $request)
     {
-        // Xử lý thông báo IPN từ MoMo
         $allData = $request->all();
-
-        // Kiểm tra và xử lý dữ liệu IPN
         if (isset($allData['resultCode']) && $allData['resultCode'] == 0) {
-            // Xác nhận thanh toán thành công
-            // Thực hiện các hành động cần thiết như cập nhật trạng thái đơn hàng
             return response()->json([
                 'message' => 'IPN nhận thành công',
                 'data' => $allData

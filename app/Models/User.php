@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasPermission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -60,5 +61,15 @@ class User extends Authenticatable
     public function tickets()
     {
         return $this->belongsToMany(Ticket::class);
+    }
+
+    public function point()
+    {
+        return $this->hasOne(Point::class);
+    }
+    
+    public function vouchers() : BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_voucher')->withPivot('voucher_id', 'status');
     }
 }

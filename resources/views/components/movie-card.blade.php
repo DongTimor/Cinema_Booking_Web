@@ -6,7 +6,9 @@
             <div
                 class="absolute h-full w-full bg-black/40 flex items-center justify-center opacity-5 -bottom-20 group-hover:bottom-0 group-hover:opacity-100 rounded-2xl transition-all duration-300 ">
                 <div class="flex flex-col gap-4 text-white">
-                    <button class="border-2 text-[#f8c92c] py-2.5 px-4 rounded-md group-hover:bg-black font-bold"><a href="{{ route('detail',$movie->id) }}">Booking</a></button> 
+                    <a href="{{ route('detail', $movie->id) }}">
+                        <button class="border-2 text-[#f8c92c] py-2.5 px-4 rounded-md group-hover:bg-black font-bold">Booking</button>
+                    </a>
                     <button class="border-2 py-2.5 px-4 rounded-md hover:bg-[#f8c92c] hover:text-black font-bold trailer-button" data-video-url="{{ $movie->trailer }}">Trailer</button> 
                 </div>
             </div>

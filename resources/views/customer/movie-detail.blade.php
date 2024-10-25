@@ -46,10 +46,64 @@
                     <h1 class="text-xl font-extrabold">Schedule</h1>
                 </div>
             </div>
-            <form action="{{route('momo-payment')}}" method="POST">
-                @csrf
-                <button type="submit" name="payUrl">CheckOut with MOMO</button>
-            </form>
-        </div>
-    </div>
+            <div class="invoice-container w-[800px] mx-auto p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold mb-4">Invoice</h2>
+                <div class="mb-4">
+                    <p class="text-lg font-medium">Total: <span class="text-gray-700">150,000 VND</span></p>
+                </div>
+                <div class="mb-4">
+                    <label for="voucher_code" class="block text-sm font-medium text-gray-600 mb-2">Select a Voucher:</label>
+                    <div class="flex items-center">
+                        <select name="voucher_code" id="voucher_code" class="w-full p-2 border rounded-md">
+                            <option value="" selected disabled hidden>Your Vouchers</option>
+                            @foreach ($userVouchers as $userVoucher)
+                                <option value="{{ $vouchers->firstWhere('id', $userVoucher)->code }}">
+                                    {{ $vouchers->firstWhere('id', $userVoucher)->description }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="button" onclick="applyVoucher()"
+                            class="ml-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <p class="text-lg font-medium">Total after Discount: <span id="total_amount"
+                            class="text-green-600">150,000 VND</span></p>
+                </div>
+                <form action="{{ route('momo-payment') }}" method="POST" class="text-center" onsubmit="setDefaultValues()">
+                    @csrf
+                    <input type="hidden" name="total_amount" id="hidden_total_amount">
+                    <input type="hidden" name="voucher_code" id="hidden_voucher_code">
+                    <button type="submit" name="payUrl"
+                        class="w-1/3 bg-pink-500 text-white font-extrabold py-2 rounded-md hover:bg-pink-600">
+                        Checkout with MOMO
+                    </button>
+                </form>
+            </div>
+            <script>
+                const userVouchers = @json($userVouchers);
+                const vouchers = @json($vouchers);
+                let originalTotal = 150000;
+
+                function applyVoucher() {
+                    const voucherCode = document.getElementById('voucher_code').value;
+                    let total = originalTotal;
+                    const voucher = vouchers.find(v => v.code === voucherCode && userVouchers.includes(v.id));
+                    if (voucher) {
+                        total = total - (total * (voucher.value / 100));
+                    }
+                    document.getElementById('total_amount').innerText = total + ' VND';
+                    document.getElementById('hidden_total_amount').value = total;
+                    document.getElementById('hidden_voucher_code').value = voucherCode;
+                }
+
+                function setDefaultValues() {
+                    const totalAmountInput = document.getElementById('hidden_total_amount');
+                    if (!totalAmountInput.value) {
+                        totalAmountInput.value = originalTotal;
+                    }
+                }
+            </script>
 @endsection

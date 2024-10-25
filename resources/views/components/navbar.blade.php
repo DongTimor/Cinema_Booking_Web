@@ -17,7 +17,7 @@
                     <div class="flex space-x-4 gap-5">
                         <a href="/" class="hover:bg-white hover:text-black px-3 py-2 rounded-md text-lg font-bold">Home</a>
                         <a href="#" class="hover:bg-white hover:text-black px-3 py-2 rounded-md text-lg font-bold">Movies</a>
-                        <a href="#" class="hover:bg-white hover:text-black px-3 py-2 rounded-md text-lg font-bold">Coupons</a>
+                        <a href="{{ route('vouchers') }}" class="hover:bg-white hover:text-black px-3 py-2 rounded-md text-lg font-bold">Coupons</a>
                         <a href="#" class="hover:bg-white hover:text-black px-3 py-2 rounded-md text-lg font-bold">Contact</a>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
         <div class="px-2 pt-2 pb-3 space-y-1">
             <a href="#" class="text-gray-900 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
             <a href="#" class="text-gray-900 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Movies</a>
-            <a href="#" class="text-gray-900 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Bookings</a>
+            <a href="#" class="text-gray-900 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Coupons</a>
             <a href="#" class="text-gray-900 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Contact</a>
         </div>
     </div>

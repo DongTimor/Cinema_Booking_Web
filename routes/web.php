@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PointController;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -34,11 +35,13 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/booking/{id}',[HomeController::class,'detail'])->name('detail');
 Route::post('/momo-payment',[PaymentController::class,'momo_payment'])->name('momo-payment');
 Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
+Route::get('/vouchers', [PointController::class, 'index'])->name('vouchers');
+Route::post('/vouchers',[VoucherController::class,'saveVoucher'])->name('vouchers.save');
+
 // admin
 Route::prefix('admin')->group(function () {
     Route::get('/profile',[ProfileController::class, 'edit'])->name('profile.edit');
@@ -136,13 +139,15 @@ Route::prefix('admin')->group(function () {
     Route::get('/customers/{id}',[CustomerController::class, 'edit'])->name('customers.edit');
     Route::put('/customers/{id}',[CustomerController::class, 'update'])->name('customers.update');
     Route::delete('/customers/delete/{id}',[CustomerController::class, 'destroy'])->middleware('permissions')->name('customers.destroy');
+
+    Route::prefix('vouchers')->group(function () {
+        Route::get('/',[VoucherController::class, 'index'])->name('vouchers.index');
+        Route::get('/create',[VoucherController::class, 'create'])->name('vouchers.create');
+        Route::post('/create',[VoucherController::class, 'store'])->name('vouchers.store');
+        Route::get('/edit/{id}',[VoucherController::class, 'edit'])->name('vouchers.edit');
+        Route::put('/edit/{id}',[VoucherController::class, 'update'])->name('vouchers.update');
+        Route::delete('/delete/{id}',[VoucherController::class, 'destroy'])->name('vouchers.destroy');
+    });
 });
 
-Route::prefix('vouchers')->group(function () {
-    Route::get('/',[VoucherController::class, 'index'])->name('vouchers.index');
-    Route::get('/create',[VoucherController::class, 'create'])->name('vouchers.create');
-    Route::post('/create',[VoucherController::class, 'store'])->name('vouchers.store');
-    Route::get('/edit/{id}',[VoucherController::class, 'edit'])->name('vouchers.edit');
-    Route::put('/edit/{id}',[VoucherController::class, 'update'])->name('vouchers.update');
-    Route::delete('/delete/{id}',[VoucherController::class, 'destroy'])->name('vouchers.destroy');
-});
+
