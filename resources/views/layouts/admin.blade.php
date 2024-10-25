@@ -3,6 +3,17 @@
 @section("css")
     <link rel="stylesheet" href="{{ asset("/css/style.css") }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+    <style>
+        .content {
+            overflow-y: auto;
+            height: 95vh;
+        }
+
+        html, body {
+            height: auto;
+            overflow: hidden;
+        }
+    </style>
     @yield("styles")
 @endsection
 

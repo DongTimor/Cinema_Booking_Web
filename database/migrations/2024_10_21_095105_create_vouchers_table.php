@@ -22,10 +22,11 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('user_voucher', function (Blueprint $table) {
+        Schema::create('customer_voucher', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->foreignId('voucher_id')->constrained('vouchers')->onDelete('cascade');
+            $table->enum('status', ['used', 'unused'])->default('unused');
             $table->timestamps();
         });
     }
@@ -36,6 +37,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('vouchers');
-        Schema::dropIfExists('user_voucher');
+        Schema::dropIfExists('customer_voucher');
     }
 };

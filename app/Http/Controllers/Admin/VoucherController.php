@@ -14,13 +14,13 @@ class VoucherController extends Controller
     public function index()
     {
         $vouchers = Voucher::all();
-        return view('vouchers.index', compact('vouchers'));
+        return view('admin.vouchers.index', compact('vouchers'));
     }
 
     public function create()
     {
         $code = Str::random(6);
-        return view('vouchers.create', compact('code'));
+        return view('admin.vouchers.create', compact('code'));
     }
 
     public function store(Request $request)
@@ -40,7 +40,7 @@ class VoucherController extends Controller
     public function edit(string $id)
     {
         $voucher = Voucher::find($id);
-        return view('vouchers.edit', compact('voucher'));
+        return view('admin.vouchers.edit', compact('voucher'));
     }
 
     public function update(Request $request, string $id)
