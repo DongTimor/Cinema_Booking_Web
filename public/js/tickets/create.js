@@ -9,7 +9,6 @@ let voucherId = null;
 let voucherValue = null;
 let voucherType = null;
 
-
 async function getCustomerInfor(id) {
     const response = await fetch(`${baseUrl}/getCustomerInfor/${id}`);
     const customer = await response.json();
@@ -316,6 +315,10 @@ function closeFetchSeatsModal() {
 
 function closeSelectStatusModal() {
     $('#Select-Status-Modal').modal('hide');
+}
+
+function closeShowVoucherModal() {
+    $('#Show-Voucher-Modal').modal('hide');
 }
 
 $(document).ready(function () {

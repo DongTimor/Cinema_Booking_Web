@@ -7,7 +7,8 @@
 @section('content')
     <form action="{{ route('showtimes.store') }}" method="post">
         @csrf
-        <div class="form-group d-flex justify-content-between" style="width: max-content !important; gap: 50px">
+        <h3>Create Showtime</h3>
+        <div class="form-group d-flex justify-content-between" style="margin-top: 20px; width: max-content !important; gap: 50px">
             <div class="form-group d-flex flex-column justify-content-between">
                 <label for="datetimepicker">Select Start Time</label>
                 <div class="input-group date" id="starttimepicker" style="width: max-content !important;"

@@ -4,15 +4,23 @@
 @endsection
 @section('content')
     <h2>Edit ticket : {{ $ticket->id }}</h2>
-    <x-adminlte-select id="movie_id" name="movie_id" label="Movie" disabled>
-        @foreach ($movies as $movie)
-            @if ($movie->id === $ticket->schedule->movie_id)
-                <option selected value="{{ $movie->id }}">{{ $movie->name }}</option>
-            @else
-                <option value="{{ $movie->id }}">{{ $movie->name }}</option>
-            @endif
-        @endforeach
-    </x-adminlte-select>
+    <div class="row">
+        <div class="col-md-10">
+            <x-adminlte-select id="movie_id" name="movie_id" label="Movie" disabled>
+                @foreach ($movies as $movie)
+                    @if ($movie->id === $ticket->schedule->movie_id)
+                        <option selected value="{{ $movie->id }}">{{ $movie->name }}</option>
+                    @else
+                        <option value="{{ $movie->id }}">{{ $movie->name }}</option>
+                    @endif
+                @endforeach
+            </x-adminlte-select>
+        </div>
+        <div class="col-md-2">
+            <x-adminlte-input class="font-weight-bold" id="price" type="number" step="0.01" name="price" label="Price"
+                disabled value="{{ $ticket->price }}" />
+        </div>
+    </div>
     <x-adminlte-select id="user_id" name="user_id" label="Seller" disabled>
         @foreach ($users as $user)
             @if ($user->id === $ticket->user->id)
@@ -32,6 +40,35 @@
             @endif
         @endforeach
     </x-adminlte-select>
+    <button type="button" class="btn btn-primary" onclick="openShowVoucherModal()">Show Voucher</button>
+    @if ($ticket->voucher_id)
+        <div id="voucher-body" class="voucher-body">
+            <div class="voucher-background" style="background-image: url('{{ asset('images/voucher_background.jpg') }}');">
+                <button class="close-button" type="button" class="close" onclick="deleteVoucher()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h1 class="label">Voucher Giảm Giá</h1>
+                <p id="voucher-description" class="description">Nhận ngay {{ $ticket->voucher->value }}
+                    {{ $ticket->voucher->type == 'percent' ? '%' : 'VND' }} cho đơn hàng tiếp theo!
+                </p>
+                <div id="voucher-code" class="code text-uppercase">{{ $ticket->voucher->code }}</div>
+                <div id="voucher-expiry" class="expiry">Hết hạn: {{ $ticket->voucher->expires_at }}</div>
+            </div>
+        </div>
+    @else
+        <div id="voucher-body" class="voucher-body" style="display: none !important;">
+            <div class="voucher-background" style="background-image: url('{{ asset('images/voucher_background.jpg') }}');">
+                <button class="close-button" type="button" class="close" onclick="deleteVoucher()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h1 class="label">Voucher Giảm Giá</h1>
+                <p id="voucher-description" class="description">Nhận ngay
+                </p>
+                <div id="voucher-code" class="code text-uppercase"></div>
+                <div id="voucher-expiry" class="expiry"></div>
+            </div>
+        </div>
+    @endif
     <p class="mt-5" style="font-size: 1rem; font-weight: bold;">Filter by :</p>
     <div class="row ml-3">
         <div class="col-md-1">
@@ -70,7 +107,7 @@
     <div class="seats_container_lable">
         ----------Seats's Booking----------
     </div>
-    <div id="description" class="description">
+    <div id="description" class="guide-description">
         <div id="current-seat-container">
             <x-adminlte-input id="seat_number" name="seat_number" label="Seat Number" disabled
                 value="{{ $ticket->seat->seat_number }}" />
@@ -150,6 +187,38 @@
         <x-adminlte-button style="width: 200px; height: 50px;" id="update-button" theme="success" label="Update"
             type="button" onclick="updateTicket()" />
     </div>
+    <div class="modal fade" id="Show-Voucher-Modal" tabindex="-1" role="dialog"
+        aria-labelledby="Show-Voucher-ModalLabel" aria-hidden="true">
+        <div class="modal-dialog main-dialog" role="document">
+            <div class="modal-content main-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="Show-Voucher-ModalLabel">Voucher List</h5>
+                    <button type="button" class="close" onclick="closeShowVoucherModal()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body main-body">
+                    <ul class="list-group">
+                        @foreach ($vouchers as $voucher)
+                            <div class="voucher" data-id="{{ $voucher->id }}" data-value="{{ $voucher->value }}"
+                                data-type="{{ $voucher->type }}" data-code="{{ $voucher->code }}"
+                                data-expiry="{{ $voucher->expires_at }}" onclick="selectVoucher(this)"
+                                style="background-image: url('{{ asset('images/voucher_background.jpg') }}');">
+                                <h1 class="label">Voucher Giảm Giá</h1>
+                                <p class="description">Nhận ngay {{ $voucher->value }}
+                                    {{ $voucher->type == 'percent' ? '%' : 'VND' }} cho đơn hàng tiếp theo!
+                                </p>
+                                <div class="code text-uppercase">{{ $voucher->code }}</div>
+                                <div class="expiry">Hết hạn: {{ $voucher->expires_at }}</div>
+                            </div>
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('scripts')
     <script>
@@ -163,6 +232,10 @@
                 \Carbon\Carbon::parse($ticket->showtime->end_time)->format('H:i'));
         const auditorium_id = @json($ticket->schedule->auditorium_id);
         const auditorium_name = @json($ticket->schedule->auditorium->name);
+        let voucher = null;
+        if (ticket.voucher_id) {
+            voucher = @json($ticket->voucher);
+        }
     </script>
     <script src="{{ asset('js/tickets/edit.js') }}"></script>
 @endsection

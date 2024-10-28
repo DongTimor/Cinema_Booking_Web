@@ -91,7 +91,7 @@ function combineRegex(row_regex = [], col_regex = []) {
     let combinedRegex = [];
     for (let i = 0; i < row_regex.length; i++) {
         for (let j = 0; j < col_regex.length; j++) {
-            combinedRegex.push({regex: row_regex[i] + '-' + col_regex[j], row: i, column: j});
+            combinedRegex.push({ regex: row_regex[i] + '-' + col_regex[j], row: i, column: j });
         }
     }
     return combinedRegex;
@@ -165,7 +165,7 @@ async function create() {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     if (auditoriumId !== "") {
         if (Result.length > 0) {
-        $('#loader').css('display', 'flex');
+            $('#loader').css('display', 'flex');
             for (const element of Result) {
                 console.log(element.regex, element.row, element.column);
                 const data = {
@@ -206,7 +206,7 @@ async function create() {
 }
 
 function singleCreate() {
-    if(confirm("Are you sure you want to create a single seat?")) {
+    if (confirm("Are you sure you want to create a single seat?")) {
         const url = '/admin/seats/single-create';
         window.location.href = url;
     }
@@ -255,10 +255,10 @@ $(document).ready(async function () {
         }
     });
 
-    $('#Row_number').change(function () {
+    $('#Row_number').change(async function () {
         const value = $(this).val();
         if (value > 0) {
-            const totalSeats = $('#Total_seats').val();
+            const totalSeats = await getTotalSeats($('#auditorium_id').val());
             const complementaryFactor = findComplementaryFactor(totalSeats, value);
             $('#Column_number').val(complementaryFactor);
             $('#Available_seats').val(value * complementaryFactor + "/" + totalSeats);
@@ -266,10 +266,10 @@ $(document).ready(async function () {
         demoResult();
     });
 
-    $('#Column_number').change(function () {
+    $('#Column_number').change(async function () {
         const value = $(this).val();
         if (value > 0) {
-            const totalSeats = $('#Total_seats').val();
+            const totalSeats = await getTotalSeats($('#auditorium_id').val());
             const complementaryFactor = findComplementaryFactor(totalSeats, value);
             $('#Row_number').val(complementaryFactor);
             $('#Available_seats').val(value * complementaryFactor + "/" + totalSeats);
