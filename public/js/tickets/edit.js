@@ -4,6 +4,17 @@ let selectedSeats = [];
 let seatChoosen = null;
 let seatStatus = 'unplaced';
 let changedSeatStatus = false;
+let voucherId = null;
+let voucherValue = null;
+let voucherType = null;
+
+if (voucher) {
+    voucherId = voucher.id;
+    voucherValue = voucher.value;
+    voucherType = voucher.type;
+}
+
+console.log(voucherId, voucherValue, voucherType);
 
 function convertTimeToHourAndMinute(timeString) {
     const [hours, minutes] = timeString.split(':');
@@ -46,6 +57,47 @@ function changeSeatStatus() {
 
 function closeSelectStatusModal() {
     $('#Select-Status-Modal').modal('hide');
+}
+
+function openShowVoucherModal() {
+    $('#Show-Voucher-Modal').modal('show');
+}
+
+function closeShowVoucherModal() {
+    $('#Show-Voucher-Modal').modal('hide');
+}
+
+async function selectVoucher(voucher) {
+    voucherId = voucher.dataset.id;
+    voucherValue = voucher.dataset.value;
+    voucherType = voucher.dataset.type;
+    $('#Show-Voucher-Modal').modal('hide');
+    $('#voucher-description').text("Giảm ngay " + voucher.dataset.value + (voucher.dataset.type === 'percent' ? '%' : 'VND') + " cho đơn hàng tiếp theo!");
+    $('#voucher-code').text(voucher.dataset.code);
+    $('#voucher-expiry').text("Hết hạn: " + voucher.dataset.expiry);
+    $('#voucher-body').css('display', 'flex');
+    if ($(movie_id).val()) {
+        let price = await getPrice($(movie_id).val());
+        if (voucherId) {
+            if (voucherType === 'percent') {
+                price = price * (1 - voucherValue / 100);
+            } else {
+                price = price - voucherValue;
+            }
+        }
+        $('#price').val(price);
+    }
+}
+
+async function deleteVoucher() {
+    voucherId = null;
+    voucherValue = null;
+    voucherType = null;
+    $('#voucher-body').css('display', 'none');
+    if ($(movie_id).val()) {
+        let price = await getPrice($(movie_id).val());
+        $('#price').val(price);
+    }
 }
 
 async function applyStatus() {
@@ -210,6 +262,12 @@ async function getSchedule(id) {
     const response = await fetch(`${baseUrl}/movies/features/getSchedule/${id}`);
     const schedule = await response.json();
     return schedule;
+}
+
+async function getPrice(id) {
+    const response = await fetch(`${baseUrl}/movies/features/getPrice/${id}`);
+    const price = await response.json();
+    return price;
 }
 
 async function getShowtimesOfMovieAndDate(date, movie) {
@@ -378,13 +436,17 @@ async function updateTicket() {
             status: selectedSeats[0][1],
             showtime_id: $('#showtime_id').val(),
             schedule_id: scheduleId,
-            customer_id: $('#customer_id').val()
+            customer_id: $('#customer_id').val(),
+            price: $('#price').val(),
+            voucher_id: voucherId,
         };
     } else {
         const seat_id = await getSeatId($('#seat_number').val(), $('#auditorium_id').val());
         data = {
             seat_id: seat_id,
             status: $('#seat_status').val(),
+            price: $('#price').val(),
+            voucher_id: voucherId,
         };
     };
     await fetch(url, {

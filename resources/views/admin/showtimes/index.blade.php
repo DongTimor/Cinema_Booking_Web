@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-    <h2>Ticket</h2>
+    <h3>Showtime</h3>
     @php
         $heads = [['label' => 'ID'], ['label' => 'Time'], ['label' => 'Actions', 'no-export' => true, 'width' => 5]];
 
