@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MovieRequest;
 use App\Models\Category;
 use App\Models\Movie;
+use App\Models\Schedule;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
 
@@ -120,7 +121,7 @@ class MovieController extends Controller
     try {
         $movie = Movie::findOrFail($id);
         $movie->update($validated);
-        $existingImageUrls = $request->input('image_urls', []); 
+        $existingImageUrls = $request->input('image_urls', []);
         $existingImageUrls = is_array($existingImageUrls) ? $existingImageUrls : explode(',', $existingImageUrls);
         foreach ($movie->images as $image) {
             if (!in_array($image->url, $existingImageUrls)) {
@@ -180,5 +181,34 @@ class MovieController extends Controller
     {
         $dates = Movie::findOrFail($id)->start_date;
         return response()->json($dates);
+    }
+
+    public function getSchedule(string $id)
+    {
+        $schedules = Schedule::where('movie_id', $id)->get();
+        $showtimes = $schedules->flatMap(function ($schedule) {
+            return $schedule->showtimes;
+        })->unique('id');
+
+        $auditoriums = $schedules->map(function ($schedule) {
+            return $schedule->auditorium;
+        })->unique('id');
+
+        $dates = $schedules->map(function ($schedule) {
+            return $schedule->date;
+        })->unique();
+
+        $information = [
+            'showtimes' => $showtimes,
+            'auditoriums' => $auditoriums,
+            'dates' => $dates,
+        ];
+        return response()->json($information);
+    }
+
+    public function getPrice(string $id)
+    {
+        $movie = Movie::findOrFail($id);
+        return response()->json($movie->price);
     }
 }

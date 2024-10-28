@@ -101,4 +101,42 @@ class ScheduleController extends Controller
     {
         Schedule::findOrFail($scheduleId)->showtimes()->detach($showtimeId);
     }
+
+    public function getSchedule($movieId, $date, $auditorium)
+    {
+        $schedule = Schedule::where('movie_id', $movieId)
+            ->whereDate('date', $date)
+            ->where('auditorium_id', $auditorium)
+            ->select('id')
+            ->first();
+
+        $id = $schedule ? $schedule->id : null;
+        return response()->json($id);
+    }
+
+    public function getDatesOfMovieAndAuditorium($movie, $auditorium)
+    {
+        $dates = Schedule::where('movie_id', $movie)
+            ->where('auditorium_id', $auditorium)
+            ->get()
+            ->map(function ($schedule) {
+                return $schedule->date;
+            })
+            ->unique();
+        return response()->json($dates);
+    }
+
+    public function getDateOfMovieAndShowtime($movie, $showtime)
+    {
+        $date = Schedule::where('movie_id', $movie)
+            ->whereHas('showtimes', function ($query) use ($showtime) {
+                $query->where('showtime_id', $showtime);
+            })
+            ->get()
+            ->map(function ($schedule) {
+                return $schedule->date;
+            })
+            ->unique();
+        return response()->json($date);
+    }
 }

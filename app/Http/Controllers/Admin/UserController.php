@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -45,5 +46,11 @@ class UserController extends Controller
         $user->roles()->attach($roleId);
 
         return redirect()->route('users.index');
+    }
+
+    public function getCurrentUser()
+    {
+        $user = Auth::user();
+        return response()->json($user);
     }
 }

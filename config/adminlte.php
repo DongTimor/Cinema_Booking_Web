@@ -352,8 +352,21 @@ return [
 
         [
             'text' => 'Auditorium',
-            'url' => 'admin/auditoriums',
             'icon' => 'fas fa-fw fa-calendar',
+            'submenu' => [
+                [
+                    'text' => 'Manage',
+                    'url' => 'admin/auditoriums',
+                    'icon' => 'fas fa-cog',
+                    'active' => ['admin/auditoriums*'],
+                ],
+                [
+                    'text' => 'Seat',
+                    'url' => 'admin/seats',
+                    'icon' => 'fas fa-chair',
+                    'active' => ['admin/seats*'],
+                ],
+            ],
         ],
         [
             'text' => 'Ticket',
@@ -389,6 +402,11 @@ return [
             'text' => 'Voucher',
             'url' => '/vouchers',
             'icon' => 'fas fa-tags',
+        ],
+        [
+            'text' => 'Showtime',
+            'url' => '/admin/showtimes',
+            'icon' => 'fas fa-clock',
         ],
     ],
 
