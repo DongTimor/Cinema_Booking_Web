@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('phone_number', 12);
-            $table->string('address');
-            $table->enum('gender',['male','female','none'])->default('none');
-            $table->date('date_of_birth');
+            $table->string('phone_number', 12)->nullable();
+            $table->string('address')->nullable();
+            $table->enum('gender',['male','female','none'])->default('none')->nullable();
+            $table->date('date_of_birth')->nullable();
             $table->timestamps();
         });
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Movie;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class HomeController extends Controller
 {
@@ -14,7 +15,6 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
     }
 
     /**
@@ -22,9 +22,11 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('home');
+        $token = $request->cookie('token');
+        $customer = JWTAuth::setToken($token)->getPayload();
+        return view('home', compact('customer'));
     }
 
     public function getMovies()
@@ -33,5 +35,3 @@ class HomeController extends Controller
         return response()->json($movies);
     }
 }
-
-
