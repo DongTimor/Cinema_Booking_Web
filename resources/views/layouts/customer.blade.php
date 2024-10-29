@@ -14,10 +14,12 @@
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.14.4/sweetalert2.min.css">
     <link rel="alternate icon" class="js-site-favicon" type="*/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="stylesheet" href="{{ asset('css/customer/header.css') }}">
     @yield('styles')
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
+
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
@@ -25,7 +27,9 @@
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
@@ -47,23 +51,29 @@
 
                             @if (Route::has('register'))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('customer.register') }}">{{ __('Register') }}</a>
+                                    <a class="nav-link"
+                                        href="{{ route('customer.register') }}">{{ __('Register') }}</a>
                                 </li>
                             @endif
                         @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                            <li class="nav-item dropdown customer-info">
+                                <img class="customer-avatar" src="{{ asset($customer['image']) }}" alt="#">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ $customer['name'] }}
                                 </a>
-
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item"
+                                        href="{{ route('customer.profile.show', $customer['id']) }}">
+                                        Profile
+                                    </a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
+                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
-
-                                    <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" class="d-none">
+                                    <form id="logout-form" action="{{ route('customer.logout') }}" method="POST"
+                                        class="d-none">
                                         @csrf
                                     </form>
                                 </div>
@@ -78,9 +88,10 @@
             @yield('content')
         </main>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.14.4/sweetalert2.min.js"></script>
     <script>
-        @if (session("error"))
+        @if (session('error'))
             Swal.fire({
                 title: "Error!",
                 text: '{{ session('error') }}',
@@ -101,7 +112,8 @@
                 icon: "warning",
             })
         @endif
-        </script>
+    </script>
     @yield('scripts')
 </body>
+
 </html>
