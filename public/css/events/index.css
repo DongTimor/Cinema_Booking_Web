@@ -1,0 +1,24 @@
+#external-events {
+    padding: 10px;
+    width: 150px;
+    border: 1px solid #ccc;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+#external-events .fc-event {
+    margin: 10px 0;
+    padding: 5px;
+    cursor: pointer;
+    color: white;
+    border-radius: 3px;
+}
+
+
+.modal-content {
+    min-width: max-content !important;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: rgb(247, 247, 247);
+}
+
