@@ -46,7 +46,7 @@ class CustomerController extends Controller
             'phone_number' => $request->phone_number,
             'address' => $request->address,
             'gender' => $request->gender,
-            'date_of_birth' => $request->date_of_birth,
+            'birth_date' => $request->birth_date,
             'image' => $request->image,
             'status' => $request->status ?? 0,
         ]);
@@ -93,7 +93,7 @@ class CustomerController extends Controller
         'phone_number' => $request->phone_number,
         'address' => $request->address,
         'gender' => $request->gender,
-        'date_of_birth' => $request->date_of_birth,
+        'birth_date' => $request->birth_date,
         'image' => $request->image,
         'status' => $request->status
     ]);
@@ -123,7 +123,7 @@ class CustomerController extends Controller
     public function getCustomerInfor(string $id)
     {
         $customer = Customer::findOrFail($id)
-            ->select('id', 'name', 'email', 'phone_number', 'address', 'gender', 'date_of_birth')
+            ->select('id', 'name', 'email', 'phone_number', 'address', 'gender', 'birth_date')
             ->first();
         return response()->json($customer);
     }

@@ -33,6 +33,7 @@ class LoginController extends Controller
                 'id' => $customer->id,
                 'name' => $customer->name,
                 'email' => $customer->email,
+                'image' => $customer->image,
             ];
 
             $token = JWTAuth::claims($customClaims)->fromUser($customer);

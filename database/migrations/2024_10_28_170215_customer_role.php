@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('customer_role');
         Schema::create('customer_role', function (Blueprint $table) {
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
+            $table->unique(['customer_id', 'role_id']);
         });
     }
 

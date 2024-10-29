@@ -18,6 +18,7 @@ use App\Http\Controllers\Customer\RegisterController;
 use App\Http\Controllers\Customer\ResetPasswordController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Customer\ForgotPasswordController;
+use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\User\VoucherStockController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -187,4 +188,6 @@ Route::prefix('customers')->group(function () {
     Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('customer.password.reset');
     Route::get('/email-veryfied',[ForgotPasswordController::class, 'form'])->name('customer.email.form');
     Route::post('/email-veryfied',[ForgotPasswordController::class, 'forgotPassword'])->name('customer.email.veryfied');
+    Route::get('/profile/{id}', [CustomerProfileController::class, 'show'])->name('customer.profile.show');
+    Route::put('/profile/{id}', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
 });
