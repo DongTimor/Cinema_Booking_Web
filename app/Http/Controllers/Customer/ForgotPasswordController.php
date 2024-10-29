@@ -26,7 +26,11 @@ class ForgotPasswordController extends Controller
         ]);
         $customer = Customer::where('email', $request->email)->first();
         if (!$customer) {
-            return alert('Email not found', 'We can\'t find a customer with that e-mail address.');
+            return redirect()->route('customer.email.form')->with('error', 'We can not find a customer with that e-mail address.');
+        }
+        $email = DB::table('customers_password_reset_tokens')->where('email', $request->email)->pluck('email')->first();
+        if ($email) {
+            return redirect()->route('customer.email.form')->with('warning', 'You have submitted a password reset request, please check your inbox.');
         }
         $token = Password::createToken($customer);
 
@@ -37,6 +41,6 @@ class ForgotPasswordController extends Controller
 
         Mail::to($request->post('email'))->send(new ResetPassword($token));
 
-        return alert('Check your email', 'We have e-mailed your password reset link!');
+        return redirect()->route('customer.email.form')->with('success', 'We have e-mailed your password reset link!');
     }
 }

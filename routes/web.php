@@ -185,6 +185,6 @@ Route::prefix('customers')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('customer.logout');
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'form'])->name('customer.password.form');
     Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('customer.password.reset');
-    Route::get('/email-veryfied',[ForgotPasswordController::class, 'form'])->name('customer.email.veryfied');
+    Route::get('/email-veryfied',[ForgotPasswordController::class, 'form'])->name('customer.email.form');
     Route::post('/email-veryfied',[ForgotPasswordController::class, 'forgotPassword'])->name('customer.email.veryfied');
 });

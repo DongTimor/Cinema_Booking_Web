@@ -12,8 +12,9 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.14.4/sweetalert2.min.css">
     <link rel="alternate icon" class="js-site-favicon" type="*/x-icon" href="{{ asset('favicon.ico') }}">
-
+    @yield('styles')
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
@@ -77,5 +78,30 @@
             @yield('content')
         </main>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.14.4/sweetalert2.min.js"></script>
+    <script>
+        @if (session("error"))
+            Swal.fire({
+                title: "Error!",
+                text: '{{ session('error') }}',
+                icon: "error",
+            });
+        @endif
+        @if (session('success'))
+            Swal.fire({
+                title: "Success!",
+                text: '{{ session('success') }}',
+                icon: "success",
+            });
+        @endif
+        @if (session('warning'))
+            Swal.fire({
+                title: "Warning!",
+                text: '{{ session('warning') }}',
+                icon: "warning",
+            })
+        @endif
+        </script>
+    @yield('scripts')
 </body>
 </html>
