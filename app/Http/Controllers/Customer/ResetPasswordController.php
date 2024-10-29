@@ -7,7 +7,6 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 
 class ResetPasswordController extends Controller
 {
@@ -28,6 +27,6 @@ class ResetPasswordController extends Controller
         $customer->save();
 
         DB::table('customers_password_reset_tokens')->where('email', $email)->delete();
-        return redirect()->route('customer.login.form');
+        return redirect()->route('customer.login.form')->with('success', 'Your password has been reset.');
     }
 }
