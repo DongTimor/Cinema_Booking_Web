@@ -21,7 +21,7 @@ class CustomerFactory extends Factory
             'phone_number' => $this->faker->numerify('###########'),
             'address' => $this->faker->address,
             'gender' => $this->faker->randomElement(['male', 'female']),
-            'date_of_birth' => $this->faker->date,
+            'birth_date' => $this->faker->date,
             'email' => $this->faker->unique()->safeEmail,
             'password' => bcrypt('password'),
         ];

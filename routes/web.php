@@ -13,12 +13,16 @@ use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\ScheduleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
+use App\Http\Controllers\Customer\LoginController;
+use App\Http\Controllers\Customer\RegisterController;
+use App\Http\Controllers\Customer\ResetPasswordController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PointController;
+use App\Http\Controllers\Customer\ForgotPasswordController;
+use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\User\VoucherStockController;
-use App\Models\Profile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -182,5 +186,19 @@ Route::prefix('users')->group(function () {
     Route::prefix('/stock-voucher')->group(function () {
         Route::get('/',[VoucherStockController::class, 'index'])->name('voucher_stock.index');
     });
+});
+
+Route::prefix('customers')->group(function () {
+    Route::get('/login', [LoginController::class, 'form'])->name('customer.login.form');
+    Route::post('/login', [LoginController::class, 'login'])->name('customer.login');
+    Route::get('/register', [RegisterController::class, 'form'])->name('customer.register.form');
+    Route::post('/register', [RegisterController::class, 'register'])->name('customer.register');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('customer.logout');
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'form'])->name('customer.password.form');
+    Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('customer.password.reset');
+    Route::get('/email-veryfied',[ForgotPasswordController::class, 'form'])->name('customer.email.form');
+    Route::post('/email-veryfied',[ForgotPasswordController::class, 'forgotPassword'])->name('customer.email.veryfied');
+    Route::get('/profile/{id}', [CustomerProfileController::class, 'show'])->name('customer.profile.show');
+    Route::put('/profile/{id}', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
 });
 
