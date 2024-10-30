@@ -50,10 +50,13 @@ class ScheduleController extends Controller
             ->where('auditorium_id', $request->auditorium_id)
             ->where('date', $formattedDate)
             ->first();
+
         if ($existingSchedule) {
             if ($request->has('showtime_id')) {
                 foreach ($request->showtime_id as $showtime) {
                     $existingSchedule->showtimes()->attach($showtime);
+                    $showtimeModel = Showtime::find($showtime);
+                    $showtimeModel->movies()->attach($request->movie_id);
                 }
             }
         } else {
@@ -61,6 +64,8 @@ class ScheduleController extends Controller
             if ($request->has('showtime_id')) {
                 foreach ($request->showtime_id as $showtime) {
                     $schedule->showtimes()->attach($showtime);
+                    $showtimeModel = Showtime::find($showtime);
+                    $showtimeModel->movies()->attach($request->movie_id);
                 }
             }
         }

@@ -45,65 +45,176 @@
                     <div class="w-[5px] h-[25px] bg-[#f8c92c]"></div>
                     <h1 class="text-xl font-extrabold">Schedule</h1>
                 </div>
-            </div>
-            <div class="invoice-container w-[800px] mx-auto p-6 rounded-lg shadow-md">
-                <h2 class="text-2xl font-semibold mb-4">Invoice</h2>
-                <div class="mb-4">
-                    <p class="text-lg font-medium">Total: <span class="text-gray-700">150,000 VND</span></p>
+                <div class="flex overflow-x-auto" id="date-selector">
+                    @php
+                        use Carbon\Carbon;
+                        $dates = collect(range(0, 6))->map(function ($day) {
+                            return Carbon::today()->addDays($day);
+                        });
+                    @endphp
+                    @foreach ($dates as $date)
+                        <div class="flex-shrink-0 mx-2 py-2 px-3 rounded cursor-pointer date-item {{ $date->isToday() ? 'bg-blue-600 text-white' : 'bg-gray-200' }}"
+                            data-date="{{ $date->toDateString() }}">
+                            <p class="text-center font-bold">{{ $date->format('l') }}</p>
+                            <p class="text-center">{{ $date->format('d/m') }}</p>
+                        </div>
+                    @endforeach
                 </div>
-                <div class="mb-4">
-                    <label for="voucher_code" class="block text-sm font-medium text-gray-600 mb-2">Select a Voucher:</label>
-                    <div class="flex items-center">
-                        <select name="voucher_code" id="voucher_code" class="w-full p-2 border rounded-md">
-                            <option value="" selected disabled hidden>Your Vouchers</option>
-                            @foreach ($userVouchers as $userVoucher)
-                                <option value="{{ $vouchers->firstWhere('id', $userVoucher)->code }}">
-                                    {{ $vouchers->firstWhere('id', $userVoucher)->description }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <button type="button" onclick="applyVoucher()"
-                            class="ml-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                            Apply
-                        </button>
+            </div>
+
+            <div class="mt-1" id="timeslot-section">
+                <h2 class="font-bold text-lg">Mirabo Đà Nẵng</h2>
+                <div class="mt-2">
+                    <p>2D Phụ Đề</p>
+                    <div class="grid grid-cols-6 gap-4 mt-2" id="timeslot-container">
+                        @foreach ($showtimes as $showtime)
+                            <button
+                                onclick="openSeatSelectionModal('{{ $today }}',{{ $movie->id }},{{ $showtime->id }})"
+                                class="border border-gray-300 px-2 py-2 rounded hover:bg-gray-300 showtime-button">
+                                {{ $showtime->start_time }}
+                            </button>
+                        @endforeach
                     </div>
                 </div>
-                <div class="mb-6">
-                    <p class="text-lg font-medium">Total after Discount: <span id="total_amount"
-                            class="text-green-600">150,000 VND</span></p>
-                </div>
-                <form action="{{ route('momo-payment') }}" method="POST" class="text-center" onsubmit="setDefaultValues()">
-                    @csrf
-                    <input type="hidden" name="total_amount" id="hidden_total_amount">
-                    <input type="hidden" name="voucher_code" id="hidden_voucher_code">
-                    <button type="submit" name="payUrl"
-                        class="w-1/3 bg-pink-500 text-white font-extrabold py-2 rounded-md hover:bg-pink-600">
-                        Checkout with MOMO
-                    </button>
-                </form>
             </div>
-            <script>
-                const userVouchers = @json($userVouchers);
-                const vouchers = @json($vouchers);
-                let originalTotal = 150000;
+        </div>
+        <div id="seatSelectionModal"
+            class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-75">
+            <div class="bg-white p-8 rounded-lg shadow-lg w-3/4 max-w-2xl relative">
+                <button onclick="closeSeatSelectionModal()"
+                    class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">&times;</button>
+                <h2 class="text-2xl font-bold mb-4">Select Seats</h2>
+                <div id="seats-container" class="grid grid-cols-10 gap-2">
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button onclick="bookSeats()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Book
+                        Selected Seats</button>
+                </div>
+            </div>
+        </div>
+        <div class="invoice-container w-[800px] mx-auto p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Invoice</h2>
+            <div class="mb-4">
+                <p class="text-lg font-medium">Total: <span class="text-gray-700">150,000 VND</span></p>
+            </div>
+            <div class="mb-4">
+                <label for="voucher_code" class="block text-sm font-medium text-gray-600 mb-2">Select a Voucher:</label>
+                <div class="flex items-center">
+                    <select name="voucher_code" id="voucher_code" class="w-full p-2 border rounded-md">
+                        <option value="" selected disabled hidden>Your Vouchers</option>
+                        @foreach ($userVouchers as $userVoucher)
+                            <option value="{{ $vouchers->firstWhere('id', $userVoucher)->code }}">
+                                {{ $vouchers->firstWhere('id', $userVoucher)->description }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <button type="button" onclick="applyVoucher()"
+                        class="ml-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                        Apply
+                    </button>
+                </div>
+            </div>
+            <div class="mb-6">
+                <p class="text-lg font-medium">Total after Discount: <span id="total_amount" class="text-green-600">150,000
+                        VND</span></p>
+            </div>
+            <form action="{{ route('momo-payment') }}" method="POST" class="text-center" onsubmit="setDefaultValues()">
+                @csrf
+                <input type="hidden" name="total_amount" id="hidden_total_amount">
+                <input type="hidden" name="voucher_code" id="hidden_voucher_code">
+                <button type="submit" name="payUrl"
+                    class="w-1/3 bg-pink-500 text-white font-extrabold py-2 rounded-md hover:bg-pink-600">
+                    Checkout with MOMO
+                </button>
+            </form>
+        </div>
+        <script>
+            const userVouchers = @json($userVouchers);
+            const vouchers = @json($vouchers);
+            let originalTotal = 150000;
 
-                function applyVoucher() {
-                    const voucherCode = document.getElementById('voucher_code').value;
-                    let total = originalTotal;
-                    const voucher = vouchers.find(v => v.code === voucherCode && userVouchers.includes(v.id));
-                    if (voucher) {
-                        total = total - (total * (voucher.value / 100));
-                    }
-                    document.getElementById('total_amount').innerText = total + ' VND';
-                    document.getElementById('hidden_total_amount').value = total;
-                    document.getElementById('hidden_voucher_code').value = voucherCode;
+            function applyVoucher() {
+                const voucherCode = document.getElementById('voucher_code').value;
+                let total = originalTotal;
+                const voucher = vouchers.find(v => v.code === voucherCode && userVouchers.includes(v.id));
+                if (voucher) {
+                    total = total - (total * (voucher.value / 100));
                 }
+                document.getElementById('total_amount').innerText = total + ' VND';
+                document.getElementById('hidden_total_amount').value = total;
+                document.getElementById('hidden_voucher_code').value = voucherCode;
+            }
 
-                function setDefaultValues() {
-                    const totalAmountInput = document.getElementById('hidden_total_amount');
-                    if (!totalAmountInput.value) {
-                        totalAmountInput.value = originalTotal;
-                    }
+            function setDefaultValues() {
+                const totalAmountInput = document.getElementById('hidden_total_amount');
+                if (!totalAmountInput.value) {
+                    totalAmountInput.value = originalTotal;
                 }
-            </script>
-@endsection
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const dateSelector = document.getElementById('date-selector');
+                dateSelector.addEventListener('click', function(event) {
+                    const item = event.target.closest('.date-item');
+                    if (item) {
+                        const selectedDate = item.getAttribute('data-date');
+                        const movieId = {{ $movie->id }};
+                        fetchShowtimes(selectedDate, movieId);
+                        const activeItem = dateSelector.querySelector('.bg-blue-600');
+                        if (activeItem) {
+                            activeItem.classList.remove('bg-blue-600', 'text-white');
+                            activeItem.classList.add('bg-gray-200');
+                        }
+                        item.classList.remove('bg-gray-200');
+                        item.classList.add('bg-blue-600', 'text-white');
+                    }
+                });
+            });
+
+            async function fetchShowtimes(date, movieId) {
+                try {
+                    const response = await fetch(`/showtimes?date=${date}&movie_id=${movieId}`);
+                    const data = await response.json();
+                    const timeslotContainer = document.getElementById('timeslot-container');
+                    timeslotContainer.innerHTML = '';
+                    data.forEach(showtime => {
+                        const button = document.createElement('button');
+                        button.classList.add('border', 'border-gray-300', 'px-2', 'py-2', 'rounded',
+                            'hover:bg-gray-300', 'showtime-button');
+                        button.textContent = showtime.start_time;
+                        button.addEventListener('click', function() {
+                            openSeatSelectionModal(date, movieId, showtime.id);
+                        });
+                        timeslotContainer.appendChild(button);
+                    });
+                } catch (error) {
+                    console.error('Error fetching showtimes:', error);
+                }
+            }
+
+            function openSeatSelectionModal(date, movieId, showtimeId) {
+                fetchSeats(date, movieId, showtimeId);
+                document.getElementById('seatSelectionModal').classList.remove('hidden');
+            }
+
+            async function fetchSeats(date, movieId, showtimeId) {
+                const response = await fetch(`/seats?date=${date}&movie_id=${movieId}&showtime_id=${showtimeId}`);
+                const data = await response.json();
+                console.log(data);
+                const seatsContainer = document.getElementById('seats-container');
+                seatsContainer.innerHTML = '';
+                data.forEach((seat) => {
+                    const seatDiv = document.createElement('div');
+                    seatDiv.classList.add('border', 'border-gray-300', 'px-2', 'py-2',
+                        'rounded', 'hover:bg-gray-300');
+                    seatDiv.textContent = seat.seat_number;
+                    seatsContainer.appendChild(seatDiv);
+                });
+            }
+
+
+            function closeSeatSelectionModal() {
+                document.getElementById('seatSelectionModal').classList.add('hidden');
+            }
+        </script>
+    @endsection

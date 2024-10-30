@@ -21,7 +21,7 @@
 </head>
 
 <body>
-    <div class="relative bg-[#9d9e94] w-screen h-[100px] flex items-center justify-center text-black">
+    <div class="relative bg-[#ffffff] w-screen h-[100px] flex items-center justify-center text-black">
         @if (Route::has('login'))
             @auth
                 <div class="">
