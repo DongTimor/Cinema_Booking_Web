@@ -17,6 +17,9 @@ use App\Http\Controllers\Customer\LoginController;
 use App\Http\Controllers\Customer\RegisterController;
 use App\Http\Controllers\Customer\ResetPasswordController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PointController;
 use App\Http\Controllers\Customer\ForgotPasswordController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\User\VoucherStockController;
@@ -37,8 +40,15 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/booking/{id}',[HomeController::class,'detail'])->name('detail');
+Route::post('/momo-payment',[PaymentController::class,'momo_payment'])->name('momo-payment');
+Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
+Route::get('/vouchers', [PointController::class, 'index'])->name('vouchers');
+Route::post('/vouchers',[VoucherController::class,'saveVoucher'])->name('vouchers.save');
+Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
+Route::get('/seats', [HomeController::class, 'getSeatsByShowtimeAndAuditorium']);
 // admin
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::prefix('admin')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/{id}', [ProfileController::class, 'update'])->name('profile.update');
@@ -191,3 +201,4 @@ Route::prefix('customers')->group(function () {
     Route::get('/profile/{id}', [CustomerProfileController::class, 'show'])->name('customer.profile.show');
     Route::put('/profile/{id}', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
 });
+

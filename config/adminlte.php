@@ -400,7 +400,7 @@ return [
         ],
         [
             'text' => 'Voucher',
-            'url' => '/vouchers',
+            'url' => 'admin/vouchers',
             'icon' => 'fas fa-tags',
         ],
         [

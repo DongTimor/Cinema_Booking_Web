@@ -19,6 +19,7 @@ class Movie extends Model
         'end_date',
         'duration',
         'status',
+        'price',
     ];
 
     public function images(): HasMany

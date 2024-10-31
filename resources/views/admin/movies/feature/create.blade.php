@@ -17,6 +17,8 @@
                     value="{{ old('name') }}" />
                 <x-adminlte-input type="number" name="duration" label="Duration (minutes)*" fgroup-class="w-30"
                     value="{{ old('duration') }}" />
+                    <x-adminlte-input type="text" name="price" label="Price (VND)*" fgroup-class="w-30"
+                    value="{{ old('price') }}" />
             </div>
             <div class="form-group d-flex justify-content-between" style="width: 100% !important; gap: 50px">
                 <div class="form-group d-flex flex-column justify-content-between">
@@ -75,15 +77,6 @@
             <x-adminlte-button type="submit" id="submitMovieForm" label="Create" theme="primary"
                 class="bg-primary text-white hover:bg-secondary" />
         </form>
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
     </div>
 @endsection
 

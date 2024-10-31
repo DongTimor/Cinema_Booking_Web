@@ -132,8 +132,8 @@ class MovieController extends Controller
                 $image->delete();
             }
         }
-        if ($request->hasFile('image_id')) {
-            $images = $request->file('image_id');
+        if ($request->hasFile('image_arr')) {
+            $images = $request->file('image_arr');
             foreach ($images as $image) {
                 $imageName = time() . '_' . $image->getClientOriginalName();
                 $imagePath = $image->storeAs('public/images', $imageName);

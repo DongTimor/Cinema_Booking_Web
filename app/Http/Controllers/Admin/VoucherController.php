@@ -62,4 +62,17 @@ class VoucherController extends Controller
         $voucher->delete();
         return redirect()->route('vouchers.index');
     }
+
+    public function saveVoucher(Request $request)
+    {
+        $voucherId = $request->input('voucher_id');
+        $voucher = Voucher::find($voucherId);
+        if ($voucher && $voucher->quantity > 0) {
+            $voucher->quantity -= 1;
+            $voucher->save();
+            $voucher->customers()->attach(auth('customer')->user()->id, ['voucher_id' => $voucherId]);
+            return redirect()->route('vouchers')->with('success', 'Voucher saved successfully.');
+        }
+        return redirect()->route('vouchers')->with('error', 'Voucher could not be saved.');
+    }
 }
