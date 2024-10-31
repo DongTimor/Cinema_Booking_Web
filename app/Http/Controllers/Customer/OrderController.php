@@ -15,7 +15,6 @@ class OrderController extends Controller
     {
         $customer = auth('customer')->user();
         $orders = $customer->orders;
-        // dd($orders);
         return view('customer.orders.index', compact('customer','orders'));
     }
 
