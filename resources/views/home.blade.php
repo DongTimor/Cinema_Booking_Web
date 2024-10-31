@@ -4,9 +4,7 @@
     <div class="bg-white flex flex-col items-center justify-center">
         <div class="relative mt-7 ">
             <div class="swiper-container">
-                <!-- Additional required wrapper -->
                 <div class="swiper-wrapper w-4/5">
-                    <!-- Slides -->
                     <div class="swiper-slide">
                         <img src="{{ asset('images/banner3.jpg') }}" alt="" class="w-full h-[450px]">
                     </div>
@@ -17,11 +15,8 @@
                         <img src="{{ asset('images/banner5.jpg') }}" alt="" class="w-full h-[450px]">
                     </div>
                 </div>
-                <!-- Navigation buttons -->
                 <div class="swiper-button-next"></div>
                 <div class="swiper-button-prev"></div>
-
-                <!-- Pagination dots -->
                 <div class="swiper-pagination"></div>
             </div>
         </div>
@@ -66,25 +61,9 @@
                         trailerVideo.src = '';
                     }
                 });
-            const swiper = new Swiper('.swiper-container', {
-                loop: true, // Enable looping
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                speed: 700,
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-                autoplay: {
-                    delay: 3000,
-                    disableOnInteraction: false,
-                },
-                slidesPerView: 'auto',
-                centeredSlides: true,
-                spaceBetween: 10,
-            });
             </script>
         </div>
+    @endsection
+    @section('scripts')
+    <script src="{{asset('js/home/swipe-banner.js')}}"></script>
     @endsection

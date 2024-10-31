@@ -7,7 +7,8 @@
 @section('content')
     <div class="">
         <h1>Edit Movie</h1>
-        <form action="{{ route('movies.features.update', $movie->id) }}" method="POST" enctype="multipart/form-data" id="update_form">
+        <form action="{{ route('movies.features.update', $movie->id) }}" method="POST" enctype="multipart/form-data"
+            id="update_form">
             @csrf
             @method('PUT')
             <div style="display: flex; flex-direction: row; gap: 30px;">
@@ -15,6 +16,8 @@
                     value="{{ $movie->name }}" />
                 <x-adminlte-input type="number" name="duration" label="Duration (minutes)*" fgroup-class="w-30"
                     value="{{ $movie->duration }}" />
+                <x-adminlte-input type="text" name="price" label="Price (VND)*" fgroup-class="w-30"
+                    value="{{$movie->price}}" />
             </div>
             <div class="form-group d-flex justify-content-between" style="width: 100% !important; gap: 50px">
                 <div class="form-group d-flex flex-column justify-content-between">
@@ -54,7 +57,7 @@
                     @endforeach
                 </x-adminlte-select>
             </div>
-            <x-adminlte-input-file id="images" name="image_id[]" label="Upload files" value="{{ $movie->image_id }}" 
+            <x-adminlte-input-file id="images" name="image_id[]" label="Upload files" value="{{ $movie->image_id }}"
                 placeholder="Choose multiple files..." igroup-size="lg" legend="Choose" multiple
                 accept="image/jpeg, image/png, image/jpg">
                 <x-slot name="prependSlot">
@@ -100,10 +103,11 @@
     </script>
     <script type="text/javascript">
         let image_arr = [];
+
         function update_img_arr(event) {
             const target = event.currentTarget
             let files = target.files
-            image_arr = [...image_arr,...Array.from(files)]
+            image_arr = [...image_arr, ...Array.from(files)]
         }
         $(function() {
             $('#starttimepicker').datetimepicker({
@@ -130,24 +134,24 @@
             );
             let new_image_arr = $('input[name="image_urls"]').val().split(',');
             $('.flex').on('click', '.fa-times-circle', function() {
-                var imageUrl = $(this).siblings('img').attr('src'); 
+                var imageUrl = $(this).siblings('img').attr('src');
                 if ($(this).parent().attr('data-filename')) {
                     var imageName = $(this).parent().attr('data-filename');
                     new_image_arr = new_image_arr.filter(function(name) {
-                        return name !== imageName; 
+                        return name !== imageName;
                     });
                 } else {
                     var imageName = imageUrl.split('/').pop();
                     new_image_arr = new_image_arr.filter(function(url) {
-                        return !url.includes(imageName); 
-                }
-            )};
+                        return !url.includes(imageName);
+                    })
+                };
                 $(this).parent().remove();
                 $('input[name="image_urls"]').val(new_image_arr.join(','));
             });
             $('#images').on('change', function(e) {
-                var files = e.target.files; 
-                var imageContainer = $('.flex'); 
+                var files = e.target.files;
+                var imageContainer = $('.flex');
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
                     var imageUrl = URL.createObjectURL(file);

@@ -43,8 +43,8 @@ class PaymentController extends Controller
         $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
         $orderInfo = "Thanh toán qua MoMo";
         $amount = $request->input('total_amount');
-        $voucherCode = $request->input('voucher_code'); 
-        Session::put('voucher_code', $voucherCode);
+        $voucherCode = $request->input('voucher_code');
+        session()->flash('voucher_code', $voucherCode);
         $orderId = time() . "";
         $redirectUrl = "http://localhost/momopayment/paymentsuccess"; 
         $ipnUrl = "http://localhost"; 
@@ -80,16 +80,14 @@ class PaymentController extends Controller
     public function handleMoMoReturn(Request $request)
     {
         $allData = $request->all();
-        $user = Auth::user();
-        $userVouchers = $user->vouchers->pluck('pivot.voucher_id');
-        $voucherCode = Session::get('voucher_code');
-        Session::forget('voucher_code'); 
+        $customer = auth('customer')->user();
+        $voucherCode = session('voucher_code');
         if (isset($allData['resultCode']) && $allData['resultCode'] == 0) {
             $amount = $allData['amount'];
             $points = intval($amount / 1000);
-            $user = Auth::user();
+            $customer = auth('customer')->user();
             $point = Point::firstOrCreate(
-                ['user_id' => $user->id],
+                ['customer_id' => $customer->id],
                 ['total_points' => 0, 'points_earned' => 0, 'points_redeemed' => 0, 'ranking_level' => 'Bronze']
             );
             $point->total_points += $points;
@@ -100,15 +98,13 @@ class PaymentController extends Controller
 
             if ($voucherCode) {
                 $voucher = Voucher::where('code', $voucherCode)->first();
-                if ($voucher && $userVouchers->contains($voucher->id)) {
-                    DB::table('user_voucher')
-                        ->where('user_id', $user->id)
-                        ->where('voucher_id', $voucher->id)
-                        ->update(['status' => 1]);
-                }
+                DB::table('customer_voucher')
+                ->where('customer_id', $customer['id'])
+                ->where('voucher_id', $voucher->id)
+                ->update(['status' => '1']);
             }
             app(PointController::class)->checkAndUpdatePoints();
-            Mail::to($user->email)->send(new Booking());
+            Mail::to($customer->email)->send(new Booking());
             return redirect(route('home'));
         } else {
             return response()->json([

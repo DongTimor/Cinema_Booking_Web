@@ -9,7 +9,7 @@ class Point extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id',
+        'customer_id',
         'total_points',
         'points_earned',
         'points_redeemed',
@@ -21,5 +21,10 @@ class Point extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 }

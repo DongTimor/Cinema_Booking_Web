@@ -15,10 +15,10 @@
             <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
                 <div class="hidden sm:block sm:ml-6">
                     <div class="flex space-x-4 gap-5">
-                        <a href="/" class="hover:bg-white hover:text-black px-3 py-2 rounded-md text-lg font-bold">Home</a>
-                        <a href="#" class="hover:bg-white hover:text-black px-3 py-2 rounded-md text-lg font-bold">Movies</a>
-                        <a href="{{ route('vouchers') }}" class="hover:bg-white hover:text-black px-3 py-2 rounded-md text-lg font-bold">Coupons</a>
-                        <a href="#" class="hover:bg-white hover:text-black px-3 py-2 rounded-md text-lg font-bold">Contact</a>
+                        <a href="/" class="hover:bg-yellow-500 px-3 py-2 rounded-md text-lg font-bold">Home</a>
+                        <a href="#" class="hover:bg-yellow-500 px-3 py-2 rounded-md text-lg font-bold">Movies</a>
+                        <a href="{{ route('vouchers') }}" class="hover:bg-yellow-500 px-3 py-2 rounded-md text-lg font-bold">Coupons</a>
+                        <a href="#" class="hover:bg-yellow-500 px-3 py-2 rounded-md text-lg font-bold">Contact</a>
                     </div>
                 </div>
             </div>

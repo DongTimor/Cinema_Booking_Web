@@ -31,7 +31,7 @@ class MovieRequest extends FormRequest
             'category_id' => 'array',
             'trailer' => 'required|url',
             'image_arr' => 'array',
-
+            'price' => 'required|numeric|min:0',
         ];
 
         if ($this->isMethod('post')) {

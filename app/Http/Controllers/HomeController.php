@@ -19,10 +19,7 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-
-    }
+    public function __construct() {}
 
     /**
      * Show the application dashboard.
@@ -31,27 +28,30 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        $ranking = Point::where('user_id', auth()->id())->value('ranking_level');
+        $customer = null;
+        $ranking = 'Bronze';
         $movies = Movie::with('images')->get();
         $token = $request->cookie('token');
-        $customer = JWTAuth::setToken($token)->getPayload();
-        return view('home', compact('customer','movies', 'ranking'));
+        if ($token) {
+            $customer = JWTAuth::setToken($token)->getPayload();
+            $ranking = Point::where('customer_id', $customer['id'])->value('ranking_level');
+        } 
+        return view('home', compact('customer', 'movies', 'ranking'));
     }
 
     public function detail($id)
     {
-        $user = Auth::user();
-        $userVouchers = $user->vouchers->where('pivot.status', 0)->pluck('pivot.voucher_id');
+        $customer = auth('customer')->user();
+        $customerVouchers = $customer->vouchers->where('pivot.status', 0)->pluck('pivot.voucher_id');
         $vouchers = Voucher::all();
         $movie = Movie::findOrFail($id);
         $today = Carbon::today()->format('Y-m-d');
-        $schedule = Schedule::with('showtimes')
+        $schedules = Schedule::with('showtimes')
             ->where('movie_id', $id)
             ->whereDate('date', $today)
-            ->first();
-        $showtimes = $schedule->showtimes;
-        
-        return view('customer.movie-detail', compact('movie', 'userVouchers', 'vouchers', 'showtimes', 'today'));
+            ->get();
+        $showtimes = $schedules->pluck('showtimes')->flatten();
+        return view('customer.movie-detail', compact('movie', 'customerVouchers', 'vouchers', 'showtimes', 'today','customer'));
     }
 
     public function getTimeslotsByDate(Request $request)
@@ -72,15 +72,15 @@ class HomeController extends Controller
         $date = $request->input('date');
         $movieId = $request->input('movie_id');
         $showtimeId = $request->input('showtime_id');
-    
         $auditoriumId = Schedule::with('showtimes')
-        ->whereHas('showtimes', function($query) use ($showtimeId) {
-            $query->where('showtime_id', $showtimeId);
-        })
-        ->whereDate('date', $date)
-        ->where('movie_id', $movieId)
-        ->value('auditorium_id');
+            ->whereHas('showtimes', function ($query) use ($showtimeId) {
+                $query->where('showtime_id', $showtimeId);
+            })
+            ->whereDate('date', $date)
+            ->where('movie_id', $movieId)
+            ->value('auditorium_id');
+        $price = Movie::where('id', $movieId)->value('price');
         $seats = Seat::where('auditorium_id', $auditoriumId)->get();
-        return response()->json($seats);
+        return response()->json(['seats'=>$seats,'price'=>$price]);
     }
 }

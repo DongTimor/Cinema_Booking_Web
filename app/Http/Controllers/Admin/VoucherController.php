@@ -70,7 +70,7 @@ class VoucherController extends Controller
         if ($voucher && $voucher->quantity > 0) {
             $voucher->quantity -= 1;
             $voucher->save();
-            $voucher->users()->attach($request->user()->id, ['voucher_id' => $voucherId]);
+            $voucher->customers()->attach(auth('customer')->user()->id, ['voucher_id' => $voucherId]);
             return redirect()->route('vouchers')->with('success', 'Voucher saved successfully.');
         }
         return redirect()->route('vouchers')->with('error', 'Voucher could not be saved.');

@@ -4,7 +4,7 @@ namespace App\Listeners;
 use Illuminate\Auth\Events\Registered;
 use App\Models\Point;
 
-class CreateUserPoints
+class CreateCustomerPoints
 {
     /**
      * Handle the event.
@@ -17,7 +17,7 @@ class CreateUserPoints
         $user = $event->user;
 
         Point::create([
-            'user_id' => $user->id,
+            'customer_id' => $user->id,
             'total_points' => 0,
             'points_earned' => 0,
             'points_redeemed' => 0,

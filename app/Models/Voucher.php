@@ -25,4 +25,9 @@ class Voucher extends Model
     {
         return $this->belongsToMany(User::class, 'user_voucher');
     }
+
+    public function customers(): BelongsToMany
+    {
+        return $this->belongsToMany(Customer::class);
+    }
 }

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.customer')
 
 @section('content')
     <div class="">
@@ -31,33 +31,33 @@
             <div>
                 <h1 class="text-2xl font-extrabold">My Vouchers</h1>
                 <div class="">
-                    @if ($userVouchers->isEmpty())
+                    @if ($customerVouchers->isEmpty())
                         <h1 class="text-xl font-bold text-center mt-4">You don't have any vouchers yet, collect them now!</h1>
                     @endif
-                    @foreach ($userVouchers as $userVoucher)
+                    @foreach ($customerVouchers as $customerVoucher)
                         <div>
                             <form action="" method="POST">
                                 @csrf
-                                <input type="hidden" name="voucher_id" value="{{ $userVoucher }}">
+                                <input type="hidden" name="voucher_id" value="{{ $customerVoucher }}">
                                 <div
                                     class="max-w-sm rounded overflow-hidden shadow-lg bg-gradient-to-r from-blue-400 to-blue-600 my-4 relative ticket-style">
                                     <div class="px-6 py-4">
                                         <div class="font-bold text-2xl mb-2 font-mono"
-                                            style="color: {{ $allVouchers->firstWhere('id', $userVoucher)->value >= 50 ? 'red' : 'green' }}">
-                                            {{ $allVouchers->firstWhere('id', $userVoucher)->description }}
+                                            style="color: {{ $vouchers->firstWhere('id', $customerVoucher)->value >= 50 ? 'red' : 'green' }}">
+                                            {{ $vouchers->firstWhere('id', $customerVoucher)->description }}
                                         </div>
                                         <p class="ml-2 text-gray-100 text-lg font-bold">
-                                            {{ $allVouchers->firstWhere('id', $userVoucher)->code }}
+                                            {{ $vouchers->firstWhere('id', $customerVoucher)->code }}
                                         </p>
                                     </div>
                                     <div class="px-6 pt-1 pb-2">
                                         <span
                                             class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
-                                            style="color: {{ $allVouchers->firstWhere('id', $userVoucher)->value >= 50 ? 'red' : 'green' }}">Discount:
-                                            {{ $allVouchers->firstWhere('id', $userVoucher)->value }}%</span>
+                                            style="color: {{ $vouchers->firstWhere('id', $customerVoucher)->value >= 50 ? 'red' : 'green' }}">Discount:
+                                            {{ $vouchers->firstWhere('id', $customerVoucher)->value }}%</span>
                                         <span
                                             class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Expiry:
-                                            {{ $allVouchers->firstWhere('id', $userVoucher)->expires_at }}</span>
+                                            {{ $vouchers->firstWhere('id', $customerVoucher)->expires_at }}</span>
                                     </div>
     
                                 </div>
@@ -68,11 +68,11 @@
             </div>
             <div>
                 <h1 class="text-2xl font-extrabold">New Vouchers</h1>
-                @if ($allVouchers->isEmpty())
+                @if ($vouchers->isEmpty())
                     <h1 class="text-xl font-bold text-center mt-4">Run out of vouchers, wait for new voucher to update..</h1>
                 @endif
                 <div class="grid grid-cols-3">
-                    @foreach ($allVouchers as $voucher)
+                    @foreach ($vouchers as $voucher)
                         <form action="{{ route('vouchers.save') }}" method="POST">
                             @csrf
                             <input type="hidden" name="voucher_id" value="{{ $voucher->id }}">
@@ -99,7 +99,7 @@
                                         class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Expiry:
                                         {{ $voucher->expires_at }}</span>
                                 </div>
-                                @if ($userVouchers->contains($voucher->id))
+                                @if ($customerVouchers->contains($voucher->id))
                                     <span
                                         class="px-4 py-2 rounded-md bg-gray-400 absolute right-2 bottom-3 font-bold">Saved</span>
                                 @elseif($voucher->quantity == 0)
