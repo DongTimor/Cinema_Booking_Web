@@ -61,7 +61,7 @@ class Customer extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Point::class);
     }
-    
+
     public function vouchers() : BelongsToMany
     {
         return $this->belongsToMany(Customer::class, 'customer_voucher')->withPivot('voucher_id', 'status');
@@ -81,5 +81,10 @@ class Customer extends Authenticatable implements JWTSubject
                 'last_updated' => now(),
             ]);
         });
+    }
+    
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 }

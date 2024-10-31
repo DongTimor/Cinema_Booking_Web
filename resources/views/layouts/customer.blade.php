@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="alternate icon" class="js-site-favicon" type="*/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="stylesheet" href="{{ asset('css/customer/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/customer/order.css') }}">
     @yield('styles')
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js', 'resources/css/app.css'])
