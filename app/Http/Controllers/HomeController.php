@@ -9,9 +9,6 @@ use App\Models\Seat;
 use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Tymon\JWTAuth\Facades\JWTAuth;
-
 class HomeController extends Controller
 {
     /**
@@ -49,36 +46,50 @@ class HomeController extends Controller
             ->whereDate('date', $today)
             ->get();
         $showtimes = $schedules->pluck('showtimes')->flatten();
-        return view('customer.movie-detail', compact('movie', 'customerVouchers', 'vouchers', 'showtimes', 'today','customer'));
+        return view('customer.movie-detail', compact('movie', 'customerVouchers', 'vouchers', 'showtimes', 'today', 'customer', 'schedules'));
     }
 
     public function getTimeslotsByDate(Request $request)
     {
         $date = $request->query('date');
         $movieId = $request->query('movie_id');
+        $scheduleId = Schedule::where('movie_id', $movieId)->whereDate('date', $date)->value('id');
         $showtimes = Schedule::where('movie_id', $movieId)
             ->whereDate('date', $date)
             ->with('showtimes')
             ->get()
             ->pluck('showtimes')
             ->flatten();
-        return response()->json($showtimes);
+        return response()->json([
+            'showtimes' => $showtimes,
+            'scheduleId' => $scheduleId
+        ]);
     }
 
-    public function getSeatsByShowtimeAndAuditorium(Request $request)
+    public function getSeats(Request $request)
     {
         $date = $request->input('date');
         $movieId = $request->input('movie_id');
         $showtimeId = $request->input('showtime_id');
-        $auditoriumId = Schedule::with('showtimes')
+        $schedule = Schedule::with('showtimes')
             ->whereHas('showtimes', function ($query) use ($showtimeId) {
                 $query->where('showtime_id', $showtimeId);
             })
             ->whereDate('date', $date)
             ->where('movie_id', $movieId)
-            ->value('auditorium_id');
+            ->first();
+        if (!$schedule) {
+            return response()->json(['error' => 'Schedule not found'], 404);
+        }
+        $auditoriumId = $schedule->auditorium_id;
         $price = Movie::where('id', $movieId)->value('price');
-        $seats = Seat::where('auditorium_id', $auditoriumId)->get();
-        return response()->json(['seats'=>$seats,'price'=>$price]);
+        $seats = Seat::where('auditorium_id', $auditoriumId)
+            ->with(['tickets' => function ($query) use ($showtimeId, $schedule) {
+                $query->where('showtime_id', $showtimeId)
+                      ->where('status', 'ordered')
+                      ->where('schedule_id', $schedule->id);
+            }])
+            ->get();
+        return response()->json(['seats' => $seats, 'price' => $price]);
     }
 }

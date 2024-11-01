@@ -48,7 +48,7 @@ Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMo
 Route::get('/vouchers', [PointController::class, 'index'])->name('vouchers');
 Route::post('/vouchers',[VoucherController::class,'saveVoucher'])->name('vouchers.save');
 Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
-Route::get('/seats', [HomeController::class, 'getSeatsByShowtimeAndAuditorium']);
+Route::get('/seats', [HomeController::class, 'getSeats']);
 // admin
 Route::prefix('admin')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

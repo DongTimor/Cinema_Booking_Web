@@ -61,7 +61,7 @@
                     @endforeach
                 </div>
             </div>
-
+            <input type="hidden" name="movie-id" id="movie-id" value="{{$movie->id}}">
             <div class="mt-1" id="timeslot-section">
                 <h2 class="font-bold text-lg">Mirabo Đà Nẵng</h2>
                 <div class="mt-2">
@@ -118,6 +118,10 @@
                 @csrf
                 <input type="hidden" name="total_amount" id="hidden_total_amount">
                 <input type="hidden" name="voucher_code" id="hidden_voucher_code">
+                <input type="hidden" name="customer_id" id="hidden_customer_id" value="{{ $customer->id }}">
+                <input type="hidden" name="selected_seats" id="hidden_seats_selected">
+                <input type="hidden" name="schedule_id" id="hidden_schedule_id">
+                <input type="hidden" name="showtime_id" id="hidden_showtime_id">
                 <button type="submit" name="payUrl"
                     class="w-full px-14 bg-pink-500 text-white font-extrabold py-2 rounded-md hover:bg-pink-600">
                     Checkout with MOMO
@@ -142,160 +146,12 @@
                 </div>
             </div>
         </div>
-        <script>
-            const customerVouchers = @json($customerVouchers);
-            const vouchers = @json($vouchers);
-            let originalTotal = 0;
-            let currentTotal = 0;
-            let selectedSeats = [];
 
-            function applyVoucher() {
-                const voucherCode = document.getElementById('voucher_code').value;
-                let total = Number(originalTotal);
-                let discountAmount = 0;
-                console.log(originalTotal);
-                const voucher = vouchers.find(v => v.code === voucherCode && customerVouchers.includes(v.id));
-                let discountValue = total * (voucher.value / 100)
-                if (voucher) {
-                    total = total - discountValue;
-                }
-                document.getElementById('total_amount').innerText = new Intl.NumberFormat('vi-VN').format(total) + ' VND';
-                document.getElementById('hidden_total_amount').value = total;
-                document.getElementById('hidden_voucher_code').value = voucherCode;
-                const discountAmountElement = document.getElementById('discount-amount');
-                discountAmountElement.innerText = '- ' + discountValue + ' VND';
-                discountAmountElement.classList.remove('hidden');
-            }
-
-            function setDefaultValues() {
-                const totalAmountInput = document.getElementById('hidden_total_amount');
-                if (!totalAmountInput.value) {
-                    totalAmountInput.value = originalTotal;
-
-                }
-            }
-
-            document.addEventListener('DOMContentLoaded', function() {
-                const dateSelector = document.getElementById('date-selector');
-                dateSelector.addEventListener('click', function(event) {
-                    const item = event.target.closest('.date-item');
-                    if (item) {
-                        const selectedDate = item.getAttribute('data-date');
-                        const movieId = {{ $movie->id }};
-                        fetchShowtimes(selectedDate, movieId);
-                        const activeItem = dateSelector.querySelector('.bg-blue-600');
-                        if (activeItem) {
-                            activeItem.classList.remove('bg-blue-600', 'text-white');
-                            activeItem.classList.add('bg-gray-200');
-                        }
-                        item.classList.remove('bg-gray-200');
-                        item.classList.add('bg-blue-600', 'text-white');
-                    }
-                });
-            });
-
-            async function fetchShowtimes(date, movieId) {
-                try {
-                    const response = await fetch(`/showtimes?date=${date}&movie_id=${movieId}`);
-                    const data = await response.json();
-                    const timeslotContainer = document.getElementById('timeslot-container');
-                    timeslotContainer.innerHTML = '';
-                    data.forEach(showtime => {
-                        const button = document.createElement('button');
-                        button.classList.add('border', 'border-gray-300', 'px-2', 'py-2', 'rounded',
-                            'hover:bg-gray-300', 'showtime-button');
-                        button.textContent = showtime.start_time;
-                        button.addEventListener('click', function() {
-                            openSeatSelectionModal(date, movieId, showtime.id);
-                        });
-                        timeslotContainer.appendChild(button);
-                    });
-                } catch (error) {
-                    console.error('Error fetching showtimes:', error);
-                }
-            }
-
-            function openSeatSelectionModal(date, movieId, showtimeId) {
-                fetchSeats(date, movieId, showtimeId).then(() => {
-                    selectedSeats.forEach(seatId => {
-                        const seatDiv = document.querySelector(`[data-seat-id="${seatId}"]`);
-                        if (seatDiv) {
-                            seatDiv.classList.add('selected', 'bg-blue-500', 'text-white');
-                            seatDiv.classList.remove('hover:bg-gray-300');
-                        }
-                    });
-                });
-                document.getElementById('seatSelectionModal').classList.remove('hidden');
-            }
-
-            async function fetchSeats(date, movieId, showtimeId) {
-                const response = await fetch(`/seats?date=${date}&movie_id=${movieId}&showtime_id=${showtimeId}`);
-                const data = await response.json();
-                const seats = data.seats;
-                const seatsContainer = document.getElementById('seats-container');
-                seatsContainer.innerHTML = '';
-                seats.forEach((seat) => {
-                    const seatDiv = document.createElement('div');
-                    seatDiv.classList.add('border', 'border-gray-300', 'px-2', 'py-2',
-                        'rounded', 'hover:bg-gray-300', 'cursor-pointer');
-                    seatDiv.textContent = seat.seat_number;
-                    seatDiv.setAttribute('data-seat-id', seat.id);
-                    seatDiv.setAttribute('data-seat-price', data.price);
-                    seatDiv.addEventListener('click', function() {
-                        toggleSeatSelection(seatDiv);
-                    });
-                    seatsContainer.appendChild(seatDiv);
-                });
-            }
-
-            function toggleSeatSelection(seatDiv) {
-                const seatId = seatDiv.getAttribute('data-seat-id');
-                const seatPrice = parseFloat(seatDiv.getAttribute('data-seat-price'));
-                if (seatDiv.classList.contains('selected')) {
-                    seatDiv.classList.remove('selected');
-                    seatDiv.classList.remove('bg-blue-500', 'text-white');
-                    seatDiv.classList.add('hover:bg-gray-300');
-                    selectedSeats = selectedSeats.filter(id => id !== seatId);
-                    updateTotalPrice(-seatPrice);
-                } else {
-                    seatDiv.classList.add('selected');
-                    seatDiv.classList.add('bg-blue-500', 'text-white');
-                    seatDiv.classList.remove('hover:bg-gray-300');
-                    selectedSeats.push(seatId);
-                    updateTotalPrice(seatPrice);
-                }
-            }
-
-            function updateTotalPrice(priceChange) {
-                const totalPriceElement = document.getElementById('total_price');
-                currentTotal += priceChange;
-                totalPriceElement.textContent = new Intl.NumberFormat('vi-VN').format(currentTotal) + ' VND';
-            }
-
-            function bookSeats() {
-                originalTotal = document.getElementById('total_price').textContent.replace(' VND', '').replace(/\./g, '');
-                document.getElementById('default-price').innerText = 'Price: ' + new Intl.NumberFormat('vi-VN').format(
-                    originalTotal) + ' VND';
-                document.getElementById('total_amount').innerText = document.getElementById('total_price').textContent;
-                closeSeatSelectionModal();
-            }
-
-            function closeSeatSelectionModal() {
-                document.getElementById('seatSelectionModal').classList.add('hidden');
-            }
-
-            function openVoucherModal() {
-                document.getElementById('voucherSelectionModal').classList.remove('hidden');
-            }
-
-            function closeVoucherModal() {
-                document.getElementById('voucherSelectionModal').classList.add('hidden');
-            }
-
-            function selectVoucher(voucherCode) {
-                document.getElementById('voucher_code').value = voucherCode;
-                applyVoucher();
-                closeVoucherModal();
-            }
-        </script>
+    @endsection
+ @section('scripts')
+    <script src="{{asset('js/home/movie.js')}}"></script>
+    <script>
+        const customerVouchers = @json($customerVouchers);
+        const vouchers = @json($vouchers);
+    </script>
     @endsection
