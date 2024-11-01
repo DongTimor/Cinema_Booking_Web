@@ -94,12 +94,13 @@
                                     <div class="col-md-10">
                                         <x-adminlte-select id="movie_name" name="movie_name" label="Movie" required>
                                             <option value="">-Select Movie-</option>
-                                        @foreach ($movies as $movie)
-                                            <option value="{{ $movie->id }}">{{ $movie->name }}</option>
+                                            @foreach ($movies as $movie)
+                                                <option value="{{ $movie->id }}">{{ $movie->name }}</option>
                                             @endforeach
                                         </x-adminlte-select>
                                     </div>
-                                    <div style="width: min-content;" class="d-flex justify-content-start align-items-center pt-3">
+                                    <div style="width: min-content;"
+                                        class="d-flex justify-content-start align-items-center pt-3">
                                         <x-adminlte-button type="button" icon="fas fa-plus" theme="success"
                                             onclick="window.location.href='/admin/movies/features/create'" />
                                     </div>
@@ -263,6 +264,24 @@
             </div>
         </div>
     </div>
+    <x-adminlte-modal id="eventModal" title="Available Events" size="lg" theme="teal" icon="fas fa-bell" v-centered
+        static-backdrop scrollable>
+        @php
+            $heads = ['ID', 'Name', 'Start Time', 'End Time', 'Number of Tickets', 'Quantity', 'Discount'];
+            $config = [
+                'order' => [[0, 'desc']],
+                'columns' => [null, null, null, null, null, null, null],
+            ];
+
+        @endphp
+        <x-adminlte-datatable id="datatable" :heads="$heads" head-theme="dark" :config="$config" striped hoverable
+            bordered compressed />
+        <x-slot name="footerSlot">
+            <x-adminlte-button theme="danger" label="Dismiss" data-dismiss="modal" />
+        </x-slot>
+    </x-adminlte-modal>
+    <button style="display: none" id="availableEventsButton" class="bg-teal attention-button"
+        data-toggle="modal" data-target="#eventModal">Available Events</button>
 @stop
 @section('scripts')
     <script>

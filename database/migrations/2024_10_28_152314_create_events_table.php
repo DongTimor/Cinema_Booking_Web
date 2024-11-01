@@ -16,12 +16,13 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->boolean('all_day')->default(true);
+            $table->boolean('all_movies')->default(true);
             $table->date('start_date');
             $table->date('end_date');
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->decimal('discount_percentage', 10, 2)->default(0);
-            $table->integer('number_of_tickets')->default(0);
+            $table->integer('number_of_tickets')->default(1);
             $table->integer('quantity')->default(-1);
             $table->timestamps();
         });

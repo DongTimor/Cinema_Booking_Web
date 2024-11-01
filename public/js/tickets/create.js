@@ -8,6 +8,8 @@ let errorArray = [];
 let voucherId = null;
 let voucherValue = null;
 let voucherType = null;
+let events = [];
+let price = null;
 
 async function getCustomerInfor(id) {
     const response = await fetch(`${baseUrl}/getCustomerInfor/${id}`);
@@ -51,6 +53,12 @@ async function getPrice(id) {
     return price;
 }
 
+async function getEventsOfDateAndMovie(date, movie) {
+    const response = await fetch(`${baseUrl}/events/getEventsOfDateAndMovie/${date}/${movie}`);
+    const events = await response.json();
+    return events;
+}
+
 async function resetFilter() {
     $('#date').empty();
     $('#showtime_id').empty();
@@ -70,6 +78,28 @@ async function resetFilter() {
     }
 }
 
+async function priceCalculation() {
+    console.log("voucherId, voucherValue, voucherType, events", voucherId, voucherValue, voucherType, events);
+    const filmPrice = await getPrice($(movie_id).val());
+    let discount = 0;
+    if(voucherId) {
+        if(voucherType === 'percent') {
+            discount += filmPrice * (voucherValue / 100);
+            console.log("filmPrice", filmPrice, "discount",  filmPrice * (voucherValue / 100));
+        } else {
+            discount += parseInt(voucherValue);
+        }
+    }
+    console.log("discount", discount);
+    events.forEach(event => {
+        if ((event.quantity < 0 || event.quantity > 0) && event.all_day && event.all_movies && event.number_of_tickets === 1) {
+            discount += event.discount_percentage / 100 * filmPrice;
+        }
+    });
+    console.log("discount", discount);
+    price = filmPrice - discount;
+}
+
 async function getScheduleId(movie, date, auditorium) {
     const response = await fetch(`${baseUrl}/schedules/getSchedule/${movie}/${date}/${auditorium}`);
     const schedule = await response.json();
@@ -82,33 +112,53 @@ async function createTicket() {
     try {
         if (customerInput) {
             if (!$('#customer_id').val()) {
-                alert('Please select a customer.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please select a customer.',
+                });
                 return;
             }
         }
         if (!$(movie_id).val()) {
-            alert('Please select a movie.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please select a movie.',
+                });
             return;
         }
         if (!$(date).val()) {
-            alert('Please select a date.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please select a date.',
+            });
             return;
         }
         if (!$(auditorium_id).val()) {
-            alert('Please select an auditorium.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please select an auditorium.',
+            });
             return;
         }
         const scheduleId = await getScheduleId($(movie_id).val(), $(date).val(), $(auditorium_id).val());
         if (!$(showtime_id).val()) {
-            alert('Please select a showtime.');
-            return;
-        }
-        if (!$('#price').val()) {
-            alert('Please enter the price.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please select a showtime.',
+            });
             return;
         }
         if (selectedSeats.length === 0) {
-            alert('Please select at least one seat.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please select at least one seat.',
+            });
             return;
         }
         for (const seat of selectedSeats) {
@@ -119,7 +169,7 @@ async function createTicket() {
                 customer_id: $('#customer_id').val(),
                 showtime_id: $('#showtime_id').val(),
                 schedule_id: scheduleId,
-                price: $('#price').val(),
+                price: price,
                 voucher_id: voucherId
             };
             await fetch(url, {
@@ -146,7 +196,11 @@ async function createTicket() {
         updateFetchSeatsModal(successArray, errorArray);
 
     } catch (error) {
-        alert(error.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: error.message,
+        });
     }
 
 }
@@ -179,14 +233,7 @@ async function selectVoucher(voucher) {
     $('#voucher-expiry').text("Hết hạn: " + voucher.dataset.expiry);
     $('#voucher-body').css('display', 'flex');
     if ($(movie_id).val()) {
-        let price = await getPrice($(movie_id).val());
-        if (voucherId) {
-            if (voucherType === 'percent') {
-                price = price * (1 - voucherValue / 100);
-            } else {
-                price = price - voucherValue;
-            }
-        }
+        await priceCalculation();
         $('#price').val(price);
     }
 }
@@ -199,7 +246,7 @@ async function deleteVoucher() {
     voucherType = null;
     $('#voucher-body').css('display', 'none');
     if ($(movie_id).val()) {
-        let price = await getPrice($(movie_id).val());
+        await priceCalculation();
         $('#price').val(price);
     }
 }
@@ -343,14 +390,7 @@ $(document).ready(function () {
 
     $('#movie_name').on('change', async function () {
         $('#movie_id').val($(this).val());
-        let price = await getPrice($(this).val());
-        if (voucherId) {
-            if (voucherType === 'percent') {
-                price = price * (1 - voucherValue / 100);
-            } else {
-                price = price - voucherValue;
-            }
-        }
+        await priceCalculation();
         $('#price').val(price);
         if ($(this).val() !== '') {
             $('#date').prop('disabled', false);
@@ -362,14 +402,7 @@ $(document).ready(function () {
 
     $('#movie_id').on('change', async function () {
         $('#movie_name').val($(this).val());
-        const price = await getPrice($(this).val());
-        if (voucherId) {
-            if (voucherType === 'percent') {
-                price = price * (1 - voucherValue / 100);
-            } else {
-                price = price - voucherValue;
-            }
-        }
+        await priceCalculation();
         $('#price').val(price);
         if ($(this).val() !== '') {
             $('#date').prop('disabled', false);
@@ -390,6 +423,29 @@ $(document).ready(function () {
                 $('#showtime_id').append(`<option value="${showtime.id}">${showtime.start_time} - ${showtime.end_time}</option>`);
             });
             $('#auditorium_id').val('');
+            events = await getEventsOfDateAndMovie($("#date").val(), $('#movie_id').val());
+            if (events.length > 0) {
+                console.log(events);
+                $('#availableEventsButton').css('display', 'block');
+                const datatableBody = $('#datatable tbody');
+                datatableBody.empty();
+                events.forEach(async event => {
+                    await priceCalculation();
+                    $('#price').val(price);
+                    datatableBody.append(`
+                        <tr>
+                            <td>${event.id}</td>
+                            <td>${event.title}</td>
+                            <td>${event.start_time ? event.start_time : '00:00'}</td>
+                            <td>${event.end_time ? event.end_time : '24:00'}</td>
+                            <td>${event.number_of_tickets}</td>
+                            <td>${event.quantity === -1 ? '∞' : event.quantity}</td>
+                            <td>${event.discount_percentage} %</td>
+                        </tr>`);
+                });
+            } else {
+                $('#availableEventsButton').css('display', 'none');
+            }
         } else {
             $('#showtime_id').prop('disabled', true);
             $('#auditorium_id').prop('disabled', true);
@@ -493,7 +549,11 @@ $(document).ready(function () {
                                     $('#status').val('unplaced');
                                 }
                             } else {
-                                alert('This seat is already booked.');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'This seat is already booked.',
+                                });
                             }
                         });
                     $('#seats_container').append(seatDiv);

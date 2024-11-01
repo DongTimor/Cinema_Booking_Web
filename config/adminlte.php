@@ -408,6 +408,11 @@ return [
             'url' => '/admin/showtimes',
             'icon' => 'fas fa-clock',
         ],
+        [
+            'text' => 'Event',
+            'url' => '/admin/events',
+            'icon' => 'fas fa-calendar',
+        ],
     ],
 
     /*
@@ -504,9 +509,14 @@ return [
             'active' => true,
             'files' => [
                 [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.14.4/sweetalert2.min.css',
+                ],
+                [
                     'type' => 'js',
                     'asset' => false,
-                    'location' => '//cdn.jsdelivr.net/npm/sweetalert2@8',
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.14.4/sweetalert2.min.js',
                 ],
             ],
         ],

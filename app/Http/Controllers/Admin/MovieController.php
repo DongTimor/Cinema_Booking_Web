@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MovieRequest;
 use App\Models\Category;
+use App\Models\Event;
 use App\Models\Movie;
 use App\Models\Schedule;
 use App\Models\Showtime;
@@ -210,5 +211,21 @@ class MovieController extends Controller
     {
         $movie = Movie::findOrFail($id);
         return response()->json($movie->price);
+    }
+
+    public function getMoviesOfDates($start_date, $end_date)
+    {
+        $movies = Movie::whereNot(function($query) use ($start_date, $end_date) {
+                $query->where('start_date', '>', $end_date)
+                      ->orWhere('end_date', '<', $start_date);
+            })
+            ->get();
+        return response()->json($movies);
+    }
+
+    public function getMoviesOfEvent($id)
+    {
+        $event = Event::findOrFail($id);
+        return response()->json($event->movies);
     }
 }

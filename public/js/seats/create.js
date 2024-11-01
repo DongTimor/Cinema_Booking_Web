@@ -198,18 +198,36 @@ async function create() {
             $('#loader').css('display', 'none');
             updateModal(success_message, error_message);
         } else {
-            return alert("Please enter valid regex");
+            Swal.fire({
+                title: "Warning!",
+                text: 'Please enter valid regex',
+                icon: "warning",
+            })
         }
     } else {
-        return alert("Please select auditorium");
+        Swal.fire({
+            title: "Warning!",
+            text: 'Please select auditorium',
+            icon: "warning",
+        })
     }
 }
 
 function singleCreate() {
-    if (confirm("Are you sure you want to create a single seat?")) {
-        const url = '/admin/seats/single-create';
-        window.location.href = url;
-    }
+    Swal.fire({
+        title: "Are you sure you want to create a single seat?",
+        text: "You won't be able to revert this!",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "Cancel",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = '/admin/seats/single-create';
+            window.location.href = url;
+        }
+    });
 }
 
 async function getTotalSeats(auditoriumId) {

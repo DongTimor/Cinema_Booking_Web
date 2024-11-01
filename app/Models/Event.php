@@ -13,6 +13,7 @@ class Event extends Model
         'title',
         'description',
         'all_day',
+        'all_movies',
         'start_date',
         'end_date',
         'start_time',
@@ -23,4 +24,9 @@ class Event extends Model
     ];
 
     protected $guarded = ['id'];
+
+    public function movies()
+    {
+        return $this->belongsToMany(Movie::class);
+    }
 }

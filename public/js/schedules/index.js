@@ -43,10 +43,19 @@ const calendar = new FullCalendar.Calendar(calendarEl, {
                     calendarSettings(view = 'timeGridWeek', headersLeft = 'customMonthButton');
                     calendar.addEventSource(events2);
                     calendar.setOption('eventClick', function (info) {
-                        if (confirm('Do you want to edit this showtime?')) {
-                            console.log(info.event.extendedProps.schedule_id);
-                            editSchedule(info.event.extendedProps.schedule_id);
-                        }
+                        Swal.fire({
+                            title: "Do you want to edit this showtime?",
+                            text: "You won't be able to revert this!",
+                            icon: "info",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes",
+                            cancelButtonText: "Cancel",
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                editSchedule(info.event.extendedProps.schedule_id);
+                            }
+                        });
                     });
                     calendar.setOption('eventContent', function (arg) {
                         return {
@@ -165,55 +174,90 @@ function deleteSchedule() {
     const scheduleId = String($('#deleteButton').data('schedule-id'));
     const url = `/admin/schedules/${scheduleId}`;
 
-    if (confirm('Are you sure you want to delete this schedule?')) {
-        $.ajax({
-            url: url,
-            type: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (result) {
-                alert('Schedule deleted successfully.');
-                $('#customWeekModal').modal('hide');
-                const events = calendar.getEvents();
-                events.forEach(event => {
-                    if (event.extendedProps.schedule_id === $('#deleteButton').data(
-                        'schedule-id')) {
-                        event.remove();
-                    }
-                });
-            },
-            error: function (error) {
-                alert('An error occurred while deleting the schedule: ' + error);
-            }
-        });
-    }
+    Swal.fire({
+        title: "Are you sure you want to delete this schedule?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "Cancel",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (result) {
+                    Swal.fire({
+                        title: "Success!",
+                        text: 'Schedule deleted successfully.',
+                        icon: "success",
+                    })
+                    $('#customWeekModal').modal('hide');
+                    const events = calendar.getEvents();
+                    events.forEach(event => {
+                        if (event.extendedProps.schedule_id === $('#deleteButton').data(
+                            'schedule-id')) {
+                            event.remove();
+                        }
+                    });
+                },
+                error: function (error) {
+                    Swal.fire({
+                        title: "Error!",
+                        text: 'An error occurred while deleting the schedule: ' + error,
+                        icon: "error",
+                    })
+                }
+            });
+        }
+    });
 }
 
 function deleteShowtime(scheduleId, showtimeId) {
     const url = `/admin/schedules/${scheduleId}/${showtimeId}`;
-    if (confirm('Are you sure you want to delete this showtime?')) {
-
-        $.ajax({
-            url: url,
-            type: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (result) {
-                alert('Showtime deleted successfully.');
-                const events = calendar.getEvents();
-                events.forEach(event => {
-                    if (event.extendedProps.showtime_id === showtimeId) {
-                        event.remove();
-                    }
-                });
-            },
-            error: function (error) {
-                alert('An error occurred while deleting the showtime: ' + error);
-            }
-        });
-    }
+    Swal.fire({
+        title: "Are you sure you want to delete this showtime?",
+        text: "You won't be able to revert this!",
+        icon: "success",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "Cancel",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (result) {
+                    Swal.fire({
+                        title: "Success!",
+                        text: 'Showtime deleted successfully.',
+                        icon: "success",
+                    })
+                    const events = calendar.getEvents();
+                    events.forEach(event => {
+                        if (event.extendedProps.showtime_id === showtimeId) {
+                            event.remove();
+                        }
+                    });
+                },
+                error: function (error) {
+                    Swal.fire({
+                        title: "Error!",
+                        text: 'An error occurred while deleting the showtime: ' + error,
+                        icon: "error",
+                    })
+                }
+            });
+        }
+    });
 }
 calendar.render();
 

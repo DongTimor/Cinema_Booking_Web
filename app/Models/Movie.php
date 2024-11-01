@@ -47,6 +47,11 @@ class Movie extends Model
         return $this->hasMany(Schedule::class);
     }
 
+    public function events(): BelongsToMany
+    {
+        return $this->belongsToMany(Event::class);
+    }
+
      protected static function boot()
     {
         parent::boot();
