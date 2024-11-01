@@ -377,7 +377,7 @@ $(document).ready(function () {
             $('#customer-phone').val(customer.phone_number);
             $('#customer-address').val(customer.address);
             $('#customer-gender').val(customer.gender);
-            $('#customer-date-of-birth').val(customer.date_of_birth);
+            $('#customer-date-of-birth').val(customer.birth_date);
         } else {
             $('#customer-name').val('');
             $('#customer-email').val('');

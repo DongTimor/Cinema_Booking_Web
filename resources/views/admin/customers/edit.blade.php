@@ -34,10 +34,10 @@
     @endif
     </div>
     <div class="mb-3">
-        <label for="date_of_birth" class="form-label">Birth date</label>
-        <input type="date" class="form-control" name="date_of_birth" value="{{ $customer->date_of_birth }}">
-    @if ($errors->has('date_of_birth'))
-        <span class="text-danger">{{ $errors->first('date_of_birth') }}</span>
+        <label for="birth_date" class="form-label">Birth date</label>
+        <input type="date" class="form-control" name="birth_date" value="{{ $customer->birth_date }}">
+    @if ($errors->has('birth_date'))
+        <span class="text-danger">{{ $errors->first('birth_date') }}</span>
     @endif
     </div>
     <div>

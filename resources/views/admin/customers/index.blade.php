@@ -35,7 +35,7 @@
                 {{ $item->gender }}
             </td>
             <td>
-                {{ $item->date_of_birth }}
+                {{ $item->birth_date }}
             </td>
             <td>
                 {{ $item->email }}
