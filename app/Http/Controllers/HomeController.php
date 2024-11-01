@@ -51,23 +51,27 @@ class HomeController extends Controller
             ->whereDate('date', $today)
             ->get();
         $showtimes = $schedules->pluck('showtimes')->flatten();
-        return view('customer.movie-detail', compact('movie', 'customerVouchers', 'vouchers', 'showtimes', 'today','customer'));
+        return view('customer.movie-detail', compact('movie', 'customerVouchers', 'vouchers', 'showtimes', 'today','customer','schedules'));
     }
 
     public function getTimeslotsByDate(Request $request)
     {
         $date = $request->query('date');
         $movieId = $request->query('movie_id');
+        $scheduleId = Schedule::where('movie_id', $movieId)->whereDate('date', $date)->value('id');
         $showtimes = Schedule::where('movie_id', $movieId)
             ->whereDate('date', $date)
             ->with('showtimes')
             ->get()
             ->pluck('showtimes')
             ->flatten();
-        return response()->json($showtimes);
+        return response()->json([
+            'showtimes'=>$showtimes,
+            'scheduleId'=>$scheduleId
+        ]);
     }
 
-    public function getSeatsByShowtimeAndAuditorium(Request $request)
+    public function getSeats(Request $request)
     {
         $date = $request->input('date');
         $movieId = $request->input('movie_id');
