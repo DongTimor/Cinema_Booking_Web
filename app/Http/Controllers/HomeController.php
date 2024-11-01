@@ -6,13 +6,9 @@ use App\Models\Movie;
 use App\Models\Point;
 use App\Models\Schedule;
 use App\Models\Seat;
-use App\Models\Ticket;
 use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Tymon\JWTAuth\Facades\JWTAuth;
-
 class HomeController extends Controller
 {
     /**
@@ -29,13 +25,11 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        $customer = null;
         $ranking = 'Bronze';
         $movies = Movie::with('images')->get();
-        $token = $request->cookie('token');
-        if ($token) {
-            $customer = JWTAuth::setToken($token)->getPayload();
-            $ranking = Point::where('customer_id', $customer['id'])->value('ranking_level');
+        $customer = auth('customer')->user();
+        if ($customer) {
+            $ranking = Point::where('customer_id', $customer->id)->value('ranking_level');
         }
         return view('home', compact('customer', 'movies', 'ranking'));
     }

@@ -38,7 +38,7 @@ class LoginController extends Controller
 
             $token = JWTAuth::claims($customClaims)->fromUser($customer);
             $cookie = cookie('token', $token, 60 * 24 * 30);
-            return redirect('/home')->withCookie($cookie);
+            return redirect('/')->withCookie($cookie);
         } catch (JWTException $e) {
             return redirect()->route('customer.login'); ;
         }

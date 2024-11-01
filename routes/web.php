@@ -21,6 +21,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PointController;
 use App\Http\Controllers\Customer\ForgotPasswordController;
+use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\User\VoucherStockController;
 use Illuminate\Support\Facades\Auth;
@@ -193,12 +194,15 @@ Route::prefix('customers')->group(function () {
     Route::post('/login', [LoginController::class, 'login'])->name('customer.login');
     Route::get('/register', [RegisterController::class, 'form'])->name('customer.register.form');
     Route::post('/register', [RegisterController::class, 'register'])->name('customer.register');
-    Route::post('/logout', [LoginController::class, 'logout'])->name('customer.logout');
-    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'form'])->name('customer.password.form');
-    Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('customer.password.reset');
-    Route::get('/email-veryfied',[ForgotPasswordController::class, 'form'])->name('customer.email.form');
-    Route::post('/email-veryfied',[ForgotPasswordController::class, 'forgotPassword'])->name('customer.email.veryfied');
-    Route::get('/profile/{id}', [CustomerProfileController::class, 'show'])->name('customer.profile.show');
-    Route::put('/profile/{id}', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
+    Route::middleware('auth.jwt')->group(function () {
+        Route::get('/reset-password/{token}', [ResetPasswordController::class, 'form'])->name('customer.password.form');
+        Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('customer.password.reset');
+        Route::get('/email-veryfied',[ForgotPasswordController::class, 'form'])->name('customer.email.form');
+        Route::post('/email-veryfied',[ForgotPasswordController::class, 'forgotPassword'])->name('customer.email.veryfied');
+        Route::get('/profile/{id}', [CustomerProfileController::class, 'show'])->name('customer.profile.show');
+        Route::put('/profile/{id}', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
+        Route::get('/orders', [OrderController::class, 'index'])->name('customer.orders.index');
+        // Route::get('/orders/{id}', [OrderController::class, 'show'])->name('customer.orders.show');
+        Route::post('/logout', [LoginController::class, 'logout'])->name('customer.logout');
+    });
 });
-
