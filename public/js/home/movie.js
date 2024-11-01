@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const item = event.target.closest('.date-item');
         if (item) {
             const selectedDate = item.getAttribute('data-date');
-            console.log(selectedDate);
             fetchShowtimes(selectedDate, movieId);
             const activeItem = dateSelector.querySelector('.bg-blue-600');
 
@@ -64,7 +63,6 @@ async function fetchShowtimes(date, movieId) {
         const data = await response.json();
         const timeslotContainer = document.getElementById('timeslot-container');
         timeslotContainer.innerHTML = '';
-        console.log(data);
         data.showtimes.forEach(showtime => {
             const button = document.createElement('button');
             button.classList.add('border', 'border-gray-300', 'px-2', 'py-2', 'rounded',
@@ -119,21 +117,33 @@ async function fetchSeats(date, movieId, showtimeId) {
     const response = await fetch(`/seats?date=${date}&movie_id=${movieId}&showtime_id=${showtimeId}`);
     const data = await response.json();
     const seats = data.seats;
+    console.log(seats);
+
     const seatsContainer = document.getElementById('seats-container');
     seatsContainer.innerHTML = '';
+
     seats.forEach((seat) => {
         const seatDiv = document.createElement('div');
-        seatDiv.classList.add('border', 'border-gray-300', 'px-2', 'py-2',
-            'rounded', 'hover:bg-gray-300', 'cursor-pointer');
+        seatDiv.classList.add('border', 'border-gray-300', 'px-2', 'py-2', 
+            'rounded', 'cursor-pointer','flex','justify-center','items-center');
         seatDiv.textContent = seat.seat_number;
         seatDiv.setAttribute('data-seat-id', seat.id);
         seatDiv.setAttribute('data-seat-price', data.price);
-        seatDiv.addEventListener('click', function() {
-            toggleSeatSelection(seatDiv);
-        });
+        if (seat.tickets.some(ticket => ticket.status === 'ordered')) {
+            seatDiv.classList.add('bg-gray-500','text-white'); 
+            seatDiv.classList.remove('hover:bg-gray-300');
+            seatDiv.classList.add('cursor-not-allowed');
+        } else {
+            seatDiv.classList.add('hover:bg-gray-300'); 
+            seatDiv.addEventListener('click', function() {
+                toggleSeatSelection(seatDiv);
+            });
+        }
+      
         seatsContainer.appendChild(seatDiv);
     });
 }
+
 
 function toggleSeatSelection(seatDiv) {
     const seatId = seatDiv.getAttribute('data-seat-id');
