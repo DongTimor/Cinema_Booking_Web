@@ -10,7 +10,6 @@ let voucherValue = null;
 let voucherType = null;
 let events = [];
 let price = 0;
-console.log('asdasd');
 async function getCustomerInfor(id) {
     const response = await fetch(`${baseUrl}/getCustomerInfor/${id}`);
     const customer = await response.json();
@@ -57,7 +56,6 @@ async function getEventsOfDateAndMovie(date, movie) {
     const response = await fetch(`${baseUrl}/events/getEventsOfDateAndMovie/${date}/${movie}`);
     events = await response.json();
 }
-
 
 async function getVouchersOfCustomer(customer) {
     const response = await fetch(`${baseUrl}/vouchers/getVoucherOfCustomer/${customer}`);
@@ -125,8 +123,6 @@ async function priceCalculation() {
                 }
             }
         }
-
-
     });
     price = filmPrice - discount;
 }
@@ -268,8 +264,6 @@ async function selectVoucher(voucher) {
         $('#price').val(price);
     }
 }
-
-
 
 async function deleteVoucher() {
     voucherId = null;

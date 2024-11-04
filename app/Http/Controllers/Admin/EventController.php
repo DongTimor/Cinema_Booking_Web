@@ -20,13 +20,6 @@ class EventController extends Controller
         return view('admin.events.index', compact('events'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -44,21 +37,6 @@ class EventController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Event $event)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Event $event)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.

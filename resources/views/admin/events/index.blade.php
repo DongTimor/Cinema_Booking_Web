@@ -9,7 +9,6 @@
 @section('content')
     <div class="container">
         <div id="calendar"></div>
-
     </div>
     <div class="modal fade" id="Event-Modal" tabindex="-1" role="dialog" aria-labelledby="Event-ModalLabel"
         aria-hidden="true">
@@ -39,8 +38,6 @@
                                     <span>{{ $message }}</span>
                                 @enderror
                             </div>
-
-
                         </div>
                         <div class="form-group d-flex flex-column justify-content-between">
 
@@ -196,8 +193,8 @@
             <x-adminlte-button theme="danger" label="Dismiss" data-dismiss="modal" />
         </x-slot>
     </x-adminlte-modal>
-    <button id="addEventButton" class="bg-teal attention-button" data-toggle="modal"
-        data-target="#modalCustom">Open helper</button>
+    <button id="addEventButton" class="bg-teal attention-button" data-toggle="modal" data-target="#modalCustom">Open
+        helper</button>
 @endsection
 @section('scripts')
     <script>

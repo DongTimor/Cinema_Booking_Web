@@ -98,13 +98,10 @@ const calendar = new FullCalendar.Calendar(calendarEl, {
             if (result.isConfirmed) {
                 await moveEvent(info.event.id, getNextDay(info.event.start), convertToDate(info.event.end));
                 calendar.refetchEvents();
-            }else{
+            } else {
                 info.revert();
             }
         });
-    },
-    eventDragStop: function (info) {
-        console.log("eventDragStop", info);
     },
     eventResize: async function (info) {
         Swal.fire({
@@ -119,7 +116,7 @@ const calendar = new FullCalendar.Calendar(calendarEl, {
             if (result.isConfirmed) {
                 await moveEvent(info.event.id, getNextDay(info.event.start), convertToDate(info.event.end));
                 calendar.refetchEvents();
-            }else{
+            } else {
                 info.revert();
             }
         });
@@ -195,7 +192,6 @@ function editCustomEvent() {
 }
 
 async function deleteCustomEvent() {
-    console.log('deleting_event_id', editing_event_id);
     const url = `/admin/events/${editing_event_id}`;
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     await fetch(url, {
@@ -221,7 +217,11 @@ async function deleteCustomEvent() {
             if (event) {
                 event.remove();
             } else {
-                console.log('Event not found');
+                Swal.fire({
+                    title: "Error!",
+                    text: 'Event not found',
+                    icon: "error",
+                })
             }
 
             closeCustomEventModal();
@@ -304,7 +304,6 @@ async function applyEvent() {
                 text: data.success,
                 icon: "success",
             })
-            console.log('data', data);
             const events = await getEvents("all");
             const events_formatted_2 = events.map(event => ({
                 id: event.id,
@@ -329,7 +328,6 @@ async function applyEvent() {
                 text: error.error,
                 icon: "error",
             })
-            console.log('error', error);
         });
 }
 
@@ -435,7 +433,6 @@ async function closeEditModal() {
 }
 
 async function editEvent(id, title, description, number_of_tickets, quantity, discount_percentage, start_time, end_time, allday, all_movies, movies) {
-    console.log('editEvent', id, title, description, number_of_tickets, quantity, discount_percentage, start_time, end_time, allday, all_movies, movies);
     const url = `/admin/events/${id}`;
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     let startTime = null;
@@ -480,7 +477,6 @@ async function editEvent(id, title, description, number_of_tickets, quantity, di
         all_movies: all_movies,
         movies: movies,
     };
-    console.log('data', data);
     await fetch(url, {
         method: 'PUT',
         headers: {
@@ -522,7 +518,6 @@ async function getMoviesOfDates(start_date, end_date) {
     const url = `/admin/movies/features/getMoviesOfDates/${start_date}/${end_date}`;
     const response = await fetch(url);
     const data = await response.json();
-    console.log('data', data);
     return data;
 }
 
@@ -551,7 +546,6 @@ $(document).ready(function () {
 
     $('#allday').change(function () {
         if ($('#allday').is(':checked')) {
-            console.log('allday');
             $('#start_time').prop('disabled', true);
             $('#end_time').prop('disabled', true);
             $('#start_time').val(null);

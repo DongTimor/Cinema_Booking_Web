@@ -14,8 +14,6 @@ if (voucher) {
     voucherType = voucher.type;
 }
 
-console.log(voucherId, voucherValue, voucherType);
-
 function convertTimeToHourAndMinute(timeString) {
     const [hours, minutes] = timeString.split(':');
     return `${hours}:${minutes}`;
