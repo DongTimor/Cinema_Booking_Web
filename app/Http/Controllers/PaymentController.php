@@ -43,7 +43,15 @@ class PaymentController extends Controller
         $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
         $orderInfo = "Thanh toán qua MoMo";
         $amount = $request->input('total_amount');
+        $customer_id = $request->input('customer_id');
+        $selected_seats = $request->input('selected_seats');
+        $schedule_id = $request->input('schedule_id');
+        $showtime_id = $request->input('showtime_id');
         $voucherCode = $request->input('voucher_code');
+        session()->flash('customer_id', $customer_id);
+        session()->flash('selected_seats', $selected_seats);
+        session()->flash('schedule_id', $schedule_id);
+        session()->flash('showtime_id', $showtime_id);
         session()->flash('voucher_code', $voucherCode);
         $orderId = time() . "";
         $redirectUrl = "http://localhost/momopayment/paymentsuccess"; 
@@ -95,7 +103,24 @@ class PaymentController extends Controller
             $point->date_expire = now()->addMinute(5);
             $point->last_updated = now();
             $point->save();
-
+            $selectedSeats = session('selected_seats');
+            $scheduleId = session('schedule_id');
+            $showtimeId = session('showtime_id');
+            $voucherId = $voucherCode ? Voucher::where('code', $voucherCode)->first()->id : null;
+            $selectedSeats = explode(',', $selectedSeats);
+                foreach ($selectedSeats as $seatId) {
+                    \App\Models\Ticket::create([
+                        'seat_id' => $seatId,
+                        'customer_id' => $customer->id,
+                        'price' => $amount / count($selectedSeats),
+                        'schedule_id' => $scheduleId,
+                        'showtime_id' => $showtimeId,
+                        'voucher_id' => $voucherId,
+                        'status' => 'ordered',
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
             if ($voucherCode) {
                 $voucher = Voucher::where('code', $voucherCode)->first();
                 DB::table('customer_voucher')
