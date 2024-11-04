@@ -9,8 +9,8 @@ let voucherId = null;
 let voucherValue = null;
 let voucherType = null;
 let events = [];
-let price = null;
-
+let price = 0;
+console.log('asdasd');
 async function getCustomerInfor(id) {
     const response = await fetch(`${baseUrl}/getCustomerInfor/${id}`);
     const customer = await response.json();
@@ -55,8 +55,14 @@ async function getPrice(id) {
 
 async function getEventsOfDateAndMovie(date, movie) {
     const response = await fetch(`${baseUrl}/events/getEventsOfDateAndMovie/${date}/${movie}`);
-    const events = await response.json();
-    return events;
+    events = await response.json();
+}
+
+
+async function getVouchersOfCustomer(customer) {
+    const response = await fetch(`${baseUrl}/vouchers/getVoucherOfCustomer/${customer}`);
+    const vouchers = await response.json();
+    return vouchers;
 }
 
 async function resetFilter() {
@@ -78,25 +84,50 @@ async function resetFilter() {
     }
 }
 
+function convertTimeToDecimal(timeString) {
+    const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    const decimalHours = hours + (minutes / 60) + (seconds / 3600);
+    return decimalHours;
+}
+
 async function priceCalculation() {
-    console.log("voucherId, voucherValue, voucherType, events", voucherId, voucherValue, voucherType, events);
     const filmPrice = await getPrice($(movie_id).val());
     let discount = 0;
-    if(voucherId) {
-        if(voucherType === 'percent') {
+    if (voucherId) {
+        if (voucherType === 'percent') {
             discount += filmPrice * (voucherValue / 100);
-            console.log("filmPrice", filmPrice, "discount",  filmPrice * (voucherValue / 100));
         } else {
             discount += parseInt(voucherValue);
         }
     }
-    console.log("discount", discount);
     events.forEach(event => {
-        if ((event.quantity < 0 || event.quantity > 0) && event.all_day && event.all_movies && event.number_of_tickets === 1) {
-            discount += event.discount_percentage / 100 * filmPrice;
+
+        if (event.number_of_tickets === 1) {
+            if (event.quantity !== 0 && event.all_day) {
+                discount += event.discount_percentage / 100 * filmPrice;
+            }
+            if (!event.all_day && $('#showtime_id').val() !== '') {
+                if (convertTimeToDecimal($('#showtime_id').find('option:selected').data('start-time').toString()) >= convertTimeToDecimal(event.start_time.toString())
+                    && convertTimeToDecimal($('#showtime_id').find('option:selected').data('end-time').toString()) <= convertTimeToDecimal(event.end_time.toString())) {
+                    discount += event.discount_percentage / 100 * filmPrice;
+                }
+            }
+        } else {
+            if (selectedSeats.length >= event.number_of_tickets) {
+                if (event.quantity !== 0 && event.all_day) {
+                    discount += event.discount_percentage / 100 * filmPrice;
+                }
+                if (!event.all_day && $('#showtime_id').val() !== '') {
+                    if (convertTimeToDecimal($('#showtime_id').find('option:selected').data('start-time').toString()) >= convertTimeToDecimal(event.start_time.toString())
+                        && convertTimeToDecimal($('#showtime_id').find('option:selected').data('end-time').toString()) <= convertTimeToDecimal(event.end_time.toString())) {
+                        discount += event.discount_percentage / 100 * filmPrice;
+                    }
+                }
+            }
         }
+
+
     });
-    console.log("discount", discount);
     price = filmPrice - discount;
 }
 
@@ -121,11 +152,11 @@ async function createTicket() {
             }
         }
         if (!$(movie_id).val()) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Please select a movie.',
-                });
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please select a movie.',
+            });
             return;
         }
         if (!$(date).val()) {
@@ -273,8 +304,9 @@ function switchCustomerInput() {
             $('#' + seat[0] + ' .child-div').append(`<span>${seat[1]}</span>`);
             $('#' + seat[0]).data('status', seat[1]);
         });
-
+        $('#show-voucher-button').css('display', 'none');
     } else {
+        $('#show-voucher-button').css('display', 'none');
         $('#switch-customer-input').css('background-color', 'green');
         $('#switch-customer-input').text('No Account');
         $('#customer_id').val('');
@@ -318,7 +350,7 @@ function findMaxRowAndColumn(seats) {
     return { maxRow, maxColumn };
 }
 
-function applyStatus() {
+async function applyStatus() {
     seatStatus = $('#status').val();
     if (seatStatus !== 'unplaced') {
         const seatIndex = selectedSeats.findIndex(seat => seat[0] === seatChoosen);
@@ -345,6 +377,8 @@ function applyStatus() {
         seatChoosen = null;
     }
     $('#Select-Status-Modal').modal('hide');
+    await priceCalculation();
+    $('#price').val(price);
 }
 
 function openShowVoucherModal() {
@@ -371,6 +405,7 @@ function closeShowVoucherModal() {
 $(document).ready(function () {
     $('#customer_id').on('change', async function () {
         if ($(this).val() !== '') {
+            $('#show-voucher-button').css('display', 'block');
             const customer = await getCustomerInfor($(this).val());
             $('#customer-name').val(customer.name);
             $('#customer-email').val(customer.email);
@@ -378,7 +413,23 @@ $(document).ready(function () {
             $('#customer-address').val(customer.address);
             $('#customer-gender').val(customer.gender);
             $('#customer-date-of-birth').val(customer.birth_date);
+            const vouchers = await getVouchersOfCustomer(customer.id);
+            $('#voucher-list').empty();
+            vouchers.forEach(voucher => {
+                $('#voucher-list').append(`<div class="voucher" data-id="${voucher.id}" data-value="${voucher.value}"
+                                data-type="${voucher.type}" data-code="${voucher.code}"
+                                data-expiry="${voucher.expires_at}" onclick="selectVoucher(this)"
+                                style="background-image: url('/images/voucher_background.jpg');">
+                                <h1 class="label">Voucher Giảm Giá</h1>
+                                <p class="description">Nhận ngay ${voucher.value}
+                                    ${voucher.type == 'percent' ? '%' : 'VND'} cho đơn hàng tiếp theo!
+                                </p>
+                                <div class="code text-uppercase">${voucher.code}</div>
+                                <div class="expiry">Hết hạn: ${voucher.expires_at}</div>
+                            </div>`);
+            });
         } else {
+            $('#show-voucher-button').css('display', 'none');
             $('#customer-name').val('');
             $('#customer-email').val('');
             $('#customer-phone').val('');
@@ -389,6 +440,8 @@ $(document).ready(function () {
     });
 
     $('#movie_name').on('change', async function () {
+        events = [];
+        $('#availableEventsButton').css('display', 'none');
         $('#movie_id').val($(this).val());
         await priceCalculation();
         $('#price').val(price);
@@ -401,6 +454,8 @@ $(document).ready(function () {
     });
 
     $('#movie_id').on('change', async function () {
+        events = [];
+        $('#availableEventsButton').css('display', 'none');
         $('#movie_name').val($(this).val());
         await priceCalculation();
         $('#price').val(price);
@@ -415,23 +470,21 @@ $(document).ready(function () {
     $('#date').on('change', async function () {
         const date = $(this).val();
         if (date !== '') {
+            events = [];
             const showtimes = await getShowtimesOfMovieAndDate(date, $(movie_id).val());
             $('#showtime_id').prop('disabled', false);
             $('#showtime_id').empty();
             $('#showtime_id').append(`<option value="">--Select Showtime--</option>`);
             showtimes.forEach(showtime => {
-                $('#showtime_id').append(`<option value="${showtime.id}">${showtime.start_time} - ${showtime.end_time}</option>`);
+                $('#showtime_id').append(`<option data-start-time="${showtime.start_time}" data-end-time="${showtime.end_time}" value="${showtime.id}">${showtime.start_time} - ${showtime.end_time}</option>`);
             });
             $('#auditorium_id').val('');
-            events = await getEventsOfDateAndMovie($("#date").val(), $('#movie_id').val());
+            await getEventsOfDateAndMovie($("#date").val(), $('#movie_id').val());
             if (events.length > 0) {
-                console.log(events);
                 $('#availableEventsButton').css('display', 'block');
                 const datatableBody = $('#datatable tbody');
                 datatableBody.empty();
                 events.forEach(async event => {
-                    await priceCalculation();
-                    $('#price').val(price);
                     datatableBody.append(`
                         <tr>
                             <td>${event.id}</td>
@@ -443,14 +496,20 @@ $(document).ready(function () {
                             <td>${event.discount_percentage} %</td>
                         </tr>`);
                 });
+                await priceCalculation();
+                $('#price').val(price);
             } else {
                 $('#availableEventsButton').css('display', 'none');
             }
         } else {
+            events = [];
+            $('#availableEventsButton').css('display', 'none');
             $('#showtime_id').prop('disabled', true);
             $('#auditorium_id').prop('disabled', true);
             $('#showtime_id').val('');
             $('#auditorium_id').val('');
+            await priceCalculation();
+            $('#price').val(price);
         }
         selectedSeats.length = 0;
         $('#seats_container').empty();
@@ -475,7 +534,11 @@ $(document).ready(function () {
             selectedSeats.length = 0;
             $('#seats_container').empty();
             $('#another_seats_container').empty();
+            await priceCalculation();
+            $('#price').val(price);
         } else {
+            await priceCalculation();
+            $('#price').val(price);
             $('#auditorium_id').prop('disabled', true);
             $('#auditorium_id').val('');
             selectedSeats.length = 0;

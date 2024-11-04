@@ -122,8 +122,8 @@ class EventController extends Controller
                 })
                 ->orWhere('all_movies', true);
             })
+            ->with('movies')
             ->get();
-
         return response()->json($events);
     }
 }

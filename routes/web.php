@@ -183,6 +183,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/edit/{id}', [VoucherController::class, 'edit'])->name('vouchers.edit');
         Route::put('/edit/{id}', [VoucherController::class, 'update'])->name('vouchers.update');
         Route::delete('/delete/{id}', [VoucherController::class, 'destroy'])->name('vouchers.destroy');
+        Route::get('/getVoucherOfCustomer/{id}', [VoucherController::class, 'getVoucherOfCustomer'])->name('vouchers.getVoucherOfCustomer');
     });
 
     Route::prefix('events')->group(function () {

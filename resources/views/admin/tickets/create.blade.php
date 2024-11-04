@@ -45,7 +45,8 @@
                                         onclick="switchCustomerInput()" />
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-primary" onclick="openShowVoucherModal()">Show
+                            <button id="show-voucher-button" type="button" class="btn btn-primary"
+                                onclick="openShowVoucherModal()" style="display: none;">Show
                                 Voucher</button>
                             <div id="voucher-body" class="voucher-body" style="display: none !important;">
                                 <div class="voucher-background"
@@ -243,20 +244,7 @@
                     </button>
                 </div>
                 <div class="modal-body main-body">
-                    <ul class="list-group">
-                        @foreach ($vouchers as $voucher)
-                            <div class="voucher" data-id="{{ $voucher->id }}" data-value="{{ $voucher->value }}"
-                                data-type="{{ $voucher->type }}" data-code="{{ $voucher->code }}"
-                                data-expiry="{{ $voucher->expires_at }}" onclick="selectVoucher(this)"
-                                style="background-image: url('{{ asset('images/voucher_background.jpg') }}');">
-                                <h1 class="label">Voucher Giảm Giá</h1>
-                                <p class="description">Nhận ngay {{ $voucher->value }}
-                                    {{ $voucher->type == 'percent' ? '%' : 'VND' }} cho đơn hàng tiếp theo!
-                                </p>
-                                <div class="code text-uppercase">{{ $voucher->code }}</div>
-                                <div class="expiry">Hết hạn: {{ $voucher->expires_at }}</div>
-                            </div>
-                        @endforeach
+                    <ul id="voucher-list" class="list-group">
                     </ul>
                 </div>
                 <div class="modal-footer">
