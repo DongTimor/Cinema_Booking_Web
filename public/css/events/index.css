@@ -1,0 +1,92 @@
+#external-events {
+    padding: 10px;
+    width: 150px;
+    border: 1px solid #ccc;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+#external-events .fc-event {
+    margin: 10px 0;
+    padding: 5px;
+    cursor: pointer;
+    color: white;
+    border-radius: 3px;
+}
+
+
+.modal-content {
+    width: max-content !important;
+    max-width: 600px !important;
+    background-color: rgb(247, 247, 247);
+}
+
+.modal-content-custom {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.select2-dropdown {
+    z-index: 9999 !important;
+}
+
+.fc {
+    background-color: #dddddd;
+}
+
+.fc .fc-toolbar-title,
+.fc .fc-daygrid-day-number {
+    color: #000000;
+}
+
+.fc-daygrid-day {
+    background-color: #f1f1f1;
+    border: 1px solid #000000;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+    background-color: #b5ff6f;
+}
+
+.fc .fc-daygrid-day-frame {
+    border: 1px solid #3130306b;
+}
+
+.fc .fc-timegrid-slot {
+    border: 1px solid #3130306b;
+}
+
+.fc .fc-toolbar-title{
+    margin-left: -125px !important;
+}
+
+.fc .fc-scroller-liquid-absolute {
+    overflow-y: hidden !important;
+}
+
+.html, body {
+    height: 100vh !important;
+    overflow-y: scroll !important;
+}
+
+@keyframes attention {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.attention-button {
+    animation: attention 1s infinite;
+    width: 100px;
+    height: 30px;
+    border: 1px solid #ccc;
+    color: #000000 !important;
+    border-radius: 10px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.fc-direction-ltr .fc-toolbar>*>:not(:first-child) {
+    display: none !important;
+}

@@ -82,7 +82,7 @@ class Customer extends Authenticatable implements JWTSubject
             ]);
         });
     }
-    
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

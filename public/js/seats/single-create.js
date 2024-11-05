@@ -34,20 +34,38 @@ async function create() {
                 return response.json();
             })
             .then(data => {
-                alert(data.message);
+                Swal.fire({
+                    title: "Success!",
+                    text: data.message,
+                    icon: "success",
+                })
                 location.reload();
             })
             .catch(error => {
-                alert(error.error);
+                Swal.fire({
+                    title: "Error!",
+                    text: error.error,
+                    icon: "error",
+                })
             });
     }
 }
 
 function autoCreate() {
-    if(confirm("Go to automatically create form?")) {
-        const url = `/admin/seats/create`;
-        window.location.href = url;
-    }
+    Swal.fire({
+        title: "Go to automatically create form?",
+        text: "You won't be able to revert this!",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "Cancel",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = `/admin/seats/create`;
+            window.location.href = url;
+        }
+    });
 }
 
 $(document).ready(async function () {

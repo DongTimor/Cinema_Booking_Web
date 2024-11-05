@@ -17,9 +17,13 @@ class VerifyJwtToken
     public function handle(Request $request, Closure $next): Response
     {
         $token = $request->cookie('token');
-        if ($token) {
+
+        try {
             JWTAuth::setToken($token)->getPayload();
+        } catch (\Exception $exception) {
+            return redirect('customers/login')->with('warning', $exception->getMessage());
         }
+
         return $next($request);
     }
 }

@@ -25,7 +25,7 @@
 </head>
 
 <body>
-    <div class="relative bg-[#ffffff] w-screen h-[100px] flex items-center justify-center text-black">
+    <div class="relative bg-[#ffffff] shadow-sm h-[100px] flex items-center justify-center text-black">
         @if (!isset($customer))
             <a href="{{ route('customer.login') }}  " class="font-semibold text-lg hover:text-orange-700 absolute right-32">Log
                 in</a>
@@ -45,6 +45,9 @@
                         Profile
                     </a>
                     <a class="dropdown-item" href="{{ route('collection') }}">My Collection</a>
+                    <a class="dropdown-item" href="{{ route('customer.orders.index', $customer['id']) }}">
+                        Orders
+                    </a>
                     <a class="dropdown-item" href="{{ route('logout') }}"
                         onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">

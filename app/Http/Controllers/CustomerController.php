@@ -36,7 +36,6 @@ class CustomerController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:customers',
             'password' => 'required|string|min:8',
-            'email' => 'required|string|email|max:255|unique:customers',
             'phone_number' => 'required|string|max:11',
         ]);
         $customer = Customer::create([
