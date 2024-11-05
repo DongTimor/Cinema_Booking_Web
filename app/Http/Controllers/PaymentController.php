@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Customer\CollectionController;
 use App\Mail\Booking;
 use App\Models\Point;
 use App\Models\Voucher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Session;
 
 class PaymentController extends Controller
 {
@@ -128,7 +127,7 @@ class PaymentController extends Controller
                 ->where('voucher_id', $voucher->id)
                 ->update(['status' => '1']);
             }
-            app(PointController::class)->checkAndUpdatePoints();
+            app(CollectionController::class)->checkAndUpdatePoints();
             Mail::to($customer->email)->send(new Booking());
             return redirect(route('home'));
         } else {

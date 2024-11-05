@@ -44,6 +44,7 @@
                     <a class="dropdown-item" href="{{ route('customer.profile.show', $customer['id']) }}">
                         Profile
                     </a>
+                    <a class="dropdown-item" href="{{ route('collection') }}">My Collection</a>
                     <a class="dropdown-item" href="{{ route('logout') }}"
                         onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">

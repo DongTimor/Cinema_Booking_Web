@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Customer;
 
+use App\Http\Controllers\Controller;
 use App\Models\Point;
 use App\Models\Voucher;
 use Carbon\Carbon;
-class PointController extends Controller
+
+class CollectionController extends Controller
 {
     public function index()
     {
@@ -25,7 +27,7 @@ class PointController extends Controller
             $pointsToNextLevel = null;
         }
         $this->checkAndUpdatePoints();
-        return view('customer.voucher', compact('points', 'pointsToNextLevel','vouchers', 'customerVouchers','customer'));
+        return view('customer.collection', compact('points', 'pointsToNextLevel','vouchers', 'customerVouchers','customer'));
     }
 
     public function checkAndUpdatePoints()
