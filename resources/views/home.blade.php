@@ -3,16 +3,16 @@
 @section('content')
     <div class="bg-white flex flex-col items-center justify-center">
         <div class="relative mt-7 ">
-            <div class="swiper-container">
-                <div class="swiper-wrapper w-4/5">
+            <div class="swiper-container relative overflow-hidden">
+                <div class="swiper-wrapper">
                     <div class="swiper-slide">
-                        <img src="{{ asset('images/banner3.jpg') }}" alt="" class="w-full h-[450px]">
+                        <img src="{{ asset("images/banner3.jpg") }}" alt="">
                     </div>
                     <div class="swiper-slide">
-                        <img src="{{ asset('images/banner4.jpg') }}" alt="" class="w-full h-[450px]">
+                        <img src="{{ asset("images/banner4.jpg") }}" alt="">
                     </div>
                     <div class="swiper-slide">
-                        <img src="{{ asset('images/banner5.jpg') }}" alt="" class="w-full h-[450px]">
+                        <img src="{{ asset("images/banner5.jpg") }}" alt="">
                     </div>
                 </div>
                 <div class="swiper-button-next"></div>
