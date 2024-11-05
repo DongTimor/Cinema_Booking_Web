@@ -79,7 +79,7 @@ async function fetchShowtimes(date, movieId) {
             });
             timeslotContainer.appendChild(button);
         });
-        
+
     } catch (error) {
         console.error('Error fetching showtimes:', error);
     }
@@ -124,22 +124,22 @@ async function fetchSeats(date, movieId, showtimeId) {
 
     seats.forEach((seat) => {
         const seatDiv = document.createElement('div');
-        seatDiv.classList.add('border', 'border-gray-300', 'px-2', 'py-2', 
+        seatDiv.classList.add('border', 'border-gray-300', 'px-2', 'py-2',
             'rounded', 'cursor-pointer','flex','justify-center','items-center');
         seatDiv.textContent = seat.seat_number;
         seatDiv.setAttribute('data-seat-id', seat.id);
         seatDiv.setAttribute('data-seat-price', data.price);
         if (seat.tickets.some(ticket => ticket.status === 'ordered')) {
-            seatDiv.classList.add('bg-gray-500','text-white'); 
+            seatDiv.classList.add('bg-gray-500','text-white');
             seatDiv.classList.remove('hover:bg-gray-300');
             seatDiv.classList.add('cursor-not-allowed');
         } else {
-            seatDiv.classList.add('hover:bg-gray-300'); 
+            seatDiv.classList.add('hover:bg-gray-300');
             seatDiv.addEventListener('click', function() {
                 toggleSeatSelection(seatDiv);
             });
         }
-      
+
         seatsContainer.appendChild(seatDiv);
     });
 }

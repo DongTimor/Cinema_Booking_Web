@@ -122,6 +122,8 @@
                 <input type="hidden" name="selected_seats" id="hidden_seats_selected">
                 <input type="hidden" name="schedule_id" id="hidden_schedule_id">
                 <input type="hidden" name="showtime_id" id="hidden_showtime_id">
+                <input type="hidden" name="auditorium_id" id="hidden_auditorium_id">
+                <input type="hidden" name="movie_id" id="hidden_movie_id" value="{{ $movie->id }}">
                 <button type="submit" name="payUrl"
                     class="w-full px-14 bg-pink-500 text-white font-extrabold py-2 rounded-md hover:bg-pink-600">
                     Checkout with MOMO

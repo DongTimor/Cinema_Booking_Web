@@ -10,7 +10,7 @@
                     @foreach ($orders as $item)
                     <div class="accordion-item mb-2">
                         <h2 class="accordion-header" id="flush-headingOne">
-                            <button class="accordion-button collapsed border-0 order" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne"> Booking date:  </button>
+                            <button class="accordion-button collapsed border-0 order" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne"> Booking date: {{ \Carbon\Carbon::parse($item->created_at)->format('H:i ~ d/m/Y') }}  </button>
                         </h2>
                         <div class="accordion-collapse collapse border-0" aria-labelledby="flush-headingOne" data-bs-parent="#myAccordion">
                             <div class="accordion-body p-0">
