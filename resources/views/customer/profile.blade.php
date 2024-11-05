@@ -8,7 +8,7 @@
         <div class="mb-3 flex items-center justify-center">
             <label class="control-label" for="image"></label>
                 <div class="avatar-img d-flex items-center justify-center flex-column">
-                    <img class="rounded-circle img-fluid w-25 h-25 my-2" id="image-preview" src="{{ $customer->image ? asset($customer->image) : asset('path/to/default-image.jpg') }}" alt="image" onclick="triggerUpload()" style="cursor: pointer;">
+                    <img class="rounded-circle img-fluid w-25 h-25 my-2" id="image-preview" src="{{ $customer->image ? asset($customer->image) : asset('/images/default.png') }}" alt="image" onclick="triggerUpload()" style="cursor: pointer;">
                     <input id="image-input" type="file" name="image" accept="image/*" class="form-control-file" style="{{ $customer->image ? 'display: none;' : '' }}">
                 </div>
         </div>
