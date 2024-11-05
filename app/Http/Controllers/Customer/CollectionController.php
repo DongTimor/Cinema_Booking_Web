@@ -12,7 +12,7 @@ class CollectionController extends Controller
     public function index()
     {
         $customer = auth('customer')->user();
-        $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id');
+        $customerVouchers = $customer->vouchers->where('expires_at', '>=', Carbon::now())->pluck('pivot.voucher_id');
         $vouchers = Voucher::whereDate('expires_at', '>=', Carbon::now())->get();
         $points = Point::where('customer_id', $customer->id)->first();
         if ($points) {
