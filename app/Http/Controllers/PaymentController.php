@@ -136,24 +136,24 @@ class PaymentController extends Controller
                 ->update(['status' => '1']);
             }
             $tikets = Ticket::where('customer_id', $customer->id)
-            ->where('schedule_id', $scheduleId)
-            ->where('showtime_id', $showtimeId)
+            ->where('created_at', '=', now())
             ->get();
 
             $showtime = Showtime::findOrFail($showtimeId);
             $movie = Movie::select('name')->find($movie_id);
             $seats = Seat::with('auditorium')->find($seatId);
-
+            $voucher = Voucher::select('value', 'type', 'description')->find($voucherId);
             $orders = Order::create([
                 'customer_id' => $customer->id,
                 'movie' => $movie->name,
                 'start_time' => $showtime->start_time,
                 'end_time' => $showtime->end_time,
-                'price' => $amount / count($selectedSeats),
+                'price' => $amount /(1-$voucher->value/100),
                 'auditorium' => $seats->auditorium->name,
                 'quantity' => count($selectedSeats),
                 'ticket_ids' => $tikets->pluck('id')->implode(','),
-                'voucher_id' => $voucherId,
+                'voucher' => $voucher->description,
+                'total' => $amount,
             ]);
             $orders->save();
             app(PointController::class)->checkAndUpdatePoints();
