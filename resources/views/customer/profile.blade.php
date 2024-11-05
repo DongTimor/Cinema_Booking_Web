@@ -1,16 +1,15 @@
 @extends('layouts.customer')
 
 @section('content')
-<h2 class="text-center">Profile</h2>
 <div class="container w-50">
     <form method="post" action="/customers/profile/{{ $customer->id }}" enctype="multipart/form-data">
         @csrf
         @method('put')
-        <div>
-            <label class="control-label" for="image">Image</label>
-                <div class="avatar-img d-flex flex-column">
-                    <img class="rounded-circle img-fluid w-25 h-25 my-2" id="image-preview" src="{{ asset($customer->image) }}" alt="image">
-                    <input id="image-input" type="file" name="image" accept="image/*" class="form-control-file">
+        <div class="mb-3 flex items-center justify-center">
+            <label class="control-label" for="image"></label>
+                <div class="avatar-img d-flex items-center justify-center flex-column">
+                    <img class="rounded-circle img-fluid w-25 h-25 my-2" id="image-preview" src="{{ $customer->image ? asset($customer->image) : asset('path/to/default-image.jpg') }}" alt="image" onclick="triggerUpload()" style="cursor: pointer;">
+                    <input id="image-input" type="file" name="image" accept="image/*" class="form-control-file" style="{{ $customer->image ? 'display: none;' : '' }}">
                 </div>
         </div>
         <div class="mb-3">
@@ -45,7 +44,7 @@
             <span class="text-danger">{{ $errors->first('birth_date') }}</span>
         @endif
         </div>
-        <div>
+        <div class="mb-3">
             <label for="gender" class="form-label">Gender</label>
             <select class="form-select" name="gender" value="{{ $customer->gender }}">
                 <option value="male">Male</option>
@@ -53,11 +52,25 @@
                 <option value="none">None</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary mt-2">Update</button>
+        <button type="submit" class="btn btn-primary mb-3">Update</button>
     </form>
 </div>
 @endsection
 
 @section('scripts')
     <script src="{{ asset('js/uploadajax.js') }}"></script>
+    <script>
+        function triggerUpload() {
+            document.getElementById('image-input').click();
+        }
+        $(document).on("change", "#image-input", function() {
+            let file = this.files[0];
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('image-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+            this.style.display = 'none';
+        });
+    </script>
 @endsection
