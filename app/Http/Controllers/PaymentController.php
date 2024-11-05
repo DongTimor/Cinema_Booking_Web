@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Mail\Booking;
+use App\Models\Movie;
+use App\Models\Order;
 use App\Models\Point;
+use App\Models\Seat;
+use App\Models\Showtime;
+use App\Models\Ticket;
 use App\Models\Voucher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Session;
 
 class PaymentController extends Controller
 {
@@ -48,14 +51,16 @@ class PaymentController extends Controller
         $schedule_id = $request->input('schedule_id');
         $showtime_id = $request->input('showtime_id');
         $voucherCode = $request->input('voucher_code');
+        $movie_id = $request->input('movie_id');
         session()->flash('customer_id', $customer_id);
         session()->flash('selected_seats', $selected_seats);
         session()->flash('schedule_id', $schedule_id);
         session()->flash('showtime_id', $showtime_id);
         session()->flash('voucher_code', $voucherCode);
+        session()->flash('movie_id', $movie_id);
         $orderId = time() . "";
-        $redirectUrl = "http://localhost/momopayment/paymentsuccess"; 
-        $ipnUrl = "http://localhost"; 
+        $redirectUrl = "http://localhost/momopayment/paymentsuccess";
+        $ipnUrl = "http://localhost";
         $extraData = "";
 
         $requestId = time() . "";
@@ -106,10 +111,11 @@ class PaymentController extends Controller
             $selectedSeats = session('selected_seats');
             $scheduleId = session('schedule_id');
             $showtimeId = session('showtime_id');
+            $movie_id = session('movie_id');
             $voucherId = $voucherCode ? Voucher::where('code', $voucherCode)->first()->id : null;
             $selectedSeats = explode(',', $selectedSeats);
                 foreach ($selectedSeats as $seatId) {
-                    \App\Models\Ticket::create([
+                    Ticket::create([
                         'seat_id' => $seatId,
                         'customer_id' => $customer->id,
                         'price' => $amount / count($selectedSeats),
@@ -117,6 +123,7 @@ class PaymentController extends Controller
                         'showtime_id' => $showtimeId,
                         'voucher_id' => $voucherId,
                         'status' => 'ordered',
+                        'movie_id' => $movie_id,
                         'created_at' => now(),
                         'updated_at' => now()
                     ]);
@@ -128,6 +135,27 @@ class PaymentController extends Controller
                 ->where('voucher_id', $voucher->id)
                 ->update(['status' => '1']);
             }
+            $tikets = Ticket::where('customer_id', $customer->id)
+            ->where('schedule_id', $scheduleId)
+            ->where('showtime_id', $showtimeId)
+            ->get();
+
+            $showtime = Showtime::findOrFail($showtimeId);
+            $movie = Movie::select('name')->find($movie_id);
+            $seats = Seat::with('auditorium')->find($seatId);
+
+            $orders = Order::create([
+                'customer_id' => $customer->id,
+                'movie' => $movie->name,
+                'start_time' => $showtime->start_time,
+                'end_time' => $showtime->end_time,
+                'price' => $amount / count($selectedSeats),
+                'auditorium' => $seats->auditorium->name,
+                'quantity' => count($selectedSeats),
+                'ticket_ids' => $tikets->pluck('id')->implode(','),
+                'voucher_id' => $voucherId,
+            ]);
+            $orders->save();
             app(PointController::class)->checkAndUpdatePoints();
             Mail::to($customer->email)->send(new Booking());
             return redirect(route('home'));
