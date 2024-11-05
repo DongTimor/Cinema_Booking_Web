@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Customer\CollectionController;
 use App\Mail\Booking;
 use App\Models\Movie;
 use App\Models\Order;
@@ -139,11 +140,9 @@ class PaymentController extends Controller
             ->where('schedule_id', $scheduleId)
             ->where('showtime_id', $showtimeId)
             ->get();
-
             $showtime = Showtime::findOrFail($showtimeId);
             $movie = Movie::select('name')->find($movie_id);
             $seats = Seat::with('auditorium')->find($seatId);
-
             $orders = Order::create([
                 'customer_id' => $customer->id,
                 'movie' => $movie->name,
@@ -156,7 +155,7 @@ class PaymentController extends Controller
                 'voucher_id' => $voucherId,
             ]);
             $orders->save();
-            app(PointController::class)->checkAndUpdatePoints();
+            app(CollectionController::class)->checkAndUpdatePoints();
             Mail::to($customer->email)->send(new Booking());
             return redirect(route('home'));
         } else {

@@ -122,7 +122,6 @@
                     imageUrls = imageUrls ? imageUrls.split(',') : [];
                     imageUrls.push(response.url);
                     document.getElementById('imageUrls').value = imageUrls.join(',');
-                    console.log("File uploaded successfully: ", response);
                 });
                 myDropzone.on("queuecomplete", function() {
                     document.getElementById("movieForm").submit();

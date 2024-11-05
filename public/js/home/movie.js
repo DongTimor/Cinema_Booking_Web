@@ -117,11 +117,8 @@ async function fetchSeats(date, movieId, showtimeId) {
     const response = await fetch(`/seats?date=${date}&movie_id=${movieId}&showtime_id=${showtimeId}`);
     const data = await response.json();
     const seats = data.seats;
-    console.log(seats);
-
     const seatsContainer = document.getElementById('seats-container');
     seatsContainer.innerHTML = '';
-
     seats.forEach((seat) => {
         const seatDiv = document.createElement('div');
         seatDiv.classList.add('border', 'border-gray-300', 'px-2', 'py-2',
@@ -130,16 +127,15 @@ async function fetchSeats(date, movieId, showtimeId) {
         seatDiv.setAttribute('data-seat-id', seat.id);
         seatDiv.setAttribute('data-seat-price', data.price);
         if (seat.tickets.some(ticket => ticket.status === 'ordered')) {
-            seatDiv.classList.add('bg-gray-500','text-white');
+            seatDiv.style.backgroundColor = 'gray';
             seatDiv.classList.remove('hover:bg-gray-300');
-            seatDiv.classList.add('cursor-not-allowed');
+            seatDiv.classList.add('cursor-not-allowed','text-white');
         } else {
             seatDiv.classList.add('hover:bg-gray-300');
             seatDiv.addEventListener('click', function() {
                 toggleSeatSelection(seatDiv);
             });
         }
-
         seatsContainer.appendChild(seatDiv);
     });
 }
@@ -178,6 +174,7 @@ function bookSeats() {
     document.getElementById('default-price').innerText = 'Price: ' + new Intl.NumberFormat('vi-VN').format(
         originalTotal) + ' VND';
     document.getElementById('total_amount').innerText = document.getElementById('total_price').textContent;
+    document.getElementById('invoice-field').classList.remove('hidden');
     closeSeatSelectionModal();
 }
 
