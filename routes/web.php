@@ -23,6 +23,7 @@ use App\Http\Controllers\PointController;
 use App\Http\Controllers\Customer\ForgotPasswordController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
+use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\User\VoucherStockController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -144,6 +145,8 @@ Route::prefix('admin')->group(function () {
             Route::get('/getDates/{id}', [MovieController::class, 'getDates'])->name('movies.getDates');
             Route::get('/getSchedule/{id}', [MovieController::class, 'getSchedule'])->name('movies.getSchedule');
             Route::get('/getPrice/{id}', [MovieController::class, 'getPrice'])->name('movies.getPrice');
+            Route::get('/getMoviesOfDates/{start_date}/{end_date}', [MovieController::class, 'getMoviesOfDates'])->name('movies.getMoviesOfDates');
+            Route::get('/getMoviesOfEvent/{id}', [MovieController::class, 'getMoviesOfEvent'])->name('movies.getMoviesOfEvent');
         });
         Route::get('getShowtimes/{id}', [MovieController::class, 'getShowtimes'])->name('movies.getShowtimes');
     });
@@ -180,6 +183,16 @@ Route::prefix('admin')->group(function () {
         Route::get('/edit/{id}', [VoucherController::class, 'edit'])->name('vouchers.edit');
         Route::put('/edit/{id}', [VoucherController::class, 'update'])->name('vouchers.update');
         Route::delete('/delete/{id}', [VoucherController::class, 'destroy'])->name('vouchers.destroy');
+        Route::get('/getVoucherOfCustomer/{id}', [VoucherController::class, 'getVoucherOfCustomer'])->name('vouchers.getVoucherOfCustomer');
+    });
+
+    Route::prefix('events')->group(function () {
+        Route::get('/', [EventController::class, 'index'])->name('events.index');
+        Route::post('/create', [EventController::class, 'store'])->name('events.store');
+        Route::put('/{id}', [EventController::class, 'update'])->name('events.update');
+        Route::delete('/{id}', [EventController::class, 'destroy'])->name('events.destroy');
+        Route::get('/get/{id}', [EventController::class, 'getAllEvents'])->name('events.getAllEvents');
+        Route::get('/getEventsOfDateAndMovie/{date}/{movie}', [EventController::class, 'getEventsOfDateAndMovie'])->name('events.getEventsOfDateAndMovie');
     });
 });
 

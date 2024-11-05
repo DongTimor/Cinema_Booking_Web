@@ -132,8 +132,6 @@ $(document).ready(function () {
                             }
                         });
                         renderTimeline(allShowtimes, duplicateShowtimes);
-                    } else {
-                        $('#showtime').append('<option value="-1">---No showtimes available---</option>');
                     }
                 } catch (error) {
                     console.error('Error fetching showtimes:', error);

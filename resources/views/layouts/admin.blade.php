@@ -33,6 +33,7 @@
         });
     </script>
     @yield("scripts")
+    @include('layouts.alert')
 @endsection
 
 @section("content")

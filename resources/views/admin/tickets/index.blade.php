@@ -28,7 +28,9 @@
         @foreach ($tickets as $ticket)
             <tr>
                 <td>{!! $ticket->id !!}</td>
-                <td><a href="/admin/movies/features/show/{{ $ticket->schedule->movie->id }}">{{ $ticket->schedule->movie->name }}</a></td>
+                <td><a
+                        href="/admin/movies/features/show/{{ $ticket->schedule->movie->id }}">{{ $ticket->schedule->movie->name }}</a>
+                </td>
                 <td>
                     @if ($ticket->customer)
                         <a href="/admin/customers/{{ $ticket->customer->id }}">{{ $ticket->customer->name }}</a>
@@ -36,9 +38,11 @@
                         Null
                     @endif
                 </td>
-                <td><a href="/admin/auditoriums/show/{{ $ticket->schedule->auditorium->id }}">{{ $ticket->schedule->auditorium->name }}</a></td>
+                <td><a
+                        href="/admin/auditoriums/show/{{ $ticket->schedule->auditorium->id }}">{{ $ticket->schedule->auditorium->name }}</a>
+                </td>
                 <td>{{ \Carbon\Carbon::parse($ticket->showtime->start_time)->format('H:i') }} -
-                        {{ \Carbon\Carbon::parse($ticket->showtime->end_time)->format('H:i') }}</td>
+                    {{ \Carbon\Carbon::parse($ticket->showtime->end_time)->format('H:i') }}</td>
                 <td><a href="/admin/seats/{{ $ticket->seat_id }}">{{ $ticket->seat->seat_number }}</a></td>
                 <td>{{ $ticket->status }}</td>
                 @if ($ticket->user_id == auth()->user()->id)

@@ -22,7 +22,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        $tickets = Ticket::with('customer', 'showtime.movie', 'showtime.auditorium', 'seat', 'user')->get();
+        $tickets = Ticket::with('customer','user')->get();
         return view('admin.tickets.index', compact('tickets'));
     }
 
