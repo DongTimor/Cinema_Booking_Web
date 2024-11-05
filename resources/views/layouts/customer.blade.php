@@ -36,7 +36,7 @@
             @endif
         @else
             <li class="nav-item dropdown customer-info absolute right-6">
-                <img class="customer-avatar" src="{{ asset($customer['image']) }}" alt="#">
+                <img class="customer-avatar" src="{{ $customer->image ? asset($customer['image']) : asset('/images/default.png') }}" alt="#">
                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                     {{ $customer['name'] }}
