@@ -174,6 +174,7 @@ function bookSeats() {
     document.getElementById('default-price').innerText = 'Price: ' + new Intl.NumberFormat('vi-VN').format(
         originalTotal) + ' VND';
     document.getElementById('total_amount').innerText = document.getElementById('total_price').textContent;
+    document.getElementById('invoice-field').classList.remove('hidden');
     closeSeatSelectionModal();
 }
 

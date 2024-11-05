@@ -44,14 +44,16 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/booking/{id}',[HomeController::class,'detail'])->name('detail');
-Route::post('/momo-payment',[PaymentController::class,'momo_payment'])->name('momo-payment');
+Route::post('/momo-payment', [PaymentController::class, 'momo_payment'])->name('momo-payment');
 Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
-Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');
-Route::post('/vouchers',[CustomerVoucherController::class,'saveVoucher'])->name('vouchers.save');
 Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
 Route::get('/seats', [HomeController::class, 'getSeats']);
-Route::get('/collection',[CollectionController::class, 'index'])->name('collection');
+Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
+Route::middleware('auth.jwt')->group(function () {
+    Route::get('/booking/{id}', [HomeController::class, 'detail'])->name('detail');
+    Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');
+    Route::post('/vouchers', [CustomerVoucherController::class, 'saveVoucher'])->name('vouchers.save');
+});
 // admin
 Route::prefix('admin')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -200,7 +202,7 @@ Route::prefix('admin')->group(function () {
 
 Route::prefix('users')->group(function () {
     Route::prefix('/stock-voucher')->group(function () {
-        Route::get('/',[VoucherStockController::class, 'index'])->name('voucher_stock.index');
+        Route::get('/', [VoucherStockController::class, 'index'])->name('voucher_stock.index');
     });
 });
 
@@ -212,8 +214,8 @@ Route::prefix('customers')->group(function () {
     Route::middleware('auth.jwt')->group(function () {
         Route::get('/reset-password/{token}', [ResetPasswordController::class, 'form'])->name('customer.password.form');
         Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('customer.password.reset');
-        Route::get('/email-veryfied',[ForgotPasswordController::class, 'form'])->name('customer.email.form');
-        Route::post('/email-veryfied',[ForgotPasswordController::class, 'forgotPassword'])->name('customer.email.veryfied');
+        Route::get('/email-veryfied', [ForgotPasswordController::class, 'form'])->name('customer.email.form');
+        Route::post('/email-veryfied', [ForgotPasswordController::class, 'forgotPassword'])->name('customer.email.veryfied');
         Route::get('/profile/{id}', [CustomerProfileController::class, 'show'])->name('customer.profile.show');
         Route::put('/profile/{id}', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
         Route::get('/orders', [OrderController::class, 'index'])->name('customer.orders.index');

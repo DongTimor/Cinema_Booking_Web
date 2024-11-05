@@ -5,12 +5,12 @@
     <form method="post" action="/customers/profile/{{ $customer->id }}" enctype="multipart/form-data">
         @csrf
         @method('put')
-        <div class="mb-3 flex items-center justify-center">
-            <label class="control-label" for="image"></label>
-                <div class="avatar-img d-flex items-center justify-center flex-column">
-                    <img class="rounded-circle img-fluid w-25 h-25 my-2" id="image-preview" src="{{ $customer->image ? asset($customer->image) : asset('path/to/default-image.jpg') }}" alt="image" onclick="triggerUpload()" style="cursor: pointer;">
-                    <input id="image-input" type="file" name="image" accept="image/*" class="form-control-file" style="{{ $customer->image ? 'display: none;' : '' }}">
-                </div>
+        <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="image">Image</label>
+            <div class="avatar-img flex flex-col items-center">
+            <img class="rounded-full w-24 h-24 my-2" id="image-preview" src="{{ asset($customer->image) }}" alt="image">
+            <input id="image-input" type="file" name="image" accept="image/*" class="form-control-file mt-2">
+            </div>
         </div>
         <div class="mb-3">
             <label for="name" class="form-label">Full name</label>
