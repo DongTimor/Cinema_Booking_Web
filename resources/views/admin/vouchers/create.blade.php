@@ -33,14 +33,14 @@
               <span class="text-danger">{{ $errors->first('value') }}</span>
           @endif
           </div>
-          <div>
+          <div class="mb-3">
             <label for="type" class="form-label">Type</label>
             <select class="form-select" name="type">
                 <option value="percent">Percent</option>
                 <option value="fixed">Fixed</option>
             </select>
           </div>
-          <div>
+          <div class="mb-3">
             <label for="expires_at" class="form-label">Expires at</label>
             <input type="date" class="form-control" name="expires_at" >
           @if ($errors->has('expires_at'))

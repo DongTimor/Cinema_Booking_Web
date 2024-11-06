@@ -200,12 +200,6 @@ Route::prefix('admin')->group(function () {
     });
 });
 
-Route::prefix('users')->group(function () {
-    Route::prefix('/stock-voucher')->group(function () {
-        Route::get('/', [VoucherStockController::class, 'index'])->name('voucher_stock.index');
-    });
-});
-
 Route::prefix('customers')->group(function () {
     Route::get('/login', [LoginController::class, 'form'])->name('customer.login.form');
     Route::post('/login', [LoginController::class, 'login'])->name('customer.login');
@@ -219,7 +213,6 @@ Route::prefix('customers')->group(function () {
         Route::get('/profile/{id}', [CustomerProfileController::class, 'show'])->name('customer.profile.show');
         Route::put('/profile/{id}', [CustomerProfileController::class, 'update'])->name('customer.profile.update');
         Route::get('/orders', [OrderController::class, 'index'])->name('customer.orders.index');
-        // Route::get('/orders/{id}', [OrderController::class, 'show'])->name('customer.orders.show');
         Route::post('/logout', [LoginController::class, 'logout'])->name('customer.logout');
     });
 });

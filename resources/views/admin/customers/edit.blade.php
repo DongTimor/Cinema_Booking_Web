@@ -5,6 +5,13 @@
 <form method="post" action="/admin/customers/{{ $customer->id }}" enctype="multipart/form-data">
     @csrf
     @method('put')
+    <div class="justify-content-center flex">
+        <img class="rounded-circle w-25 my-3 border cursor-pointer" id="image-preview"
+            src="{{ $customer->image ? asset($customer->image) : asset("images/default.jpg") }}" alt="image"
+            onclick="triggerUpload()">
+        <input class="hidden" id="image-input" type="file" name="image"
+            accept="image/*">
+    </div>
     <div class="mb-3">
         <label for="name" class="form-label">Customer name</label>
         <input type="text" class="form-control" name="name" value="{{ $customer->name }}">
@@ -40,7 +47,7 @@
         <span class="text-danger">{{ $errors->first('birth_date') }}</span>
     @endif
     </div>
-    <div>
+    <div class="mb-3">
         <x-adminlte-select name="roles[]" class='select2' multiple>
             @foreach ($roles as $item)
                 <option value="{{ $item->id }}" {{ in_array($item->id, $ids) ? 'selected' : '' }}>
@@ -49,26 +56,33 @@
             @endforeach
         </x-adminlte-select>
     </div>
-    <div>
+    <div class="mb-3">
         <label for="gender" class="form-label">Gender</label>
-        <select class="form-select" name="gender" value="{{ $customer->gender }}">
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="none">None</option>
+        <select class="form-select" name="gender">
+            <option value="male" {{ $customer->gender == 'male' ? 'selected' : '' }}>Male</option>
+            <option value="female" {{ $customer->gender == 'female' ? 'selected' : '' }}>Female</option>
+            <option value="none" {{ $customer->gender == 'none' ? 'selected' : '' }}>None</option>
         </select>
     </div>
-    <div>
-        <label class="control-label" for="image">Image</label>
-            <div class="avatar-img d-flex flex-column">
-                <img class="rounded-circle img-fluid w-20 my-2" id="image-preview" src="{{ asset($customer->image) }}" alt="image">
-                <input id="image-input" type="file" name="image" accept="image/*" class="form-control-file">
-            </div>
-    </div>
-    <button type="submit" class="btn btn-primary mt-2">Update</button>
+    <button type="submit" class="btn btn-primary mb-3">Update</button>
 </form>
 
 @endsection
 
 @section('scripts')
     <script src="{{ asset('js/uploadajax.js') }}"></script>
+    <script>
+        function triggerUpload() {
+            document.getElementById('image-input').click();
+        }
+        $(document).on("change", "#image-input", function() {
+            let file = this.files[0];
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('image-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+            this.style.display = 'none';
+        });
+    </script>
 @endsection
