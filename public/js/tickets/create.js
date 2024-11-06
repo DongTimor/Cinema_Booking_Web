@@ -10,6 +10,7 @@ let voucherValue = null;
 let voucherType = null;
 let events = [];
 let price = 0;
+console.log("test");
 async function getCustomerInfor(id) {
     const response = await fetch(`${baseUrl}/getCustomerInfor/${id}`);
     const customer = await response.json();
