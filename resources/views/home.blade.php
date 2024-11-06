@@ -63,6 +63,7 @@
                 });
             </script>
         </div>
+    </div>
     @endsection
     @section('scripts')
     <script src="{{asset('js/home/swipe-banner.js')}}"></script>

@@ -2,7 +2,7 @@
 
 @section('content')
 
-<form method="post" action="/vouchers/edit/{{ $voucher->id }}" enctype="multipart/form-data">
+<form method="post" action="{{ route('vouchers.update', $voucher->id) }}" enctype="multipart/form-data">
     @csrf
     @method('put')
     <div class="mb-3">
@@ -30,7 +30,7 @@
         <span class="text-danger">{{ $errors->first('value') }}</span>
     @endif
     </div>
-    <div>
+    <div class="mb-3">
         <label for="type" class="form-label">Type</label>
         <select class="form-select" name="type">
             <option value="percent" {{ $voucher->type == 'percent' ? 'selected' : '' }}>Percent</option>
@@ -44,7 +44,7 @@
         <span class="text-danger">{{ $errors->first('expires_at') }}</span>
     @endif
     </div>
-    <button type="submit" class="btn btn-primary mt-2">Update</button>
+    <button type="submit" class="btn btn-primary">Update</button>
 </form>
 
 @endsection
