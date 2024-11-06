@@ -19,6 +19,7 @@ class Order extends Model
         'voucher',
         'quantity',
         'ticket_ids',
+        'total',
     ];
 
     public function customer()
