@@ -65,7 +65,7 @@
                 <div class="dz-preview">
                     <div class="dz-image">
                         <input type="hidden" name="image_urls[]" value="{{ $image->url }}">
-                        <img class="rounded-md" src="{{ asset($image->url) }}" alt="Movie Image">
+                        <img class="rounded-md h-100 w-100" src="{{ asset($image->url) }}" alt="Movie Image">
                     </div>
                     <a class="dz-remove remove-btn my-2">Remove file</a>
                 </div>

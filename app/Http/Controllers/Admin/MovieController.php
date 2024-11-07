@@ -128,7 +128,7 @@ class MovieController extends Controller
 
             foreach ($movie->images as $image) {
                 $path = storage_path('app/' . $image->url);
-                if (File::exists($path)) {
+                if (!in_array($image->url, $urls) && file_exists($path)) {
                     File::delete($path);
                 }
                 $image->delete();
