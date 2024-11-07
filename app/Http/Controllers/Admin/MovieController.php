@@ -103,8 +103,8 @@ class MovieController extends Controller
         try {
             $movie = Movie::findOrFail($id);
             $images = $movie->images;
-            $movie->start_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->start_date)->format('m/d/Y');
-            $movie->end_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->end_date)->format('m/d/Y');
+            $movie->start_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->start_date)->format('d/m/Y');
+            $movie->end_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->end_date)->format('d/m/Y');
             $categories = Category::all();
             return view('admin.movies.feature.edit', compact('movie', 'categories', 'images'));
         } catch (\Exception $e) {
@@ -118,9 +118,8 @@ class MovieController extends Controller
     public function update(MovieRequest $request, string $id)
     {
         $validated = $request->validated();
-        $validated['start_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['start_date'])->format('Y-m-d');
-        $validated['end_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['end_date'])->format('Y-m-d');
-
+        $validated['start_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['start_date'])->format('Y-m-d');
+        $validated['end_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['end_date'])->format('Y-m-d');
         try {
             $movie = Movie::findOrFail($id);
             $movie->update($validated);
