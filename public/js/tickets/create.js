@@ -202,7 +202,6 @@ async function createTicket() {
             });
             return;
         }
-        $('#loader').css('display', 'flex');
         for (const seat of selectedSeats) {
             const data = {
                 action: 'create',
@@ -237,7 +236,8 @@ async function createTicket() {
                     errorArray.push(error.message);
                 });
         }
-        if (successArray.length > 0) {
+        if (successArray.length > 0 && customerInput) {
+            $('#loader').css('display', 'flex');
             await ticketConfirmationMail();
         }
         updateFetchSeatsModal(successArray, errorArray);
@@ -267,6 +267,7 @@ async function ticketConfirmationMail() {
             action: 'ticketConfirmationMail',
             order_date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
             customer: $('#customer-name').val(),
+            customer_email: $('#customer-email').val(),
             movie: $('#movie_name').find('option:selected').text(),
             date: $('#date').find('option:selected').text(),
             auditorium: $('#auditorium_id').find('option:selected').data('auditorium'),
@@ -299,14 +300,16 @@ async function ticketConfirmationMail() {
                     title: 'Success',
                     text: data.message,
                 });
+                console.log(data);
             })
             .catch(error => {
                 $('#loader').css('display', 'none');
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: error.message,
+                    text: error,
                 });
+                console.log(error);
             });
 
     } catch (error) {
@@ -364,7 +367,13 @@ async function deleteVoucher() {
     }
 }
 
-function switchCustomerInput() {
+async function switchCustomerInput() {
+    $('#voucher-body').css('display', 'none');
+    voucherId = null;
+    voucherValue = null;
+    voucherType = null;
+    await priceCalculation();
+    $('#price').val(price);
     if (customerInput) {
         $('#switch-customer-input').css('background-color', 'blue');
         $('#switch-customer-input').text('Have Account');

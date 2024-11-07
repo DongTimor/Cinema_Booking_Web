@@ -49,6 +49,12 @@ class TicketController extends Controller
     {
         try {
             Ticket::create($request->all());
+            if ($request->voucher_id !== null) {
+                $customer = Customer::find($request->customer_id);
+                if ($customer && $customer->vouchers()->where('voucher_id', $request->voucher_id)->exists()) {
+                    $customer->vouchers()->updateExistingPivot($request->voucher_id, ['status' => '1']);
+                }
+            }
             return response()->json([
                 'message' => "Customer: {$request->customer_id} - Seat: {$request->seat_id} - {$request->status} : Ticket created successfully"
             ]);
@@ -114,13 +120,12 @@ class TicketController extends Controller
         return response()->json($tickets);
     }
 
-    public function ticketConfirmationMail(Request $request)
+    public function ticketConfirmationMail(TicketRequest $request)
     {
         try {
-            Mail::to('welikegame123@gmail.com')->send(new TicketConfirmation($request));
+            Mail::to($request->customer_email)->send(new TicketConfirmation($request));
             return response()->json(['message' => 'Mail sent successfully']);
         } catch (\Exception $e) {
-            Log::error('Error sending mail: ' . $e->getMessage());
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

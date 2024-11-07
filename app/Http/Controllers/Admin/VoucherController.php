@@ -67,7 +67,7 @@ class VoucherController extends Controller
     public function getVoucherOfCustomer(string $id)
     {
         try {
-            $voucher = Customer::findOrFail($id)->vouchers;
+            $voucher = Customer::findOrFail($id)->vouchers()->where('status', '0')->get();
             return response()->json($voucher);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

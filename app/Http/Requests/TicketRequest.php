@@ -32,14 +32,16 @@ class TicketRequest extends FormRequest
                 'schedule_id' => 'required|exists:schedules,id',
             ];
         } else if ($action == 'ticketConfirmationMail') {
-            $rules['customer_id'] = 'required|exists:customers,id';
-            $rules['movie_id'] = 'required|exists:movies,id';
-            $rules['date'] = 'required|date';
-            $rules['auditorium_id'] = 'required|exists:auditoriums,id';
-            $rules['showtime_id'] = 'required|exists:showtimes,id';
+            $rules['customer'] = 'nullable';
+            $rules['order_date'] = 'required|date';
+            $rules['customer_email'] = 'required|email';
+            $rules['movie'] = 'required|string';
+            $rules['date'] = 'required|string';
+            $rules['auditorium'] = 'required|string';
+            $rules['showtime'] = 'required|string';
             $rules['seats'] = 'required|array';
             $rules['cost'] = 'required|numeric';
-            $rules['voucher_id'] = 'nullable|exists:vouchers,id';
+            $rules['voucher'] = 'nullable';
             $rules['event_discount'] = 'nullable|numeric';
         }
 
