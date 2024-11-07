@@ -77,37 +77,34 @@ class CustomerController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255',
-        'password' => 'required|string|min:8',
-        'phone_number' => 'required|string|max:11',
-    ]);
-    $customer = Customer::where('id', $id)->first();
-    $customer->update([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => bcrypt($request->password),
-        'phone_number' => $request->phone_number,
-        'address' => $request->address,
-        'gender' => $request->gender,
-        'birth_date' => $request->birth_date,
-        'image' => $request->image,
-        'status' => $request->status
-    ]);
-    $roles = $request->post('roles');
-    $customer->roles()->sync($roles);
-    if ($request->hasFile('image')) {
-        if ($customer->image) {
-            Storage::delete(str_replace('storage', 'public', $customer->image));
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'phone_number' => 'required|string|max:11',
+        ]);
+        $customer = Customer::where('id', $id)->first();
+        $customer->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone_number' => $request->phone_number,
+            'address' => $request->address,
+            'gender' => $request->gender,
+            'birth_date' => $request->birth_date,
+            'image' => $request->image,
+        ]);
+        $roles = $request->post('roles');
+        $customer->roles()->sync($roles);
+        if ($request->hasFile('image')) {
+            if ($customer->image) {
+                Storage::delete(str_replace('storage', 'public', $customer->image));
+            }
+            $url = $request->file('image')->store('public/images');
+            $customer->image = Storage::url($url);
         }
-        $url = $request->file('image')->store('public/images');
-        $customer->image = Storage::url($url);
+        $customer->save();
+        return redirect()->route('customers.index');
     }
-    $customer->save();
-    return redirect()->route('customers.index');
-}
 
     /**
      * Remove the specified resource from storage.

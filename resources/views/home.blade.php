@@ -6,13 +6,13 @@
             <div class="swiper-container relative overflow-hidden">
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
-                        <img src="{{ asset("images/banner3.jpg") }}" alt="">
+                        <img src="{{ asset("common/banner3.jpg") }}" alt="">
                     </div>
                     <div class="swiper-slide">
-                        <img src="{{ asset("images/banner4.jpg") }}" alt="">
+                        <img src="{{ asset("common/banner4.jpg") }}" alt="">
                     </div>
                     <div class="swiper-slide">
-                        <img src="{{ asset("images/banner5.jpg") }}" alt="">
+                        <img src="{{ asset("common/banner5.jpg") }}" alt="">
                     </div>
                 </div>
                 <div class="swiper-button-next"></div>
@@ -63,6 +63,7 @@
                 });
             </script>
         </div>
+    </div>
     @endsection
     @section('scripts')
     <script src="{{asset('js/home/swipe-banner.js')}}"></script>

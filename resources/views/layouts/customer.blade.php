@@ -171,29 +171,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.14.4/sweetalert2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script>
-        @if (session('error'))
-            Swal.fire({
-                title: "Error!",
-                text: '{{ session('error') }}',
-                icon: "error",
-            });
-        @endif
-        @if (session('success'))
-            Swal.fire({
-                title: "Success!",
-                text: '{{ session('success') }}',
-                icon: "success",
-            });
-        @endif
-        @if (session('warning'))
-            Swal.fire({
-                title: "Warning!",
-                text: '{{ session('warning') }}',
-                icon: "warning",
-            })
-        @endif
-    </script>
+    @include('layouts.alert')
     @yield('scripts')
 </body>
 

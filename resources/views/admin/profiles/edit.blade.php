@@ -5,6 +5,13 @@
 <form method="post" action="/admin/profile/{{ $profile->user->id }}" enctype="multipart/form-data">
     @csrf
     @method('put')
+    <div class="justify-content-center flex">
+        <img class="rounded-circle w-25 my-3 border cursor-pointer" id="image-preview"
+            src="{{ $profile->image ? asset($profile->image) : asset("images/default.jpg") }}" alt="image"
+            onclick="triggerUpload()">
+        <input class="hidden" id="image-input" type="file" name="image"
+            accept="image/*">
+    </div>
     <div class="mb-3">
         <label for="name" class="form-label">Full name</label>
         <input type="text" class="form-control" name="name" value="{{ $profile->user->name }}" disabled>
@@ -30,18 +37,25 @@
         <span class="text-danger">{{ $errors->first('birth_date') }}</span>
     @endif
     </div>
-    <div>
-        <label class="control-label" for="image">Image</label>
-            <div class="avatar-img d-flex flex-column">
-                <img class="rounded-circle img-fluid w-20 my-2" id="image-preview" src="{{ asset($profile->image) }}" alt="image">
-                <input id="image-input" type="file" name="image" accept="image/*" class="form-control-file">
-            </div>
-    </div>
-    <button type="submit" class="btn btn-primary mt-2">Update</button>
+    <button type="submit" class="btn btn-primary mb-3">Update</button>
 </form>
 
 @endsection
 
 @section('scripts')
     <script src="{{ asset('js/uploadajax.js') }}"></script>
+    <script>
+        function triggerUpload() {
+            document.getElementById('image-input').click();
+        }
+        $(document).on("change", "#image-input", function() {
+            let file = this.files[0];
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('image-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+            this.style.display = 'none';
+        });
+    </script>
 @endsection

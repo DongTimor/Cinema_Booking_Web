@@ -10,6 +10,7 @@ use App\Models\Movie;
 use App\Models\Schedule;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class MovieController extends Controller
 {
@@ -64,19 +65,20 @@ class MovieController extends Controller
 
     public function uploadImages(Request $request)
     {
-        $this->validate($request, [
-            'file' => 'required|image|max:2048',
-        ]);
-
         try {
-            $image = $request->file('file');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $imagePath = $image->storeAs('public/images', $imageName);
-            $url = str_replace('public/', 'storage/', $imagePath);
+            $request->validate([
+                'file' => 'required|image|max:2048',
+            ]);
 
-            return response()->json(['url' => $url], 200);
+            $url = $request->file('file')->store('movies');
+
+            return response()->json([
+                'url' => $url,
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Upload error', 'message' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -85,9 +87,9 @@ class MovieController extends Controller
      */
     public function show(string $id)
     {
-        try{
+        try {
             $movie = Movie::findOrFail($id);
-            return view('admin.movies.feature.show',compact('movie'));
+            return view('admin.movies.feature.show', compact('movie'));
         } catch (\Exception $e) {
             return response()->json(['error' => 'Show error', 'message' => $e->getMessage()], 500);
         }
@@ -114,43 +116,40 @@ class MovieController extends Controller
      * Update the specified resource in storage.
      */
     public function update(MovieRequest $request, string $id)
-{
-    $validated = $request->validated();
-    $validated['start_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['start_date'])->format('Y-m-d');
-    $validated['end_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['end_date'])->format('Y-m-d');
+    {
+        $validated = $request->validated();
+        $validated['start_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['start_date'])->format('Y-m-d');
+        $validated['end_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['end_date'])->format('Y-m-d');
 
-    try {
-        $movie = Movie::findOrFail($id);
-        $movie->update($validated);
-        $existingImageUrls = $request->input('image_urls', []);
-        $existingImageUrls = is_array($existingImageUrls) ? $existingImageUrls : explode(',', $existingImageUrls);
-        foreach ($movie->images as $image) {
-            if (!in_array($image->url, $existingImageUrls)) {
-                $imagePath = public_path(str_replace('storage/', 'public/', $image->url));
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
+        try {
+            $movie = Movie::findOrFail($id);
+            $movie->update($validated);
+            $urls = $request->input('image_urls');
+
+            foreach ($movie->images as $image) {
+                $path = storage_path('app/' . $image->url);
+                if (!in_array($image->url, $urls) && file_exists($path)) {
+                    File::delete($path);
                 }
                 $image->delete();
             }
-        }
-        if ($request->hasFile('image_arr')) {
-            $images = $request->file('image_arr');
-            foreach ($images as $image) {
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $imagePath = $image->storeAs('public/images', $imageName);
-                $movie->images()->create([
-                    'url' => str_replace('public/', 'storage/', $imagePath),
-                ]);
+
+            if ($urls) {
+                foreach ($urls as $url) {
+                    $movie->images()->create([
+                        'url' => $url
+                    ]);
+                }
             }
+
+            if ($request->has('category_id')) {
+                $movie->categories()->sync($request->category_id);
+            }
+            return redirect()->route('movies.features.index')->with('success', 'Movie updated successfully!');
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Update error', 'message' => $e->getMessage()], 500);
         }
-        if ($request->has('category_id')) {
-            $movie->categories()->sync($request->category_id);
-        }
-        return redirect(route('movies.features.index'));
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Update error', 'message' => $e->getMessage()], 500);
     }
-}
 
     /**
      * Remove the specified resource from storage.
@@ -215,10 +214,10 @@ class MovieController extends Controller
 
     public function getMoviesOfDates($start_date, $end_date)
     {
-        $movies = Movie::whereNot(function($query) use ($start_date, $end_date) {
-                $query->where('start_date', '>', $end_date)
-                      ->orWhere('end_date', '<', $start_date);
-            })
+        $movies = Movie::whereNot(function ($query) use ($start_date, $end_date) {
+            $query->where('start_date', '>', $end_date)
+                ->orWhere('end_date', '<', $start_date);
+        })
             ->get();
         return response()->json($movies);
     }
