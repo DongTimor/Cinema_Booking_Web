@@ -265,6 +265,7 @@ async function ticketConfirmationMail() {
         }
         const data = {
             action: 'ticketConfirmationMail',
+            order_date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
             customer: $('#customer-name').val(),
             movie: $('#movie_name').find('option:selected').text(),
             date: $('#date').find('option:selected').text(),

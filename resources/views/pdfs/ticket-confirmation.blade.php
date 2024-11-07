@@ -19,7 +19,7 @@
                             @else
                                 <td style="text-align: start;">Guest</td>
                             @endif
-                            <td style="text-align: right; width: 100%;">{{ $data['date'] }}</td>
+                            <td style="text-align: right; width: 100%;">{{ $data['data']['order_date'] }}</td>
                         </tr>
                     </table>
                 </td>
@@ -29,15 +29,19 @@
                     <table style="width: 100%;">
                         <tr>
                             <td style="font-weight: 600; font-size: 16px; color: #000000;">Movie:</td>
-                            <td>{{ $data['data']['movie'] }} ({{ $data['data']['date'] }})</td>
+                            <td>{{ $data['data']['movie'] }}</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: 600; font-size: 16px; color: #000000;">Auditorium:</td>
-                            <td>{{ $data['data']['auditorium'] }}</td>
+                            <td style="font-weight: 600; font-size: 16px; color: #000000;">Date:</td>
+                            <td>{{ $data['data']['date'] }}</td>
                         </tr>
                         <tr>
                             <td style="font-weight: 600; font-size: 16px; color: #000000;">Showtime:</td>
                             <td>{{ $data['data']['showtime'] }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; font-size: 16px; color: #000000;">Auditorium:</td>
+                            <td>{{ $data['data']['auditorium'] }}</td>
                         </tr>
                     </table>
                 </td>

@@ -16,7 +16,7 @@
                         <tr>
                             <td style="font-weight: 600; font-size: 16px; color: #000000; width: 81px">Customer:</td>
                             <td style="text-align: start;">{{ $request->customer ? $request->customer : 'Guest' }}</td>
-                            <td style="text-align: end;">{{ Carbon\Carbon::now()->format('d-m-Y') }}</td>
+                            <td style="text-align: end; width: 100%;">{{ $request->order_date }}</td>
                         </tr>
                     </table>
                 </td>
@@ -26,7 +26,11 @@
                     <table style="width: 100%;">
                         <tr>
                             <td style="font-weight: 600; font-size: 16px; color: #000000;">Movie:</td>
-                            <td>{{ $request->movie }} ({{ $request->date }})</td>
+                            <td>{{ $request->movie }}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600; font-size: 16px; color: #000000;">Auditorium:</td>
+                            <td>{{ $request->date }}</td>
                         </tr>
                         <tr>
                             <td style="font-weight: 600; font-size: 16px; color: #000000;">Auditorium:</td>
