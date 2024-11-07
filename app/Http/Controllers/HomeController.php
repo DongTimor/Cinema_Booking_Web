@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
 use App\Models\Movie;
 use App\Models\Point;
 use App\Models\Schedule;
 use App\Models\Seat;
+use App\Models\Ticket;
 use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 class HomeController extends Controller
 {
     /**
@@ -91,5 +95,60 @@ class HomeController extends Controller
             }])
             ->get();
         return response()->json(['seats' => $seats, 'price' => $price]);
+    }
+
+    public function favoriteMovie()
+    {
+        $oneWeekAgo = now()->subWeek();
+
+        $favoriteMovies = Ticket::where('created_at', '>=', $oneWeekAgo)
+            ->select('movie_id', DB::raw('count(*) as total_tickets'))
+            ->groupBy('movie_id')
+            ->orderBy('total_tickets', 'desc')
+            ->with('movie')
+            ->take(20)
+            ->get();
+        if ($favoriteMovies->isEmpty()) {
+            return response()->json(['message' => 'There were no popular movies last week.']);
+        }
+        return response()->json([
+            'favorite_movies' => $favoriteMovies->map(function ($movie) {
+                return [
+                    'movie_id' => $movie->movie->id,
+                    'movie_name' => $movie->movie->name,
+                    'total_tickets' => $movie->total_tickets
+                ];
+            })
+        ]);
+    }
+
+    public function todayEvent()
+    {
+        $today = Carbon::today();
+        $events = Event::whereDate('start_date', '<=', $today)
+                    ->whereDate('end_date', '>=', $today)
+                    ->get();
+        return response()->json([
+            'events' => $events->map(function ($event) {
+                return [
+                    'event_id' => $event->id,
+                    'title' => $event->title,
+                    'description' => $event->description,
+                    'all_day' => $event->all_day,
+                    'discount_percentage' => $event->discount_percentage,
+                    'number_of_tickets' => $event->number_of_tickets,
+                    'start_date' => $event->start_date,
+                    'end_date' => $event->end_date,
+                    'start_time' => $event->start_time,
+                    'end_time' => $event->end_time,
+                    'movies' => $event->movies->map(function ($movie) {
+                        return [
+                            'movie_id' => $movie->id,
+                            'movie_name' => $movie->name,
+                        ];
+                    }),
+                ];
+            })
+        ]);
     }
 }

@@ -49,6 +49,7 @@ Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMo
 Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
 Route::get('/seats', [HomeController::class, 'getSeats']);
 Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
+Route::get('/favorite-movie', [HomeController::class, 'favoriteMovie'])->name('favorite-movie');
 Route::middleware('auth.jwt')->group(function () {
     Route::get('/booking/{id}', [HomeController::class, 'detail'])->name('detail');
     Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');
