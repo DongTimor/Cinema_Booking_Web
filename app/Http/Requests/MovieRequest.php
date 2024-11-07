@@ -30,7 +30,6 @@ class MovieRequest extends FormRequest
             'end_date' => ['required', new ValidDate],
             'category_id' => 'array',
             'trailer' => 'required|url',
-            'image_urls' => 'array',
             'price' => 'required|numeric|min:0',
         ];
 
