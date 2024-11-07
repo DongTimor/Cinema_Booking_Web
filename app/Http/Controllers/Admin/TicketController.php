@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TicketRequest;
 use App\Mail\TicketConfirmation;
-use App\Models\Auditorium;
 use App\Models\Customer;
 use App\Models\Movie;
 use App\Models\Schedule;
@@ -13,10 +12,12 @@ use App\Models\Seat;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\Voucher;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+
 
 class TicketController extends Controller
 {
@@ -122,6 +123,15 @@ class TicketController extends Controller
             Log::error('Error sending mail: ' . $e->getMessage());
             return response()->json(['message' => $e->getMessage()], 500);
         }
-        // return response()->json($request->all());
+    }
+
+    public function ticketConfirmationPdf(Request $request)
+    {
+        $data = [
+            'title' => 'Ticket Confirmation',
+            'data' => $request->all()
+        ];
+        $pdf = PDF::loadView('pdfs.ticket-confirmation', compact('data'));
+        return $pdf->download('ticket-confirmation.pdf');
     }
 }

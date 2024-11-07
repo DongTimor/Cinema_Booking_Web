@@ -43,12 +43,14 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/momo-payment', [PaymentController::class, 'momo_payment'])->name('momo-payment');
 Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
 Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
 Route::get('/seats', [HomeController::class, 'getSeats']);
 Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
+Route::get('/ticket-confirmation-pdf', [TicketController::class, 'ticketConfirmationPdf'])->name('ticket-confirmation-pdf');
 Route::middleware('auth.jwt')->group(function () {
     Route::get('/booking/{id}', [HomeController::class, 'detail'])->name('detail');
     Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');

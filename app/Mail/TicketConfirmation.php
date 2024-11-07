@@ -44,7 +44,7 @@ class TicketConfirmation extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mails.ticket-confirmation-mail',
+            view: 'mails.ticket-confirmation',
             with: [
                 'request' => $this->request,
             ],

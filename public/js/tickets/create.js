@@ -202,6 +202,7 @@ async function createTicket() {
             });
             return;
         }
+        $('#loader').css('display', 'flex');
         for (const seat of selectedSeats) {
             const data = {
                 action: 'create',
@@ -234,7 +235,6 @@ async function createTicket() {
                 })
                 .catch(error => {
                     errorArray.push(error.message);
-                    console.log(error);
                 });
         }
         if (successArray.length > 0) {
@@ -288,18 +288,28 @@ async function ticketConfirmationMail() {
                 if (!response.ok) {
                     throw new Error(response.status);
                 }
+                $('#loader').css('display', 'none');
                 return response.json();
             })
             .then(data => {
-                // successArray.push(data.message);
-                console.log("true",data);
+                $('#loader').css('display', 'none');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: data.message,
+                });
             })
             .catch(error => {
-                // errorArray.push(error.message);
-                console.log("false", error);
+                $('#loader').css('display', 'none');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: error.message,
+                });
             });
 
     } catch (error) {
+        $('#loader').css('display', 'none');
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
@@ -474,6 +484,7 @@ function closeShowVoucherModal() {
 }
 
 $(document).ready(function () {
+
     $('#customer_id').on('change', async function () {
         if ($(this).val() !== '') {
             $('#show-voucher-button').css('display', 'block');

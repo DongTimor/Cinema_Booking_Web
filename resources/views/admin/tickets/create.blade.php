@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="{{ asset('css/tickets/create.css') }}">
 @endsection
 @section('content')
+    <div id="loader" class="loader">
+        <div class="loader-wheel"></div>
+        <div class="loader-text"></div>
+    </div>
     <div style="height: 100%">
         <div class="row">
             <div class="col-md-12">
@@ -252,8 +256,8 @@
             </div>
         </div>
     </div>
-    <x-adminlte-modal id="eventModal" title="Available Events" size="lg" theme="teal" icon="fas fa-bell" v-centered
-        static-backdrop scrollable>
+    <x-adminlte-modal id="eventModal" title="Available Events" size="lg" theme="teal" icon="fas fa-bell"
+        v-centered static-backdrop scrollable>
         @php
             $heads = ['ID', 'Name', 'Start Time', 'End Time', 'Number of Tickets', 'Quantity', 'Discount'];
             $config = [
@@ -268,8 +272,8 @@
             <x-adminlte-button theme="danger" label="Dismiss" data-dismiss="modal" />
         </x-slot>
     </x-adminlte-modal>
-    <button style="display: none" id="availableEventsButton" class="bg-teal attention-button"
-        data-toggle="modal" data-target="#eventModal">Available Events</button>
+    <button style="display: none" id="availableEventsButton" class="bg-teal attention-button" data-toggle="modal"
+        data-target="#eventModal">Available Events</button>
 @stop
 @section('scripts')
     <script>
