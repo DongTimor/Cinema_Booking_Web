@@ -50,6 +50,7 @@ Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
 Route::get('/seats', [HomeController::class, 'getSeats']);
 Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
 Route::get('/favorite-movie', [HomeController::class, 'favoriteMovie'])->name('favorite-movie');
+Route::get('/today-event', [HomeController::class, 'todayEvent'])->name('today-event');
 Route::middleware('auth.jwt')->group(function () {
     Route::get('/booking/{id}', [HomeController::class, 'detail'])->name('detail');
     Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');

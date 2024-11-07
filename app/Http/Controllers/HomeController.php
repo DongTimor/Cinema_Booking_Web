@@ -143,8 +143,11 @@ class HomeController extends Controller
                     'end_time' => $event->end_time,
                     'movies' => $event->movies->map(function ($movie) {
                         return [
-                            'movie_id' => $movie->id,
-                            'movie_name' => $movie->name,
+                            'id' => $movie->id,
+                            'name' => $movie->name,
+                            'price' => $movie->price,
+                            'start_date' => $movie->start_date,
+                            'end_date' => $movie->end_date,
                         ];
                     }),
                 ];
