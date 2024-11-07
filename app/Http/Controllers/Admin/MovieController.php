@@ -228,4 +228,10 @@ class MovieController extends Controller
         $event = Event::findOrFail($id);
         return response()->json($event->movies);
     }
+
+    public function getMovieInfo(string $id)
+    {
+        $movie = Movie::findOrFail($id);
+        return response()->json($movie);
+    }
 }

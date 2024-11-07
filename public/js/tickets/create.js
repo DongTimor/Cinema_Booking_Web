@@ -4,13 +4,14 @@ let selectedSeats = [];
 let seatChoosen = null;
 let seatStatus = 'unplaced';
 let successArray = [];
+let successTicketConfirmationMail = [];
 let errorArray = [];
 let voucherId = null;
 let voucherValue = null;
 let voucherType = null;
 let events = [];
+let eventDiscount = 0;
 let price = 0;
-console.log("test");
 async function getCustomerInfor(id) {
     const response = await fetch(`${baseUrl}/getCustomerInfor/${id}`);
     const customer = await response.json();
@@ -64,6 +65,18 @@ async function getVouchersOfCustomer(customer) {
     return vouchers;
 }
 
+async function getVoucherInfo(id) {
+    const response = await fetch(`${baseUrl}/vouchers/getVoucherInfo/${id}`);
+    const voucher = await response.json();
+    return voucher;
+}
+
+async function getSeatNumber(id) {
+    const response = await fetch(`${baseUrl}/seats/getSeatNumber/${id}`);
+    const seat = await response.json();
+    return seat;
+}
+
 async function resetFilter() {
     $('#date').empty();
     $('#showtime_id').empty();
@@ -91,41 +104,41 @@ function convertTimeToDecimal(timeString) {
 
 async function priceCalculation() {
     const filmPrice = await getPrice($(movie_id).val());
-    let discount = 0;
+    eventDiscount = 0;
     if (voucherId) {
         if (voucherType === 'percent') {
-            discount += filmPrice * (voucherValue / 100);
+            eventDiscount += filmPrice * (voucherValue / 100);
         } else {
-            discount += parseInt(voucherValue);
+            eventDiscount += parseInt(voucherValue);
         }
     }
     events.forEach(event => {
 
         if (event.number_of_tickets === 1) {
             if (event.quantity !== 0 && event.all_day) {
-                discount += event.discount_percentage / 100 * filmPrice;
+                eventDiscount += event.discount_percentage / 100 * filmPrice;
             }
             if (!event.all_day && $('#showtime_id').val() !== '') {
                 if (convertTimeToDecimal($('#showtime_id').find('option:selected').data('start-time').toString()) >= convertTimeToDecimal(event.start_time.toString())
                     && convertTimeToDecimal($('#showtime_id').find('option:selected').data('end-time').toString()) <= convertTimeToDecimal(event.end_time.toString())) {
-                    discount += event.discount_percentage / 100 * filmPrice;
+                    eventDiscount += event.discount_percentage / 100 * filmPrice;
                 }
             }
         } else {
             if (selectedSeats.length >= event.number_of_tickets) {
                 if (event.quantity !== 0 && event.all_day) {
-                    discount += event.discount_percentage / 100 * filmPrice;
+                    eventDiscount += event.discount_percentage / 100 * filmPrice;
                 }
                 if (!event.all_day && $('#showtime_id').val() !== '') {
                     if (convertTimeToDecimal($('#showtime_id').find('option:selected').data('start-time').toString()) >= convertTimeToDecimal(event.start_time.toString())
                         && convertTimeToDecimal($('#showtime_id').find('option:selected').data('end-time').toString()) <= convertTimeToDecimal(event.end_time.toString())) {
-                        discount += event.discount_percentage / 100 * filmPrice;
+                        eventDiscount += event.discount_percentage / 100 * filmPrice;
                     }
                 }
             }
         }
     });
-    price = filmPrice - discount;
+    price = filmPrice - eventDiscount;
 }
 
 async function getScheduleId(movie, date, auditorium) {
@@ -191,6 +204,7 @@ async function createTicket() {
         }
         for (const seat of selectedSeats) {
             const data = {
+                action: 'create',
                 user_id: $('#user_id').val(),
                 seat_id: seat[0],
                 status: seat[1],
@@ -216,12 +230,74 @@ async function createTicket() {
                 })
                 .then(data => {
                     successArray.push(data.message);
+                    successTicketConfirmationMail.push(seat);
                 })
                 .catch(error => {
                     errorArray.push(error.message);
+                    console.log(error);
                 });
         }
+        if (successArray.length > 0) {
+            await ticketConfirmationMail();
+        }
         updateFetchSeatsModal(successArray, errorArray);
+
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: error.message,
+        });
+    }
+
+}
+
+async function ticketConfirmationMail() {
+    const url = '/admin/tickets/ticketConfirmationMail';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    try {
+        successTicketConfirmationMail.forEach(async seat => {
+            seat[0] = await getSeatNumber(seat[0]);
+        });
+        let voucher = null;
+        if (voucherId) {
+            voucher = await getVoucherInfo(voucherId);
+        }
+        const data = {
+            action: 'ticketConfirmationMail',
+            customer: $('#customer-name').val(),
+            movie: $('#movie_name').find('option:selected').text(),
+            date: $('#date').find('option:selected').text(),
+            auditorium: $('#auditorium_id').find('option:selected').data('auditorium'),
+            showtime: $('#showtime_id').find('option:selected').data('start-time') + ' - ' + $('#showtime_id').find('option:selected').data('end-time'),
+            seats: successTicketConfirmationMail,
+            total: await getPrice($(movie_id).val()) * successTicketConfirmationMail.length,
+            voucher: voucher,
+            event_discount: eventDiscount,
+            cost: price * successTicketConfirmationMail.length
+        };
+        await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // successArray.push(data.message);
+                console.log("true",data);
+            })
+            .catch(error => {
+                // errorArray.push(error.message);
+                console.log("false", error);
+            });
 
     } catch (error) {
         Swal.fire({
@@ -520,7 +596,7 @@ $(document).ready(function () {
                 $('#auditorium_id').empty();
                 $('#auditorium_id').append(`<option value="">--Select Auditorium--</option>`);
                 auditoriums.forEach(auditorium => {
-                    $('#auditorium_id').append(`<option value="${auditorium.auditorium_id}">${auditorium.auditorium}</option>`);
+                    $('#auditorium_id').append(`<option data-auditorium="${auditorium.auditorium}" value="${auditorium.auditorium_id}">${auditorium.auditorium}</option>`);
                 });
             } else {
                 $('#auditorium_id').prop('disabled', true);

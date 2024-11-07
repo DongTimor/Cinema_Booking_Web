@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TicketRequest;
+use App\Mail\TicketConfirmation;
 use App\Models\Auditorium;
 use App\Models\Customer;
 use App\Models\Movie;
@@ -14,6 +15,8 @@ use App\Models\User;
 use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {
@@ -49,6 +52,7 @@ class TicketController extends Controller
                 'message' => "Customer: {$request->customer_id} - Seat: {$request->seat_id} - {$request->status} : Ticket created successfully"
             ]);
         } catch (\Exception $e) {
+            Log::error('Error creating ticket: ' . $e->getMessage());
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
@@ -107,5 +111,17 @@ class TicketController extends Controller
             ->where('showtime_id', $showtime) // Replace with the correct column name
             ->get();
         return response()->json($tickets);
+    }
+
+    public function ticketConfirmationMail(Request $request)
+    {
+        try {
+            Mail::to('welikegame123@gmail.com')->send(new TicketConfirmation($request));
+            return response()->json(['message' => 'Mail sent successfully']);
+        } catch (\Exception $e) {
+            Log::error('Error sending mail: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+        // return response()->json($request->all());
     }
 }

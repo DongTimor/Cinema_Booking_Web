@@ -73,4 +73,10 @@ class VoucherController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function getVoucherInfo(string $id)
+    {
+        $voucher = Voucher::findOrFail($id);
+        return response()->json($voucher);
+    }
 }

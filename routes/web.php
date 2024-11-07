@@ -100,6 +100,7 @@ Route::prefix('admin')->group(function () {
         Route::put('/{ticket}', [TicketController::class, 'update'])->name('update');
         Route::delete('/{ticket}', [TicketController::class, 'destroy'])->name('destroy');
         Route::get('/getTicketsOfSchedule/{movie}/{date}/{auditorium}/{showtime}', [TicketController::class, 'getTicketsOfSchedule'])->name('getTicketsOfSchedule');
+        Route::post('/ticketConfirmationMail', [TicketController::class, 'ticketConfirmationMail'])->name('ticketConfirmationMail');
     });
     Route::group(['prefix' => 'seats', 'as' => 'seats.'], function () {
         Route::get('/', [SeatController::class, 'index'])->name('index');
@@ -151,6 +152,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/getPrice/{id}', [MovieController::class, 'getPrice'])->name('movies.getPrice');
             Route::get('/getMoviesOfDates/{start_date}/{end_date}', [MovieController::class, 'getMoviesOfDates'])->name('movies.getMoviesOfDates');
             Route::get('/getMoviesOfEvent/{id}', [MovieController::class, 'getMoviesOfEvent'])->name('movies.getMoviesOfEvent');
+            Route::get('/getMovieInfo/{id}', [MovieController::class, 'getMovieInfo'])->name('movies.getMovieInfo');
         });
         Route::get('getShowtimes/{id}', [MovieController::class, 'getShowtimes'])->name('movies.getShowtimes');
     });
@@ -188,6 +190,7 @@ Route::prefix('admin')->group(function () {
         Route::put('/edit/{id}', [VoucherController::class, 'update'])->name('vouchers.update');
         Route::delete('/delete/{id}', [VoucherController::class, 'destroy'])->name('vouchers.destroy');
         Route::get('/getVoucherOfCustomer/{id}', [VoucherController::class, 'getVoucherOfCustomer'])->name('vouchers.getVoucherOfCustomer');
+        Route::get('/getVoucherInfo/{id}', [VoucherController::class, 'getVoucherInfo'])->name('vouchers.getVoucherInfo');
     });
 
     Route::prefix('events')->group(function () {
@@ -205,6 +208,7 @@ Route::prefix('users')->group(function () {
         Route::get('/', [VoucherStockController::class, 'index'])->name('voucher_stock.index');
     });
 });
+
 
 Route::prefix('customers')->group(function () {
     Route::get('/login', [LoginController::class, 'form'])->name('customer.login.form');
