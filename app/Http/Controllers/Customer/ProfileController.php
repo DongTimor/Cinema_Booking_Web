@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class ProfileController extends Controller
 {
@@ -27,11 +27,13 @@ class ProfileController extends Controller
         $customer = Customer::findOrFail($id);
         if ($request->hasFile('image')) {
             if ($customer->image) {
-                Storage::delete(str_replace('storage', 'public', $customer->image));
+                $path = storage_path('app/' . $customer->image);
+                if (File::exists($path)) {
+                    File::delete($path);
+                }
             }
-            $url = $request->file('image')->store('public/images');
-            $imagePath = Storage::url($url);
-            $customer->update(['image' => $imagePath]);
+            $url = $request->file('image')->store('images');
+            $customer->update(['image' => $url]);
         }
         $customer->update($request->except('image'));
         return redirect()->route('home')->with('success', 'Profile updated successfully!');

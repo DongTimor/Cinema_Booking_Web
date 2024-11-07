@@ -1,23 +1,17 @@
 <script>
-    @if (session('error'))
-        Swal.fire({
-            title: "Error!",
-            text: '{{ session('error') }}',
-            icon: "error",
-        });
-    @endif
-    @if (session('success'))
-        Swal.fire({
-            title: "Success!",
-            text: '{{ session('success') }}',
-            icon: "success",
-        });
-    @endif
-    @if (session('warning'))
-        Swal.fire({
-            title: "Warning!",
-            text: '{{ session('warning') }}',
-            icon: "warning",
-        })
-    @endif
+    const sessionAlerts = {
+        error: '{{ session("error") }}',
+        success: '{{ session("success") }}',
+        warning: '{{ session("warning") }}',
+    };
+
+    Object.entries(sessionAlerts).forEach(([type, message]) => {
+        if (message) {
+            Swal.fire({
+                title: type.charAt(0).toUpperCase() + type.slice(1),
+                text: message,
+                icon: type,
+            });
+        }
+    });
 </script>
