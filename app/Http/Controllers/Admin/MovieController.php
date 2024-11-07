@@ -10,7 +10,6 @@ use App\Models\Movie;
 use App\Models\Schedule;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 class MovieController extends Controller
@@ -74,7 +73,7 @@ class MovieController extends Controller
             $url = $request->file('file')->store('movies');
 
             return response()->json([
-                'url' => Storage::url($url),
+                'url' => $url,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -128,7 +127,7 @@ class MovieController extends Controller
             $urls = $request->input('image_urls');
 
             foreach ($movie->images as $image) {
-                $path = storage_path('app/' . str_replace('/storage', '', $image->url));
+                $path = storage_path('app/' . $image->url);
                 if (File::exists($path)) {
                     File::delete($path);
                 }
@@ -146,7 +145,7 @@ class MovieController extends Controller
             if ($request->has('category_id')) {
                 $movie->categories()->sync($request->category_id);
             }
-            return redirect(route('movies.features.index'));
+            return redirect()->route('movies.features.index')->with('success', 'Movie updated successfully!');
         } catch (\Exception $e) {
             return response()->json(['error' => 'Update error', 'message' => $e->getMessage()], 500);
         }
