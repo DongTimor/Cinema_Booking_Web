@@ -17,7 +17,7 @@
                     value="{{ old('name') }}" />
                 <x-adminlte-input type="number" name="duration" label="Duration (minutes)*" fgroup-class="w-30"
                     value="{{ old('duration') }}" />
-                    <x-adminlte-input type="text" name="price" label="Price (VND)*" fgroup-class="w-30"
+                <x-adminlte-input type="text" name="price" label="Price (VND)*" fgroup-class="w-30"
                     value="{{ old('price') }}" />
             </div>
             <div class="form-group d-flex justify-content-between" style="width: 100% !important; gap: 50px">
@@ -57,23 +57,25 @@
                     @endforeach
                 </x-adminlte-select>
             </div>
-
-            <!-- Dropzone -->
-            <div class="dropzone" id="imageDropzone" style="border: 2px dashed #007bff; padding: 20px; margin-top: 15px;">
-                <h4 class="text-center">Upload Images</h4>
+            <div class="dropzone" id="posterDropzone" style="border: 2px dashed #007bff; padding: 20px; margin-top: 15px;">
+                <h4 class="text-center">Upload Poster Image</h4>
                 <div class="dz-message text-center">
-                    <strong>Drop files here or click to upload.</strong>
+                    <strong>Drop poster file here or click to upload.</strong>
                 </div>
             </div>
-            <div id="imagePreview" class="d-flex flex-wrap" style="margin-top: 15px;"></div>
-            <input type="hidden" name="image_urls" id="imageUrls" value="">
+            <div class="dropzone" id="bannerDropzone" style="border: 2px dashed #007bff; padding: 20px; margin-top: 15px;">
+                <h4 class="text-center">Upload Banner Image</h4>
+                <div class="dz-message text-center">
+                    <strong>Drop banner file here or click to upload.</strong>
+                </div>
+            </div>
+            <input type="hidden" name="poster_urls" id="posterUrls" value="">
+            <input type="hidden" name="banner_urls" id="bannerUrls" value="">
             <div class="mt-3">
                 <x-adminlte-input name="trailer" label="Trailer" value="{{ old('trailer') }}" />
             </div>
-
             <x-adminlte-textarea name="description" label="Description" rows=6 igroup-size="sm"
                 placeholder="Insert description...">{{ old('description') }}</x-adminlte-textarea>
-
             <x-adminlte-button type="submit" id="submitMovieForm" label="Create" theme="primary"
                 class="bg-primary text-white hover:bg-secondary" />
         </form>
@@ -96,10 +98,12 @@
             });
         });
 
-        Dropzone.autoDiscover = false; 
-        var movieDropzone = new Dropzone("#imageDropzone", {
+        Dropzone.autoDiscover = false;
+        var posterUrls = [];
+        var bannerUrls = [];
+        var posterDropzone = new Dropzone("#posterDropzone", {
             url: "{{ route('movies.features.uploadImages') }}",
-            maxFilesize: 2, 
+            maxFilesize: 2,
             acceptedFiles: 'image/*',
             addRemoveLinks: true,
             autoProcessQueue: false,
@@ -109,28 +113,72 @@
             },
             init: function() {
                 var myDropzone = this;
-                document.getElementById("submitMovieForm").addEventListener("click", function(event) {
-                    event.preventDefault();
-                    if (myDropzone.getQueuedFiles().length > 0) {
-                        myDropzone.processQueue();
-                    } else {
-                        document.getElementById("movieForm").submit();
-                    }
+                myDropzone.on("sending", function(file, xhr, formData) {
+                    formData.append("type", "poster");
                 });
                 myDropzone.on("success", function(file, response) {
-                    var imageUrls = document.getElementById('imageUrls').value;
-                    imageUrls = imageUrls ? imageUrls.split(',') : [];
-                    imageUrls.push(response.url);
-                    document.getElementById('imageUrls').value = imageUrls.join(',');
-                });
-                myDropzone.on("queuecomplete", function() {
-                    document.getElementById("movieForm").submit();
+                    posterUrls.push(response.url);
+                    document.getElementById('posterUrls').value = posterUrls.join(',');
+                    console.log('Poster URLs:', posterUrls); // Log the updated list of poster URLs
                 });
                 myDropzone.on("error", function(file, response) {
                     console.error(response);
                     alert("An error occurred while uploading the file: " + response);
                 });
             }
+        });
+
+        var bannerDropzone = new Dropzone("#bannerDropzone", {
+            url: "{{ route('movies.features.uploadImages') }}",
+            maxFilesize: 2,
+            acceptedFiles: 'image/*',
+            addRemoveLinks: true,
+            autoProcessQueue: false,
+            parallelUploads: 5,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            init: function() {
+                var myDropzone = this;
+                myDropzone.on("sending", function(file, xhr, formData) {
+                    formData.append("type", "banner");
+                });
+                myDropzone.on("success", function(file, response) {
+                    bannerUrls.push(response.url);
+                    document.getElementById('bannerUrls').value = bannerUrls.join(',');
+                    console.log('Banner URLs:', bannerUrls); // Log the updated list of banner URLs
+                });
+                myDropzone.on("error", function(file, response) {
+                    console.error(response);
+                    alert("An error occurred while uploading the file: " + response);
+                });
+            }
+        });
+        document.getElementById("submitMovieForm").addEventListener("click", function(event) {
+            event.preventDefault();
+            var posterPromise = new Promise(function(resolve, reject) {
+                if (posterDropzone.getQueuedFiles().length > 0) {
+                    posterDropzone.on("queuecomplete", function() {
+                        resolve();
+                    });
+                    posterDropzone.processQueue();
+                } else {
+                    resolve();
+                }
+            });
+            var bannerPromise = new Promise(function(resolve, reject) {
+                if (bannerDropzone.getQueuedFiles().length > 0) {
+                    bannerDropzone.on("queuecomplete", function() {
+                        resolve();
+                    });
+                    bannerDropzone.processQueue();
+                } else {
+                    resolve();
+                }
+            });
+            Promise.all([posterPromise, bannerPromise]).then(function() {
+                document.getElementById("movieForm").submit();
+            });
         });
     </script>
 @endsection

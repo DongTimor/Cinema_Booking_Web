@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-2">
     <div class="h-fit group">
         <div class="relative overflow-hidden cursor-pointer">
-            <img src="{{ $movie->images->first()?->url ? asset($movie->images->first()->url) : asset('default-image.jpg') }}"
+            <img src="{{ $movie->images->where('type', 'poster')->first()?->url ? asset($movie->images->first()->url) : asset('default-image.jpg') }}"
                 class="w-[290px] h-[435px] rounded-xl object-cover">
             <div
                 class="absolute h-full w-full bg-black/40 flex items-center justify-center opacity-5 -bottom-20 group-hover:bottom-0 group-hover:opacity-100 rounded-2xl transition-all duration-300 ">

@@ -25,7 +25,7 @@ use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\Customer\VoucherController as CustomerVoucherController;
 use App\Http\Controllers\Admin\EventController;
-use App\Http\Controllers\User\VoucherStockController;
+use App\Http\Controllers\Customer\MovieController as CustomerMovieController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -46,11 +46,12 @@ Auth::routes();
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/momo-payment', [PaymentController::class, 'momo_payment'])->name('momo-payment');
 Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
-Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
-Route::get('/seats', [HomeController::class, 'getSeats']);
+Route::get('/showtimes', [CustomerMovieController::class, 'getTimeslotsByDate']);
+Route::get('/seats', [CustomerMovieController::class, 'getSeats']);
 Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
+Route::get('/movie',[CustomerMovieController::class,'index'])->name('movies');
 Route::middleware('auth.jwt')->group(function () {
-    Route::get('/booking/{id}', [HomeController::class, 'detail'])->name('detail');
+    Route::get('/booking/{id}', [CustomerMovieController::class, 'detail'])->name('detail');
     Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');
     Route::post('/vouchers', [CustomerVoucherController::class, 'saveVoucher'])->name('vouchers.save');
 });

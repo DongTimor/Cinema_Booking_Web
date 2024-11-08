@@ -9,6 +9,7 @@ use App\Models\Event;
 use App\Models\Movie;
 use App\Models\Schedule;
 use App\Models\Showtime;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
@@ -19,7 +20,18 @@ class MovieController extends Controller
      */
     public function index()
     {
-        $movies = Movie::paginate(10);
+        $movies = Movie::all();
+        $today = Carbon::today();
+        foreach ($movies as $movie) {
+            if ($today->lt($movie->start_date)) {
+                $movie->status = 'impending';
+            } elseif ($today->between($movie->start_date, $movie->end_date)) {
+                $movie->status = 'active';
+            } else {
+                $movie->status = 'inactive';
+            }
+            $movie->save();
+        }
         return view('admin.movies.feature.index', compact('movies'));
     }
 
@@ -44,13 +56,24 @@ class MovieController extends Controller
         $validated = $request->validated();
         $validated['start_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['start_date'])->format('Y-m-d');
         $validated['end_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['end_date'])->format('Y-m-d');
+
         try {
             $movie = Movie::create($validated);
-            if ($request->has('image_urls')) {
-                $imageUrls = explode(',', $request->input('image_urls'));
-                foreach ($imageUrls as $url) {
+            if ($request->has('poster_urls')) {
+                $posterUrls = explode(',', $request->input('poster_urls'));
+                foreach ($posterUrls as $url) {
                     $movie->images()->create([
                         'url' => $url,
+                        'type' => 'poster',
+                    ]);
+                }
+            }
+            if ($request->has('banner_urls')) {
+                $bannerUrls = explode(',', $request->input('banner_urls'));
+                foreach ($bannerUrls as $url) {
+                    $movie->images()->create([
+                        'url' => $url,
+                        'type' => 'banner',
                     ]);
                 }
             }
@@ -63,8 +86,15 @@ class MovieController extends Controller
         }
     }
 
+    /**
+     * Handle the image upload.
+     */
     public function uploadImages(Request $request)
     {
+        $this->validate($request, [
+            'file' => 'required|image|max:2048',
+            'type' => 'required|in:poster,banner',
+        ]);
         try {
             $request->validate([
                 'file' => 'required|image|max:2048',
@@ -102,11 +132,12 @@ class MovieController extends Controller
     {
         try {
             $movie = Movie::findOrFail($id);
-            $images = $movie->images;
             $movie->start_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->start_date)->format('m/d/Y');
             $movie->end_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->end_date)->format('m/d/Y');
             $categories = Category::all();
-            return view('admin.movies.feature.edit', compact('movie', 'categories', 'images'));
+            $posters = $movie->images()->where('type', 'poster')->get();
+            $banners = $movie->images()->where('type', 'banner')->get();
+            return view('admin.movies.feature.edit', compact('movie', 'categories', 'posters', 'banners'));
         } catch (\Exception $e) {
             return response()->json(['error' => 'Navigate error', 'message' => $e->getMessage()], 500);
         }
@@ -120,28 +151,37 @@ class MovieController extends Controller
         $validated = $request->validated();
         $validated['start_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['start_date'])->format('Y-m-d');
         $validated['end_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['end_date'])->format('Y-m-d');
-
+    
         try {
             $movie = Movie::findOrFail($id);
             $movie->update($validated);
-            $urls = $request->input('image_urls');
-
+    
+            $posterUrls = $request->input('poster_urls', []);
+            $bannerUrls = $request->input('banner_urls', []);
             foreach ($movie->images as $image) {
                 $path = storage_path('app/' . $image->url);
-                if (!in_array($image->url, $urls) && file_exists($path)) {
-                    File::delete($path);
-                }
-                $image->delete();
-            }
-
-            if ($urls) {
-                foreach ($urls as $url) {
-                    $movie->images()->create([
-                        'url' => $url
-                    ]);
+                if (
+                    ($image->type == 'poster' && !in_array($image->url, $posterUrls)) ||
+                    ($image->type == 'banner' && !in_array($image->url, $bannerUrls))
+                ) {
+                    if (file_exists($path)) {
+                        File::delete($path);
+                    }
+                    $image->delete();
                 }
             }
-
+            foreach ($posterUrls as $url) {
+                $movie->images()->updateOrCreate(
+                    ['url' => $url, 'type' => 'poster'],
+                    ['url' => $url]
+                );
+            }
+            foreach ($bannerUrls as $url) {
+                $movie->images()->updateOrCreate(
+                    ['url' => $url, 'type' => 'banner'],
+                    ['url' => $url]
+                );
+            }
             if ($request->has('category_id')) {
                 $movie->categories()->sync($request->category_id);
             }

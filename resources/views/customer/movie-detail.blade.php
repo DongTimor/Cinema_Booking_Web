@@ -4,12 +4,12 @@
     <div class="flex flex-col">
         <div class="w-full h-[500px] bg-black flex items-center justify-center">
             <img class="w-[900px] h-full"
-                src="{{ $movie->images->skip(1)->first() ? asset($movie->images->skip(1)->first()->url) : asset('default-image.jpg') }}" />
+                src="{{ $movie->images->where('type', 'banner')->first() ? asset($movie->images->where('type', 'banner')->first()->url) : asset('default-image.jpg') }}" />
         </div>
         <div class="flex flex-col gap-4 -mt-10 z-10 ml-72 w-2/4">
             <div class="flex gap-4">
                 <img class="w-[280px] h-[400px] border-3 border-white rounded-md"
-                    src="{{ $movie->images->first() ? asset($movie->images->first()->url) : asset('default-image.jpg') }}" />
+                    src="{{ $movie->images->where('type', 'poster')->first() ? asset($movie->images->where('type', 'poster')->first()->url) : asset('default-image.jpg') }}" />
                 <div class="flex flex-col gap-3 justify-end">
                     <h1 class="text-3xl font-extrabold">{{ $movie->name }}</h1>
                     <div class="flex gap-4">
@@ -67,11 +67,16 @@
                 <div class="mt-2">
                     <p>2D Phụ Đề</p>
                     <div class="grid grid-cols-6 gap-4 mt-2" id="timeslot-container">
-                        @foreach ($showtimes as $showtime)
+                        @php
+                            $sortedShowtimes = $showtimes->sortBy(function ($showtime) {
+                                return Carbon::parse($showtime->start_time)->format('H:i');
+                            });
+                        @endphp
+                        @foreach ($sortedShowtimes as $showtime)
                             <button
                                 onclick="openSeatSelectionModal('{{ $today }}',{{ $movie->id }},{{ $showtime->id }})"
                                 class="border border-gray-300 px-2 py-2 rounded hover:bg-gray-300 showtime-button">
-                                {{ $showtime->start_time }}
+                                {{ Carbon::parse($showtime->start_time)->format('H:i') }}
                             </button>
                         @endforeach
                     </div>
@@ -145,7 +150,7 @@
                     class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">&times;</button>
                 <h2 class="text-2xl font-bold mb-4">Select Voucher</h2>
                 <div class="ml-[70px] grid grid-cols-2 gap-4 w-full justify-center overflow-y-auto max-h-[400px]">
-                    @if ($customerVouchers)
+                    @if ($customerVouchers && $customerVouchers->isNotEmpty())
                         @php
                             $sortedCustomerVouchers = $customerVouchers->sortByDesc(function ($customerVoucher) use (
                                 $vouchers,
@@ -173,14 +178,19 @@
                                             class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
                                             style="color: {{ $vouchers->firstWhere('id', $customerVoucher)->value >= 50 ? 'red' : 'green' }}">Discount:
                                             {{ $vouchers->firstWhere('id', $customerVoucher)->value }}%</span>
-                                        <span
-                                            class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Expiry:
-                                            {{ $vouchers->firstWhere('id', $customerVoucher)->expires_at }}</span>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
                     @endif
+                    @if (!$customerVouchers || $customerVouchers->isEmpty())
+                        <div class="col-span-2 text-center pr-20">
+                            <p class="text-3xl font-bold">Oops, you don't have any voucher</p>
+                            <a class="text-xl font-extrabold text-blue-500 hover:text-blue-700"
+                                href="{{ route('vouchers') }}" class="text-blue-500 underline">Go get some</a>
+                        </div>
+                    @endif
+
                 </div>
             </div>
         </div>

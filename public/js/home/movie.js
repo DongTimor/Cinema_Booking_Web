@@ -63,11 +63,17 @@ async function fetchShowtimes(date, movieId) {
         const data = await response.json();
         const timeslotContainer = document.getElementById('timeslot-container');
         timeslotContainer.innerHTML = '';
+        data.showtimes.sort((a, b) => {
+            const timeA = new Date(`1970-01-01T${a.start_time}Z`);
+            const timeB = new Date(`1970-01-01T${b.start_time}Z`);
+            return timeA - timeB;
+        });
         data.showtimes.forEach(showtime => {
             const button = document.createElement('button');
             button.classList.add('border', 'border-gray-300', 'px-2', 'py-2', 'rounded',
                 'hover:bg-gray-300', 'showtime-button');
-            button.textContent = showtime.start_time;
+            const startTime = showtime.start_time.slice(0, 5);
+            button.textContent = startTime;
             button.addEventListener('click', function() {
                 document.getElementById('hidden_schedule_id').value = data.scheduleId;
                 document.getElementById('hidden_showtime_id').value = showtime.id;
