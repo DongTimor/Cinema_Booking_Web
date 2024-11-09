@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateSelector = document.getElementById('date-selector');
     const movieId = document.getElementById('movie-id').value;
 
-    // Automatically select today's date
     const today = new Date().toISOString().split('T')[0];
     const todayItem = dateSelector.querySelector(`[data-date="${today}"]`);
     if (todayItem) {
@@ -195,3 +194,71 @@ function selectVoucher(voucherCode) {
     applyVoucher();
     closeVoucherModal();
 }
+
+$(document).ready(function() {
+    $('.review-content').each(function() {
+        const $content = $(this);
+        const lineHeight = parseFloat($content.css('line-height'));
+        const maxHeight = lineHeight * 7; // 7 lines
+
+        console.log('Line Height:', lineHeight);
+        console.log('Max Height:', maxHeight);
+        console.log('Scroll Height:', $content[0].scrollHeight);
+
+        if ($content[0].scrollHeight > maxHeight) {
+            console.log('Exceeds limit, adding class');
+            $content.addClass('exceeds-limit');
+        } else {
+            console.log('Does not exceed limit');
+        }
+    });
+});
+
+function openVoteModal() {
+    $('#vote-modal').modal('show');
+}
+
+function closeVoteModal() {
+    $('#vote-modal').modal('hide');
+}
+
+function openCommentModal() {
+    $('#comment-modal').modal('show');
+}
+
+function closeCommentModal() {
+    $('#comment-modal').modal('hide');
+}
+
+function openCommentModalInput() {
+    $('#comment-modal-input').modal('show');
+}
+
+function closeCommentModalInput() {
+    $('#comment-modal-input').modal('hide');
+}
+
+
+function setProgressBar(rating) {
+    const degree = (rating / 10) * 360;
+    const fill = document.querySelector('.fill');
+    fill.style.transform = `rotate(${degree}deg)`;
+}
+
+$('.star').on('mouseover', function() {
+    const value = $(this).data('value');
+    $('.star').each(function() {
+        if ($(this).data('value') <= value) {
+            $(this).addClass('active');
+        } else {
+            $(this).removeClass('active');
+        }
+    });
+});
+
+$('.star').on('mouseout', function() {
+    $('.star').removeClass('active');
+});
+
+// Example usage
+setProgressBar(5);

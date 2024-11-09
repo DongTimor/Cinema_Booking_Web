@@ -1,5 +1,7 @@
 @extends('layouts.customer')
-
+@section('styles')
+    <link rel="stylesheet" href="{{ asset('css/home/movie.css') }}">
+@endsection
 @section('content')
     <div class="flex flex-col">
         <div class="w-full h-[500px] bg-black flex items-center justify-center">
@@ -20,6 +22,15 @@
                         <div class="flex gap-2 items-center justify-center">
                             <i class="far fa-calendar text-[#f8c92c] text-xl"></i>
                             <p>{{ $movie->start_date }}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 justify-start items-center vote-container" onclick="openVoteModal()">
+                        <div class="flex gap-2 items-center text-lg">
+                            <i class="fas fa-star pb-1 text-[#f8c92c]"></i>
+                            <p class="font-bold">4.5</p>
+                        </div>
+                        <div class="flex gap-2 items-end text-sm">
+                            <p>( 24 votes )</p>
                         </div>
                     </div>
                     <p>Category:
@@ -77,6 +88,62 @@
                     </div>
                 </div>
             </div>
+            <div class="flex gap-2 items-center justify-between">
+                <div class="flex gap-2 items-center" onclick="openCommentModal()">
+                    <div class="w-[5px] h-[25px] bg-[#f8c92c]"></div>
+                    <h1 class="text-xl font-extrabold label-text">User Reviews</h1>
+                    <span class="text-sm text-gray-500">1.2K</span>
+                    <i class="fa fa-chevron-right icon-right"></i>
+                </div>
+                <button class="review-button"><i class="fa fa-plus"></i> Review</button>
+            </div>
+            <div class="user-reviews-container">
+                <div class="flex gap-2 items-center justify-between w-full">
+                    <div class="feature-label">
+                        FEATURED REVIEW
+                        <div class="feature-label-sub"></div>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fa fa-star text-[#f8c92c]"></i>
+                        <p class="text-sm">4/5</p>
+                    </div>
+                </div>
+                <div class="review-name">
+                    <p>John Doe</p>
+                    <i class="fa fa-chevron-right icon-right"></i>
+                </div>
+                <div class="review-content">
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet
+                        consectetur adipisicing elit. Quisquam, quos.Lorem ipsum dolor sit amet consectetur adipisicing
+                        elit. Quisquam, quos.Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.Lorem
+                        ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.Lorem ipsum dolor sit amet
+                        consectetur adipisicing elit. Quisquam, quos.
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos. Lorem ipsum dolor sit amet
+                        consectetur adipisicing elit. Quisquam, quos.Lorem ipsum dolor sit amet consectetur adipisicing
+                        elit. Quisquam, quos.Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.Lorem
+                        ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.Lorem ipsum dolor sit amet
+                        consectetur adipisicing elit. Quisquam, quos.consectetur adipisicing elit. Quisquam,
+                        quos.consectetur adipisicing elit. Quisquam, quos.consectetur adipisicing elit. Quisquam, quos.
+                    </p>
+                </div>
+                <div class="review-footer">
+                    <div class="review-votes">
+                        <i class="fa fa-thumbs-up review-more"></i>
+                        <p class="text-sm">Helpful</p>
+                        <span class="dot">.</span>
+                        <p>123</p>
+                        <i class="fa fa-thumbs-down review-more" style="margin-left: 20px;"></i>
+                        <p>123</p>
+                    </div>
+                    <div class="review-more">
+                        <i class="fa fa-ellipsis-v"></i>
+                    </div>
+                </div>
+                <div class="sub-triangle">
+                </div>
+                <div class="triangle">
+                </div>
+            </div>
         </div>
         <div id="seatSelectionModal"
             class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-75">
@@ -115,7 +182,8 @@
                     <h1></h1>
                 </div>
                 <div class="mb-6">
-                    <p class="text-lg font-medium pt-3 border-t-2">Total : <span id="total_amount" class="text-green-600">0
+                    <p class="text-lg font-medium pt-3 border-t-2">Total : <span id="total_amount"
+                            class="text-green-600">0
                             VND</span></p>
                 </div>
                 <form action="{{ route('momo-payment') }}" method="POST" class="text-center"
@@ -184,6 +252,9 @@
                 </div>
             </div>
         </div>
+        @include('customer.reviews-votes')
+        @include('customer.reviews-comments')
+        @include('customer.reviews-comments-input')
     @endsection
     @section('scripts')
         <script src="{{ asset('js/home/movie.js') }}"></script>
