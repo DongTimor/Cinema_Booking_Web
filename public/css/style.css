@@ -2,13 +2,21 @@
     background-color: #f4f6f942 !important;
 }
 
-.nav-sidebar .nav-item>.nav-link
-{
+.nav-sidebar .nav-item > .nav-link {
     margin-bottom: 0rem;
 }
 
 .select2-selection__choice {
-    background-color: #0ac432  !important;
+    background-color: #0ac432 !important;
+    margin: 5px;
+}
+
+.select2-selection__choice__remove {
+    color: #fff !important;
+}
+
+.select2-selection__choice__remove:hover {
+    color: #000 !important;
 }
 
 div.dataTables_wrapper div.dataTables_length select {

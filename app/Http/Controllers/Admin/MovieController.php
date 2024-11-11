@@ -54,8 +54,8 @@ class MovieController extends Controller
     public function store(MovieRequest $request)
     {
         $validated = $request->validated();
-        $validated['start_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['start_date'])->format('Y-m-d');
-        $validated['end_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['end_date'])->format('Y-m-d');
+        $validated['start_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['start_date'])->format('Y-m-d');
+        $validated['end_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['end_date'])->format('Y-m-d');
 
         try {
             $movie = Movie::create($validated);
@@ -132,8 +132,8 @@ class MovieController extends Controller
     {
         try {
             $movie = Movie::findOrFail($id);
-            $movie->start_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->start_date)->format('m/d/Y');
-            $movie->end_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->end_date)->format('m/d/Y');
+            $movie->start_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->start_date)->format('d/m/Y');
+            $movie->end_date = \Carbon\Carbon::createFromFormat('Y-m-d', $movie->end_date)->format('d/m/Y');
             $categories = Category::all();
             $posters = $movie->images()->where('type', 'poster')->get();
             $banners = $movie->images()->where('type', 'banner')->get();
@@ -149,9 +149,8 @@ class MovieController extends Controller
     public function update(MovieRequest $request, string $id)
     {
         $validated = $request->validated();
-        $validated['start_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['start_date'])->format('Y-m-d');
-        $validated['end_date'] = \Carbon\Carbon::createFromFormat('m/d/Y', $validated['end_date'])->format('Y-m-d');
-    
+        $validated['start_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['start_date'])->format('Y-m-d');
+        $validated['end_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['end_date'])->format('Y-m-d');
         try {
             $movie = Movie::findOrFail($id);
             $movie->update($validated);

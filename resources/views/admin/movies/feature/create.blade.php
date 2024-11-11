@@ -1,14 +1,11 @@
 @extends('layouts.admin')
-
 @section('styles')
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css"
-        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css">
 @endsection
 
 @section('content')
-    <div class="">
+    <div>
         <h1>Create Movie</h1>
         <form id="movieForm" action="{{ route('movies.features.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -20,30 +17,24 @@
                 <x-adminlte-input type="text" name="price" label="Price (VND)*" fgroup-class="w-30"
                     value="{{ old('price') }}" />
             </div>
-            <div class="form-group d-flex justify-content-between" style="width: 100% !important; gap: 50px">
-                <div class="form-group d-flex flex-column justify-content-between">
-                    <label for="datetimepicker">Select Start Date*</label>
-                    <div class="input-group date" id="starttimepicker" style="width: max-content !important;"
-                        data-target-input="nearest">
-                        <input id="start_date" name="start_date" type="text" class="form-control datetimepicker-input"
-                            data-target="#starttimepicker" value="{{ old('start_date') }}" />
-                        <div class="input-group-append" data-target="#starttimepicker" data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
+            <div class="flex gap-3">
+                <div class="start-date w-1/5">
+                    <label>Select Start Date*</label>
+                    <div class="input-group">
+                        <input name="start_date" type="text" class="form-control datepicker shadow-none"
+                            value="{{ old('start_date') }}" />
+                        <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
                         @error('start_date')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                 </div>
-                <div class="form-group d-flex flex-column justify-content-between">
-                    <label for="datetimepicker">Select End Date*</label>
-                    <div class="input-group date" id="endtimepicker" style="width: max-content !important;"
-                        data-target-input="nearest">
-                        <input id="end_date" name="end_date" type="text" class="form-control datetimepicker-input"
-                            data-target="#endtimepicker" value="{{ old('end_date') }}" />
-                        <div class="input-group-append" data-target="#endtimepicker" data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
+                <div class="end-date w-1/5">
+                    <label>Select End Date*</label>
+                    <div class="input-group">
+                        <input name="end_date" type="text" class="form-control datepicker shadow-none"
+                            value="{{ old('end_date') }}" />
+                        <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
                         @error('end_date')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -83,20 +74,14 @@
 @endsection
 
 @section('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
-    <script type="text/javascript">
-        $(function() {
-            $('#starttimepicker').datetimepicker({
-                format: 'MM/DD/YYYY'
+    <script>
+         $('.datepicker').each(function() {
+            $(this).flatpickr({
+                dateFormat: 'd/m/Y',
             });
-            $('#endtimepicker').datetimepicker({
-                format: 'MM/DD/YYYY'
-            });
-        });
+        })
 
         Dropzone.autoDiscover = false;
         var posterUrls = [];
