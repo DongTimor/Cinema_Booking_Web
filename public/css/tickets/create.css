@@ -11,16 +11,8 @@ html {
     border-radius: 10px;
 }
 
-.seats_container {
-    width: 100%;
-    height: 600px;
-    background-color: rgba(128, 128, 128, 0.5);
-    overflow: auto;
-    align-items: center;
-    justify-content: center;
-    display: grid;
-    gap: 10px;
-
+.seats-container {
+    background-color: #f4f6f9;
 }
 
 .another_seats_container {
@@ -32,7 +24,6 @@ html {
     justify-content: center;
     display: grid;
     gap: 10px;
-
 }
 
 .seats_container_lable {
@@ -49,11 +40,13 @@ html {
 .seat.crossed {
     position: relative;
     background-color: rgb(204, 229, 255);
-    background-image: repeating-linear-gradient(45deg,
-            rgba(255, 0, 0, 0.3),
-            rgba(255, 0, 0, 0.3) 10px,
-            transparent 10px,
-            transparent 20px);
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 0, 0, 0.3),
+        rgba(255, 0, 0, 0.3) 10px,
+        transparent 10px,
+        transparent 20px
+    );
     pointer-events: none;
 }
 
@@ -62,55 +55,11 @@ html {
     z-index: 1;
 }
 
-.voucher {
-    background-color: #fff;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    position: relative;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    margin-bottom: 5%;
-
-    h1 {
-        color: #FF6347;
-        font-size: 35px;
-        margin: 0;
-    }
-
-    p {
-        font-size: 20px;
-        margin: 10px 0;
-        color: #ffffff;
-    }
-
-    &:hover {
-        transform: scale(1.01);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    }
-
-    &:active {
-        transform: scale(0.99);
-        transition: all 0.1s ease;
-    }
-}
-
-
 .voucher .code {
     font-size: 28px;
     font-weight: bold;
     color: #fff;
-    background-color: #FF6347;
+    background-color: #ff6347;
     padding: 10px;
     border-radius: 5px;
     width: 40%;
@@ -169,7 +118,7 @@ html {
     font-size: 28px;
     font-weight: bold;
     color: #fff;
-    background-color: #FF6347;
+    background-color: #ff6347;
     padding: 10px;
     border-radius: 5px;
     width: 250px;
@@ -192,7 +141,7 @@ html {
     margin-left: 640px;
     margin-top: 130px;
     &:hover {
-        background-color: #FF6347;
+        background-color: #ff6347;
     }
 }
 
@@ -212,71 +161,59 @@ html {
     align-items: center;
 }
 
-.guide-description {
-    width: 100%;
+.seats_container_description {
+    width: max-content;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-end;
-    gap: 10px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1px;
+    border: 1px solid #000;
+    padding: 10px;
+    margin-bottom: 15px;
 
-    .seats_container_description_container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 5px;
+    span {
+        width: 20px;
+        height: 20px;
+        border: 1px solid #000;
     }
 
-    .seats_container_description {
-        width: max-content;
+    .description-row {
         display: flex;
-        flex-direction: column;
+        align-items: center;
         justify-content: flex-start;
-        align-items: flex-start;
-        gap: 1px;
-        border: 1px solid #000;
-        padding: 10px;
-        margin-bottom: 15px;
+        gap: 10px;
+    }
 
-        span {
-            width: 20px;
-            height: 20px;
-            border: 1px solid #000;
-        }
+    .span-1 {
+        background-color: rgb(191, 191, 191);
+    }
 
-        .description-row {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 10px;
-        }
+    .span-2 {
+        background-color: rgb(204, 229, 255);
+    }
 
-        .span-1 {
-            background-color: rgb(191, 191, 191);
-        }
+    .span-3 {
+        background-color: rgb(255, 204, 204);
+    }
 
-        .span-2 {
-            background-color: rgb(204, 229, 255);
-        }
+    .span-4 {
+        background-color: rgb(102, 255, 102);
+    }
 
-        .span-3 {
-            background-color: rgb(255, 204, 204);
-        }
-
-        .span-4 {
-            background-color: rgb(102, 255, 102);
-        }
-
-        .span-5 {
-            background-color: rgb(255, 255, 153);
-        }
+    .span-5 {
+        background-color: rgb(255, 255, 153);
     }
 }
 
 @keyframes attention {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
 }
 
 .attention-button {
@@ -292,4 +229,158 @@ html {
     z-index: 1000;
     font-size: 16px;
     font-weight: bold;
+}
+
+.loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.loader-wheel {
+    animation: spin 1s infinite linear;
+    border: 2px solid rgba(30, 30, 30, 0.5);
+    border-left: 4px solid #fff;
+    border-radius: 50%;
+    height: 50px;
+    margin-bottom: 10px;
+    width: 50px;
+}
+
+.loader-text {
+    color: #fff;
+    font-family: arial, sans-serif;
+}
+
+.loader-text:after {
+    content: "Loading";
+    animation: load 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes load {
+    0% {
+        content: "Sending Email";
+    }
+
+    33% {
+        content: "Sending Email...";
+    }
+
+    67% {
+        content: "Sending Email...";
+    }
+
+    100% {
+        content: "Sending Email...";
+    }
+}
+
+.seat {
+    background-color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+}
+
+.seat.selected {
+    background-color: rgb(255, 255, 153) !important;
+}
+
+.square-20 {
+    width: 20px;
+    height: 20px;
+}
+
+.voucher .voucher-card::before,
+.voucher .voucher-card::after {
+    background-color: #f4f6f9;
+}
+
+.voucher .voucher-card {
+    width: 50%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.voucher-card {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.voucher-card::before,
+.voucher-card::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3rem;
+    height: 3rem;
+    background: #fff;
+    border-radius: 50%;
+}
+
+.voucher-card::before {
+    left: -2rem;
+}
+
+.voucher-card::after {
+    right: -2rem;
+}
+
+.voucher-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffe900;
+}
+
+.voucher-code {
+    font-size: 1.125rem;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.voucher-badge {
+    background-color: #ffffff;
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.badge-discount {
+    color: green;
+}
+
+.save-btn {
+    padding: 0.5rem 1rem;
+    background-color: #facc15;
+    font-weight: 500;
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+}
+
+.save-btn:hover {
+    background-color: #fbbf24;
 }

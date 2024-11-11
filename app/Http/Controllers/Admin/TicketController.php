@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TicketRequest;
-use App\Models\Auditorium;
+use App\Mail\TicketConfirmation;
 use App\Models\Customer;
 use App\Models\Movie;
 use App\Models\Schedule;
@@ -12,8 +12,11 @@ use App\Models\Seat;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\Voucher;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+
 
 class TicketController extends Controller
 {
@@ -22,7 +25,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        $tickets = Ticket::with('customer','user')->get();
+        $tickets = Ticket::with('customer', 'user')->get();
         return view('admin.tickets.index', compact('tickets'));
     }
 
@@ -33,23 +36,51 @@ class TicketController extends Controller
     {
         $movies = Movie::whereDate('end_date', '>=', Carbon::now())
             ->get();
-        $customers = Customer::all();
-        $vouchers = Voucher::all();
-        return view('admin.tickets.create', compact('movies', 'customers', 'vouchers'));
+        $vouchers = Voucher::whereDate('expires_at', '>=', Carbon::now())
+            ->where('quantity', '>', 0)
+            ->orderBy('type')
+            ->orderByDesc('value')
+            ->get()
+            ->groupBy('type')
+            ->flatten();
+        return view('admin.tickets.create', compact('movies', 'vouchers'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(TicketRequest $request)
+    public function store(Request $request)
     {
         try {
-            Ticket::create($request->all());
-            return response()->json([
-                'message' => "Customer: {$request->customer_id} - Seat: {$request->seat_id} - {$request->status} : Ticket created successfully"
+            $request->validate([
+                'movie_id' => 'required',
+                'showtime_id' => 'required',
+                'seats' => 'required',
             ]);
+
+            $seats = $request->input('seats');
+            $tickets = $request->except('seats');
+            $schedule_id = Schedule::where('movie_id', $request->movie_id)
+                ->where('auditorium_id', $request->auditorium_id)
+                ->whereDate('date', Carbon::now())
+                ->value('id');
+
+            foreach ($seats as $seat) {
+                $tickets['user_id'] = auth()->user()->id;
+                $tickets['seat_id'] = $seat;
+                $tickets['status'] = 'ordered';
+                $tickets['schedule_id'] = $schedule_id;
+                Ticket::create($tickets);
+            }
+
+            $voucher = Voucher::find($request->voucher_id);
+            if ($voucher) {
+                $voucher->quantity -= 1;
+                $voucher->save();
+            }
+            return redirect()->route('tickets.index')->with('success', 'Ticket created successfully!');
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -107,5 +138,36 @@ class TicketController extends Controller
             ->where('showtime_id', $showtime) // Replace with the correct column name
             ->get();
         return response()->json($tickets);
+    }
+
+    public function ticketConfirmationMail(TicketRequest $request)
+    {
+        try {
+            Mail::to($request->customer_email)->send(new TicketConfirmation($request));
+            return response()->json(['message' => 'Mail sent successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function ticketConfirmationPdf(Request $request)
+    {
+        $data = [
+            'title' => 'Ticket Confirmation',
+            'data' => $request->all()
+        ];
+        $pdf = PDF::loadView('pdfs.ticket-confirmation', compact('data'));
+        return $pdf->download('ticket-confirmation.pdf');
+    }
+
+    public function search($phone)
+    {
+        $customer = Customer::where('phone_number', $phone)->first();
+
+        if (!$customer) {
+            return response()->json(['message' => 'Customer not found!'], 404);
+        }
+
+        return view('admin.tickets.customer', compact('customer'));
     }
 }

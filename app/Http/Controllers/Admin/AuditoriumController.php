@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Auditorium;
 use App\Models\Schedule;
+use App\Models\Seat;
 use Illuminate\Http\Request;
 
 class AuditoriumController extends Controller
@@ -115,5 +116,11 @@ class AuditoriumController extends Controller
             ->values();
 
         return response()->json($auditoriums);
+    }
+
+    public function seats($auditorium) {
+        $seats = Seat::with('tickets')->where('auditorium_id', $auditorium)->get();
+        $rows = $seats->groupBy('row')->count();
+        return view('admin.tickets.seats', compact('seats', 'rows'));
     }
 }

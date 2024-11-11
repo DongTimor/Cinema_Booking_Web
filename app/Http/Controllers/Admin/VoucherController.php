@@ -63,4 +63,20 @@ class VoucherController extends Controller
         $voucher->delete();
         return redirect()->route('vouchers.index');
     }
+
+    public function getVoucherOfCustomer(string $id)
+    {
+        try {
+            $voucher = Customer::findOrFail($id)->vouchers()->where('status', '0')->get();
+            return response()->json($voucher);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getVoucherInfo(string $id)
+    {
+        $voucher = Voucher::findOrFail($id);
+        return response()->json($voucher);
+    }
 }

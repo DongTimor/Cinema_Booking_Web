@@ -43,12 +43,14 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/momo-payment', [PaymentController::class, 'momo_payment'])->name('momo-payment');
 Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
 Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
 Route::get('/seats', [HomeController::class, 'getSeats']);
 Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
+Route::get('/ticket-confirmation-pdf', [TicketController::class, 'ticketConfirmationPdf'])->name('ticket-confirmation-pdf');
 Route::middleware('auth.jwt')->group(function () {
     Route::get('/booking/{id}', [HomeController::class, 'detail'])->name('detail');
     Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');
@@ -91,6 +93,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/getTotalSeats/{id}', [AuditoriumController::class, 'getTotalSeats'])->name('auditoriums.getTotalSeats');
         Route::get('/getTotalAvailableSeats/{id}', [AuditoriumController::class, 'getTotalAvailableSeats'])->name('auditoriums.getTotalAvailableSeats');
         Route::get('/getAuditoriumsOfShowtime/{date}/{movie}/{showtime}', [AuditoriumController::class, 'getAuditoriumsOfShowtime'])->name('auditoriums.getAuditoriumsOfShowtime');
+        Route::get('/seats/{auditorium}', [AuditoriumController::class, 'seats'])->name('seats');
     });
     Route::group(['prefix' => 'tickets', 'as' => 'tickets.'], function () {
         Route::get('/', [TicketController::class, 'index'])->name('index');
@@ -100,6 +103,8 @@ Route::prefix('admin')->group(function () {
         Route::put('/{ticket}', [TicketController::class, 'update'])->name('update');
         Route::delete('/{ticket}', [TicketController::class, 'destroy'])->name('destroy');
         Route::get('/getTicketsOfSchedule/{movie}/{date}/{auditorium}/{showtime}', [TicketController::class, 'getTicketsOfSchedule'])->name('getTicketsOfSchedule');
+        Route::post('/ticketConfirmationMail', [TicketController::class, 'ticketConfirmationMail'])->name('ticketConfirmationMail');
+        Route::get('/search/{phone}', [TicketController::class, 'search'])->name('search');
     });
     Route::group(['prefix' => 'seats', 'as' => 'seats.'], function () {
         Route::get('/', [SeatController::class, 'index'])->name('index');
@@ -151,6 +156,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/getPrice/{id}', [MovieController::class, 'getPrice'])->name('movies.getPrice');
             Route::get('/getMoviesOfDates/{start_date}/{end_date}', [MovieController::class, 'getMoviesOfDates'])->name('movies.getMoviesOfDates');
             Route::get('/getMoviesOfEvent/{id}', [MovieController::class, 'getMoviesOfEvent'])->name('movies.getMoviesOfEvent');
+            Route::get('/getMovieInfo/{id}', [MovieController::class, 'getMovieInfo'])->name('movies.getMovieInfo');
         });
         Route::get('getShowtimes/{id}', [MovieController::class, 'getShowtimes'])->name('movies.getShowtimes');
     });
@@ -188,6 +194,7 @@ Route::prefix('admin')->group(function () {
         Route::put('/edit/{id}', [VoucherController::class, 'update'])->name('vouchers.update');
         Route::delete('/delete/{id}', [VoucherController::class, 'destroy'])->name('vouchers.destroy');
         Route::get('/getVoucherOfCustomer/{id}', [VoucherController::class, 'getVoucherOfCustomer'])->name('vouchers.getVoucherOfCustomer');
+        Route::get('/getVoucherInfo/{id}', [VoucherController::class, 'getVoucherInfo'])->name('vouchers.getVoucherInfo');
     });
 
     Route::prefix('events')->group(function () {

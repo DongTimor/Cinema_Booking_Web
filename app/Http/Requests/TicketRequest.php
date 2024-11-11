@@ -21,14 +21,29 @@ class TicketRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = [
-            'user_id' => 'required|exists:users,id',
-            'seat_id' => 'required|exists:seats,id',
-            'status' => 'required',
-            'customer_id' => 'nullable|exists:customers,id',
-            'showtime_id' => 'required|exists:showtimes,id',
-            'schedule_id' => 'required|exists:schedules,id',
-        ];
+        $action = $this->input('action');
+        if ($action == 'create') {
+            $rules = [
+                'user_id' => 'required|exists:users,id',
+                'seat_id' => 'required|exists:seats,id',
+                'status' => 'required',
+                'customer_id' => 'nullable|exists:customers,id',
+                'showtime_id' => 'required|exists:showtimes,id',
+                'schedule_id' => 'required|exists:schedules,id',
+            ];
+        } else if ($action == 'ticketConfirmationMail') {
+            $rules['customer'] = 'nullable';
+            $rules['order_date'] = 'required|date';
+            $rules['customer_email'] = 'required|email';
+            $rules['movie'] = 'required|string';
+            $rules['date'] = 'required|string';
+            $rules['auditorium'] = 'required|string';
+            $rules['showtime'] = 'required|string';
+            $rules['seats'] = 'required|array';
+            $rules['cost'] = 'required|numeric';
+            $rules['voucher'] = 'nullable';
+            $rules['event_discount'] = 'nullable|numeric';
+        }
 
         if ($this->isMethod('put')) {
             $rules = [
@@ -39,6 +54,8 @@ class TicketRequest extends FormRequest
                 'schedule_id' => 'sometimes',
             ];
         }
+
+
 
         return $rules;
     }

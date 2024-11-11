@@ -207,14 +207,12 @@ class ShowtimeController extends Controller
 
     public function getShowtimesOfMovieAndDate($date, $movie)
     {
-        $showtimes = Schedule::whereDate('date', $date)
+        $schedules = Schedule::whereDate('date', $date)
             ->where('movie_id', $movie)
-            ->whereHas('showtimes')
-            ->with(['showtimes'])
-            ->get()
-            ->pluck('showtimes')
-            ->flatten()
-            ->unique('id');
+            ->with('showtimes')
+            ->get();
+
+        $showtimes = $schedules->flatMap(fn ($schedule) => $schedule->showtimes);
         return response()->json($showtimes);
     }
 

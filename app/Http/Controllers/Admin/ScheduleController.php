@@ -26,7 +26,7 @@ class ScheduleController extends Controller
                 return $schedule;
             });
 
-        return view('schedules.index', compact('schedules', 'movies', 'auditoriums'));
+        return view('admin.schedules.index', compact('schedules', 'movies', 'auditoriums'));
     }
 
     /**
@@ -36,7 +36,7 @@ class ScheduleController extends Controller
     {
         $movies = Movie::where('end_date', '>=', Carbon::today())->get();
         $auditoriums = Auditorium::all();
-        return view('schedules.create', compact('movies', 'auditoriums'));
+        return view('admin.schedules.create', compact('movies', 'auditoriums'));
     }
 
     /**
@@ -82,7 +82,7 @@ class ScheduleController extends Controller
         $movies = Movie::all();
         $auditoriums = Auditorium::all();
         $showtimes = Showtime::all();
-        return view('schedules.edit', compact('schedule', 'movies', 'auditoriums', 'showtimes'));
+        return view('admin.schedules.edit', compact('schedule', 'movies', 'auditoriums', 'showtimes'));
     }
 
     /**

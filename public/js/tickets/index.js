@@ -6,7 +6,7 @@ async function getCurrentUser() {
 
 async function editTicket(ticket) {
     const user = await getCurrentUser();
-    if (user.id === ticket.user_id) {
+    if (ticket.user_id == null && user.id === ticket.user_id) {
         window.location.href = `/admin/tickets/${ticket.id}`;
     } else {
         Swal.fire({

@@ -45,11 +45,16 @@
                     {{ \Carbon\Carbon::parse($ticket->showtime->end_time)->format('H:i') }}</td>
                 <td><a href="/admin/seats/{{ $ticket->seat_id }}">{{ $ticket->seat->seat_number }}</a></td>
                 <td>{{ $ticket->status }}</td>
-                @if ($ticket->user_id == auth()->user()->id)
-                    <td><a href="/admin/profile">me</a></td>
+                @if ($ticket->user_id)
+                    @if ($ticket->user_id == auth()->user()->id)
+                        <td><a href="/admin/profile">me</a></td>
+                    @else
+                        <td>{{ $ticket->user->name }}</td>
+                    @endif
                 @else
-                    <td>{{ $ticket->user->name }}</td>
+                    <td>Null</td>
                 @endif
+
                 <td>{{ $ticket->price }}</td>
                 <td>
                     <nobr>
