@@ -1,304 +1,206 @@
-@extends('layouts.admin')
-@section('styles')
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css"
-        rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/tickets/create.css') }}">
+@extends("layouts.admin")
+@section("styles")
+    <link rel="stylesheet" href="{{ asset("css/tickets/create.css") }}">
 @endsection
-@section('content')
-    <div id="loader" class="loader">
-        <div class="loader-wheel"></div>
-        <div class="loader-text"></div>
-    </div>
-    <div style="height: 100%">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Create Ticket</h4>
+@section("content")
+    <div class="card my-3">
+        <div class="card-header">
+            <h4>Create Ticket</h4>
+        </div>
+        <div class="card-body">
+            <form class="ticket-form" action="{{ route("tickets.store") }}" method="POST">
+                @csrf
+                <div class="form-group w-50">
+                    <label for="customer">Customer</label>
+                    <a class="btn btn-outline-success my-3 px-3 py-2" href="{{ route("movies.features.create") }}"
+                        role="button"><i class="fas fa-plus"></i></a>
+                    <div class="input-group">
+                        <input type="text" class="form-control phone-number shadow-none"
+                            placeholder="Input customer phone number" />
+                        <button type="button" class="input-group-text search-btn"><i class="fas fa-search"></i></button>
                     </div>
-                    <div class="card-body">
-                        <div class="form-group row">
-                            <div class="col-md-10">
-                                <x-adminlte-input name="user_name" label="Sealer" value="{{ Auth::user()->name }}"
-                                    disabled />
+                    <div class="info"></div>
+                </div>
+                <div class="modal fade" id="voucher-modal" tabindex="-1" role="dialog"
+                    aria-labelledby="Show-Voucher-ModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content h-100">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Voucher List</h5>
+                                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
                             </div>
-                            <div class="col-md-2">
-                                <x-adminlte-input style="text-align: center;" name="user_id" label="Sealer ID"
-                                    value="{{ Auth::user()->id }}" disabled />
+                            <div class="modal-body overflow-auto">
+                                <ul class="row px-5 font-mono">
+                                    @foreach ($vouchers as $voucher)
+                                        <div class="voucher-card my-2">
+                                            <div class="voucher-title">{{ $voucher->description }}</div>
+                                            <div class="text-uppercase h3 text-white">{{ $voucher->code }}</div>
+                                            <div class="voucher-details flex flex-wrap gap-3">
+                                                <span class="voucher-badge">Quantity: {{ $voucher->quantity }}</span>
+                                                <span class="voucher-badge badge-discount">Discount:
+                                                    {{ $voucher->type == "percent" ? $voucher->value . "%" : number_format($voucher->value) . "VND" }}</span>
+                                                <span class="voucher-badge">Expiry:
+                                                    {{ \Carbon\Carbon::parse($voucher->expires_at)->format("d/m/Y") }}</span>
+                                                <input type="hidden" name="voucher_id" class="value"
+                                                    value="{{ $voucher->id }}" data-value="{{ $voucher->value }}"
+                                                    data-type="{{ $voucher->type }}">
+                                            </div>
+                                            <button type="button"
+                                                class="btn save-btn text-uppercase rounded-md border-0 shadow-sm"
+                                                data-bs-dismiss="modal">Use</button>
+                                        </div>
+                                    @endforeach
+                                </ul>
                             </div>
-                        </div>
-                        <div>
-                            <label style="margin-right: 10px;" for="customer_id">Customer</label>
-                            <x-adminlte-button type="button" icon="fas fa-plus" theme="success"
-                                onclick="window.location.href='/admin/customers/create'" />
-                        </div>
-                        <div class="area">
-                            <div class="row">
-                                <div class="col-md-10">
-                                    <x-adminlte-select name="customer_id" required>
-                                        <option value="">-Select Customer-</option>
-                                        @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                                        @endforeach
-                                    </x-adminlte-select>
-                                </div>
-                                <span style="width: max-content; align-items: center;">Or</span>
-                                <div style="width: max-content; justify-content: flex-end;">
-                                    <x-adminlte-button id="switch-customer-input" label="No Account" theme="success"
-                                        onclick="switchCustomerInput()" />
-                                </div>
-                            </div>
-                            <button id="show-voucher-button" type="button" class="btn btn-primary"
-                                onclick="openShowVoucherModal()" style="display: none;">Show
-                                Voucher</button>
-                            <div id="voucher-body" class="voucher-body" style="display: none !important;">
-                                <div class="voucher-background"
-                                    style="background-image: url('{{ asset('images/voucher_background.jpg') }}');">
-                                    <button class="close-button" type="button" class="close" onclick="deleteVoucher()"
-                                        aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <h1 class="label">Voucher Giảm Giá</h1>
-                                    <p id="voucher-description" class="description">Nhận ngay cho đơn hàng tiếp theo!
-                                    </p>
-                                    <div id="voucher-code" class="code text-uppercase">ABCDF</div>
-                                    <div id="voucher-expiry" class="expiry">Hết hạn: 2024-10-22</div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <x-adminlte-input type="text" name="customer-name" id="customer-name" label="Name"
-                                        disabled />
-                                </div>
-                                <div class="col-md-3">
-                                    <x-adminlte-input id="customer-date-of-birth" type="date"
-                                        name="customer-date-of-birth" label="Date of Birth" disabled />
-                                </div>
-                                <div class="col-md-2">
-                                    <x-adminlte-input type="text" name="customer-gender" id="customer-gender"
-                                        label="Gender" disabled />
-                                </div>
-                            </div>
-                            <x-adminlte-input type="email" name="customer-email" id="customer-email" label="Email"
-                                disabled />
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <x-adminlte-input type="text" name="customer-phone" id="customer-phone"
-                                        label="Phone" disabled />
-                                </div>
-                                <div class="col-md-8">
-                                    <x-adminlte-input type="text" name="customer-address" id="customer-address"
-                                        label="Address" disabled />
-                                </div>
+                            <div class="modal-footer">
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <div class="col-md-7">
-                                <div class="row">
-                                    <div class="col-md-10">
-                                        <x-adminlte-select id="movie_name" name="movie_name" label="Movie" required>
-                                            <option value="">-Select Movie-</option>
-                                            @foreach ($movies as $movie)
-                                                <option value="{{ $movie->id }}">{{ $movie->name }}</option>
-                                            @endforeach
-                                        </x-adminlte-select>
-                                    </div>
-                                    <div style="width: min-content;"
-                                        class="d-flex justify-content-start align-items-center pt-3">
-                                        <x-adminlte-button type="button" icon="fas fa-plus" theme="success"
-                                            onclick="window.location.href='/admin/movies/features/create'" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <x-adminlte-select id="movie_id" name="movie_id" label="Movie ID" required>
+                    </div>
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="movie">Movie</label>
+                            <div class="flex items-center gap-2">
+                                <select class="form-control shadow-none" name="movie_id" id="movie"
+                                    data-date="{{ \Carbon\Carbon::today()->format("Y-m-d") }}" required>
                                     <option value="">-Select Movie-</option>
                                     @foreach ($movies as $movie)
-                                        <option value="{{ $movie->id }}">{{ $movie->id }}</option>
+                                        <option value="{{ $movie->id }}" data-price="{{ $movie->price }}">
+                                            {{ $movie->name }}</option>
                                     @endforeach
-                                </x-adminlte-select>
-                            </div>
-                            <div class="col-md-1">
-                                <x-adminlte-input id="price" type="number" step="0.01" name="price"
-                                    label="Price" disabled />
-                            </div>
-                            <div class="flex gap-1">
-                                <div class="col-md-2">
-                                    <x-adminlte-select id="date" name="date" label="Date" required disabled>
-                                        <option value="">-Select Date-</option>
-                                    </x-adminlte-select>
-                                </div>
-                                <div class="col-md-5">
-                                    <x-adminlte-select id="showtime_id" name="showtime_id" label="Showtime" required
-                                        disabled>
-                                        <option value="">-Select Showtime-</option>
-                                    </x-adminlte-select>
-                                </div>
-                                <div class="w-full">
-                                    <x-adminlte-select id="auditorium_id" name="auditorium_id" label="Auditorium"
-                                        required disabled>
-                                        <option value="">-Select Auditorium-</option>
-                                    </x-adminlte-select>
-                                </div>
+                                </select>
+                                <a class="btn btn-outline-success px-3 py-2" href="{{ route("movies.features.create") }}"
+                                    role="button"><i class="fas fa-plus"></i></a>
                             </div>
                         </div>
-                        <div class="seats_container_lable">
-                            ----------Seats's Booking----------
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="showtime">Showtime</label>
+                            <select class="form-control shadow-none" name="showtime_id" id="showtime"
+                                data-date="{{ \Carbon\Carbon::today()->format("Y-m-d") }}"
+                                data-movie-id="{{ $movie->id }}" required>
+                                <option value="">-Select Showtime-</option>
+                            </select>
                         </div>
-                        <div class="guide-description">
-                            <div class="seats_container_description_container">
-                                <div class="seats_container_description_lable">
-                                    --Seats's Description--
-                                </div>
-                                <div id="seats_container_description" class="seats_container_description">
-                                    <div class="description-row">
-                                        <span class="span-1"></span>
-                                        <div>Empty</div>
-                                    </div>
-                                    <div class="description-row">
-                                        <span class="span-2"></span>
-                                        <div>Unplaced</div>
-                                    </div>
-                                    <div class="description-row">
-                                        <span class="span-3"></span>
-                                        <div>Ordered</div>
-                                    </div>
-                                    <div class="description-row">
-                                        <span class="span-4"></span>
-                                        <div>Settled</div>
-                                    </div>
-                                    <div class="description-row">
-                                        <span class="span-5"></span>
-                                        <div>Selected</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="seats_container" class="seats_container">
-                            <p>Available Seats</p>
-                        </div>
-                        <div id="another_seats_container_lable" class="seats_container_lable"
-                            style="display: none !important;">
-                            ----------Another Seats's Booking----------
-                        </div>
-                        <div id="another_seats_container" class="anotherseats_container">
-                        </div>
-                        <div class="create-button-container">
-                            <x-adminlte-button type="button" theme="success" label="Create" onclick="createTicket()" />
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label for="auditorium">Auditorium</label>
+                            <select class="form-control shadow-none" name="auditorium_id" id="auditorium"
+                                data-date="{{ \Carbon\Carbon::today()->format("Y-m-d") }}" required>
+                                <option value="">-Select Auditorium-</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div id="seats" class="seats-container my-3">
+                </div>
+                <div class="flex">
+                    <button type="submit" class="btn btn-outline-primary ml-auto">Create</button>
+                </div>
+            </form>
         </div>
     </div>
-    <div class="modal fade" id="Select-Status-Modal" tabindex="-1" role="dialog"
-        aria-labelledby="Select-Status-ModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="Select-Status-ModalLabel">Select Status</h5>
-                    <x-adminlte-button icon="fas fa-times" id="deleteButton" theme="danger"
-                        onclick="closeSelectStatusModal()" />
-                </div>
-                <div class="modal-body">
-                    <x-adminlte-select id="status" name="status" label="Status" required>
-                        <option value="unplaced">Unplaced</option>
-                        <option value="ordered">Ordered</option>
-                        <option value="settled">Settled</option>
-                    </x-adminlte-select>
-                </div>
-                <div class="modal-footer">
-                    <x-adminlte-button id="apply-status-button" label="Apply" theme="success"
-                        onclick="applyStatus()" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="Fetch-Seats-Modal" tabindex="-1" role="dialog"
-        aria-labelledby="Fetch-Seats-ModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="Fetch-Seats-ModalLabel">Fetch Seats</h5>
-                    <x-adminlte-button icon="fas fa-times" id="deleteButton" theme="danger"
-                        onclick="closeFetchSeatsModal()" />
-                </div>
-                <div class="modal-body">
-                    <p id="successCount">Success: 0 seats</p>
-                    <p id="errorCount">Error: 0 seats</p>
-                    <ul id="successList"></ul>
-                    <ul id="errorList"></ul>
-                </div>
-                <div class="modal-footer">
-                    <x-adminlte-button id="back-to-index" label="All Tickets" theme="success" onclick="backToIndex()" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="Show-Voucher-Modal" tabindex="-1" role="dialog"
-        aria-labelledby="Show-Voucher-ModalLabel" aria-hidden="true">
-        <div class="modal-dialog main-dialog" role="document">
-            <div class="modal-content main-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="Show-Voucher-ModalLabel">Voucher List</h5>
-                    <button type="button" class="close" onclick="closeShowVoucherModal()" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body main-body">
-                    <ul id="voucher-list" class="list-group">
-                    </ul>
-                </div>
-                <div class="modal-footer">
-                </div>
-            </div>
-        </div>
-    </div>
-    <x-adminlte-modal id="eventModal" title="Available Events" size="lg" theme="teal" icon="fas fa-bell"
-        v-centered static-backdrop scrollable>
-        @php
-            $heads = ['ID', 'Name', 'Start Time', 'End Time', 'Number of Tickets', 'Quantity', 'Discount'];
-            $config = [
-                'order' => [[0, 'desc']],
-                'columns' => [null, null, null, null, null, null, null],
-            ];
-
-        @endphp
-        <x-adminlte-datatable id="datatable" :heads="$heads" head-theme="dark" :config="$config" striped hoverable
-            bordered compressed />
-        <x-slot name="footerSlot">
-            <x-adminlte-button theme="danger" label="Dismiss" data-dismiss="modal" />
-        </x-slot>
-    </x-adminlte-modal>
-    <button style="display: none" id="availableEventsButton" class="bg-teal attention-button" data-toggle="modal"
-        data-target="#eventModal">Available Events</button>
-@stop
-@section('scripts')
+@endsection
+@section("scripts")
     <script>
-        $(document).ready(function() {
-            function formatOption(option) {
-                if (!option.id) {
-                    return option.text;
-                }
-                var imageUrl = $(option.element).data('image');
-                var $option = $(
-                    '<span><img src="' + imageUrl +
-                    '" class="img-flag" style="width: 20px; height: 20px; margin-right: 10px;" /> ' + option
-                    .text + '</span>'
-                );
-                return $option;
+        let count = 0;
+        $(document).on('click', '.seat', function() {
+            const seat = $(this);
+            const price = $('#movie option:selected').data('price');
+
+            if (seat.hasClass('bg-secondary-subtle')) {
+                return;
             }
-            $('#voucher-select').select2({
-                templateResult: formatOption,
-                templateSelection: formatOption
-            });
+
+            if (seat.hasClass('bg-primary')) {
+                seat.find('input[name="seats[]"]').remove();
+                count -= 1;
+            } else {
+                seat.append(`<input type="hidden" name="seats[]" value="${seat.data('id')}">`);
+                count += 1;
+            }
+
+            if (count == 0) {
+                $('.discount').text('');
+            }
+
+            seat.toggleClass('bg-primary');
+            getDiscount();
         });
+
+        async function fetchCustomer(phone) {
+            const response = await fetch(`/admin/tickets/search/${phone}`);
+
+            if (!response.ok) {
+                const {
+                    message
+                } = await response.json();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: message
+                });
+                $('.info').html('');
+                $('#voucher-btn').addClass('d-none');
+                return;
+            }
+
+            const customer = await response.text();
+            return customer;
+        }
+
+        $('.search-btn').click(async function() {
+            const phone = $(this).prev('input').val();
+            const customer = await fetchCustomer(phone);
+            if (customer) {
+                $('.info').html(customer);
+                $('#voucher-btn').removeClass('d-none');
+            }
+        })
+
+        $('.phone-number').on("keydown", async function(event) {
+            if (event.key === "Enter") {
+                const customer = await fetchCustomer($(this).val());
+                if (customer) {
+                    $('.info').html(customer);
+                    $('#voucher-btn').removeClass('d-none');
+                }
+            }
+        })
+
+        $('.save-btn').click(function() {
+            $(document).find('.save-btn').not(this).removeClass('bg-secondary-subtle');
+            $(this).toggleClass('bg-secondary-subtle');
+            getDiscount($(this));
+        });
+
+        function getDiscount(button = $(this)) {
+            let discount = 0;
+            const value = button.prev().find('.value');
+            const price = $('#movie option:selected').data('price');
+            const type = value.data('type');
+            const total = price * count;
+
+            if (type === 'percent') {
+                discount = value.data('value') / 100 * total;
+            } else {
+                discount = parseFloat(value.data('value')) || 0;
+            }
+
+            const isDiscounted = button.hasClass('bg-secondary-subtle');
+
+            $('.price').text(`Price: ${new Intl.NumberFormat('vi-VN').format(total)} VND`);
+            $('.discount').text(isDiscounted ? `- ${new Intl.NumberFormat('vi-VN').format(discount)} VND` : '');
+            $('.total').text(
+                `Total: ${new Intl.NumberFormat('vi-VN').format(isDiscounted ? total - discount : total)} VND`);
+            $('.total-price').val(isDiscounted ? total - discount : total);
+            $('.voucher-id').val(isDiscounted ? value.val() : '');
+        }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js">
-    </script>
-    <script src="{{ asset('js/tickets/create.js') }}"></script>
+    <script src="{{ asset("js/tickets/create.js") }}"></script>
 @endsection

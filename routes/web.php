@@ -93,6 +93,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/getTotalSeats/{id}', [AuditoriumController::class, 'getTotalSeats'])->name('auditoriums.getTotalSeats');
         Route::get('/getTotalAvailableSeats/{id}', [AuditoriumController::class, 'getTotalAvailableSeats'])->name('auditoriums.getTotalAvailableSeats');
         Route::get('/getAuditoriumsOfShowtime/{date}/{movie}/{showtime}', [AuditoriumController::class, 'getAuditoriumsOfShowtime'])->name('auditoriums.getAuditoriumsOfShowtime');
+        Route::get('/seats/{auditorium}', [AuditoriumController::class, 'seats'])->name('seats');
     });
     Route::group(['prefix' => 'tickets', 'as' => 'tickets.'], function () {
         Route::get('/', [TicketController::class, 'index'])->name('index');
@@ -103,6 +104,7 @@ Route::prefix('admin')->group(function () {
         Route::delete('/{ticket}', [TicketController::class, 'destroy'])->name('destroy');
         Route::get('/getTicketsOfSchedule/{movie}/{date}/{auditorium}/{showtime}', [TicketController::class, 'getTicketsOfSchedule'])->name('getTicketsOfSchedule');
         Route::post('/ticketConfirmationMail', [TicketController::class, 'ticketConfirmationMail'])->name('ticketConfirmationMail');
+        Route::get('/search/{phone}', [TicketController::class, 'search'])->name('search');
     });
     Route::group(['prefix' => 'seats', 'as' => 'seats.'], function () {
         Route::get('/', [SeatController::class, 'index'])->name('index');
