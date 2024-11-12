@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Customer\CollectionController;
 use App\Mail\Booking;
 use App\Models\Movie;
 use App\Models\Order;
@@ -12,7 +11,6 @@ use App\Models\Showtime;
 use App\Models\Ticket;
 use App\Models\Voucher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
@@ -93,52 +91,45 @@ class PaymentController extends Controller
 
     public function handleMoMoReturn(Request $request)
     {
-        $allData = $request->all();
+        $data = $request->all();
         $customer = auth('customer')->user();
         $voucherCode = session('voucher_code');
-        if (isset($allData['resultCode']) && $allData['resultCode'] == 0) {
-            $amount = $allData['amount'];
+        if (isset($data['resultCode']) && $data['resultCode'] == 0) {
+            $amount = $data['amount'];
+            $price = $amount;
             $points = intval($amount / 1000);
-            $customer = auth('customer')->user();
-            $point = Point::firstOrCreate(
-                ['customer_id' => $customer->id],
-                ['total_points' => 0, 'points_earned' => 0, 'points_redeemed' => 0, 'ranking_level' => 'Bronze']
-            );
-            $point->total_points += $points;
-            $point->points_earned += $points;
-            $point->date_expire = now()->addMinute(5);
-            $point->last_updated = now();
-            $point->save();
+            $this->handlePoints($customer, $points);
             $selectedSeats = session('selected_seats');
             $scheduleId = session('schedule_id');
             $showtimeId = session('showtime_id');
             $movie_id = session('movie_id');
             $voucherId = $voucherCode ? Voucher::where('code', $voucherCode)->first()->id : null;
             $selectedSeats = explode(',', $selectedSeats);
-                foreach ($selectedSeats as $seatId) {
-                    Ticket::create([
-                        'seat_id' => $seatId,
-                        'customer_id' => $customer->id,
-                        'price' => $amount / count($selectedSeats),
-                        'schedule_id' => $scheduleId,
-                        'showtime_id' => $showtimeId,
-                        'voucher_id' => $voucherId,
-                        'status' => 'ordered',
-                        'movie_id' => $movie_id,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
-                }
+            foreach ($selectedSeats as $seatId) {
+                Ticket::create([
+                    'seat_id' => $seatId,
+                    'customer_id' => $customer->id,
+                    'price' => $amount / count($selectedSeats),
+                    'schedule_id' => $scheduleId,
+                    'showtime_id' => $showtimeId,
+                    'voucher_id' => $voucherId,
+                    'status' => 'ordered',
+                    'movie_id' => $movie_id,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
             if ($voucherCode) {
-                $voucher = Voucher::where('code', $voucherCode)->first();
-                DB::table('customer_voucher')
-                ->where('customer_id', $customer['id'])
-                ->where('voucher_id', $voucher->id)
-                ->update(['status' => '1']);
+                $voucher = $customer->vouchers->where('code', $voucherCode)->first();
+                if ($voucher) {
+                    $voucher->customers()->updateExistingPivot($customer->id, ['status' => 1]);
+                    $discount = $voucher->type == 'percent' ? $amount * $voucher->value / 100 : $voucher->value;
+                    $price = $amount + $discount;
+                }
             }
             $tikets = Ticket::where('customer_id', $customer->id)
-            ->where('created_at', '=', now())
-            ->get();
+                ->where('created_at', '=', now())
+                ->get();
             $showtime = Showtime::findOrFail($showtimeId);
             $movie = Movie::select('name')->find($movie_id);
             $seats = Seat::with('auditorium')->find($seatId);
@@ -149,37 +140,68 @@ class PaymentController extends Controller
                 'movie' => $movie->name,
                 'start_time' => $showtime->start_time,
                 'end_time' => $showtime->end_time,
-                'price' => $amount /(1-$voucher->value/100),
+                'price' => $price,
                 'auditorium' => $seats->auditorium->name,
                 'quantity' => count($selectedSeats),
                 'ticket_ids' => $tikets->pluck('id')->implode(','),
-                'voucher' => $voucher->description,
+                'voucher' => $discount,
                 'total' => $amount,
             ]);
             $orders->save();
-            app(CollectionController::class)->checkAndUpdatePoints();
             Mail::to($customer->email)->send(new Booking());
             return redirect(route('home'));
         } else {
             return response()->json([
                 'message' => 'Thanh toán thất bại',
-                'data' => $allData
+                'data' => $data
             ]);
         }
     }
 
     public function handleMoMoIPN(Request $request)
     {
-        $allData = $request->all();
-        if (isset($allData['resultCode']) && $allData['resultCode'] == 0) {
+        $data = $request->all();
+        if (isset($data['resultCode']) && $data['resultCode'] == 0) {
             return response()->json([
                 'message' => 'IPN nhận thành công',
-                'data' => $allData
+                'data' => $data
             ]);
         } else {
             return response()->json([
                 'message' => 'IPN thất bại',
-                'data' => $allData
+                'data' => $data
+            ]);
+        }
+    }
+
+    public function handlePoints($customer, $points)
+    {
+        $customerPoint = $customer->point;
+
+        if ($customerPoint) {
+            $customerPoint->increment('total_points', $points);
+            $customerPoint->increment('points_earned', $points);
+            $customerPoint->update([
+                'date_expire' => now()->addMinutes(5),
+                'last_updated' => now(),
+            ]);
+
+            if ($customerPoint->total_points > 200) {
+                $customerPoint->update([
+                    'ranking_level' => 'Gold',
+                ]);
+            } elseif ($customerPoint->total_points > 150) {
+                $customerPoint->update([
+                    'ranking_level' => 'Silver',
+                ]);
+            }
+        } else {
+            Point::create([
+                'customer_id' => $customer->id,
+                'total_points' => $points,
+                'points_earned' => $points,
+                'date_expire' => now()->addMinutes(5),
+                'last_updated' => now(),
             ]);
         }
     }
