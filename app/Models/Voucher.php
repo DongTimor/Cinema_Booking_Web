@@ -28,6 +28,6 @@ class Voucher extends Model
 
     public function customers(): BelongsToMany
     {
-        return $this->belongsToMany(Customer::class);
+        return $this->belongsToMany(Customer::class, 'customer_voucher')->withPivot('status');
     }
 }
