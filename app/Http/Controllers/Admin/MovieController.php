@@ -56,31 +56,36 @@ class MovieController extends Controller
         $validated = $request->validated();
         $validated['start_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['start_date'])->format('Y-m-d');
         $validated['end_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $validated['end_date'])->format('Y-m-d');
-
         try {
             $movie = Movie::create($validated);
-            if ($request->has('poster_urls')) {
-                $posterUrls = explode(',', $request->input('poster_urls'));
-                foreach ($posterUrls as $url) {
-                    $movie->images()->create([
-                        'url' => $url,
-                        'type' => 'poster',
-                    ]);
+            $posterUrls = $request->input('poster_urls', []);
+            $bannerUrls = $request->input('banner_urls', []);
+            $posterUrlsArray = explode(',', implode($posterUrls));
+            $bannerUrlsArray = explode(',', implode($bannerUrls));
+            if (!empty($posterUrlsArray)) {
+                foreach ($posterUrlsArray as $url) {
+                    if (!empty($url)) {
+                        $movie->images()->create([
+                            'url' => $url,
+                            'type' => 'poster',
+                        ]);
+                    }
                 }
             }
-            if ($request->has('banner_urls')) {
-                $bannerUrls = explode(',', $request->input('banner_urls'));
-                foreach ($bannerUrls as $url) {
-                    $movie->images()->create([
-                        'url' => $url,
-                        'type' => 'banner',
-                    ]);
+            if (!empty($bannerUrlsArray)) {
+                foreach ($bannerUrlsArray as $url) {
+                    if (!empty($url)) {
+                        $movie->images()->create([
+                            'url' => $url,
+                            'type' => 'banner',
+                        ]);
+                    }
                 }
             }
             if ($request->has('category_id')) {
                 $movie->categories()->attach($request->category_id);
             }
-            return redirect(route('movies.features.index'));
+            return redirect()->route('movies.features.index')->with('success', 'Movie created successfully!');
         } catch (\Exception $e) {
             return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
         }
@@ -154,7 +159,7 @@ class MovieController extends Controller
         try {
             $movie = Movie::findOrFail($id);
             $movie->update($validated);
-    
+
             $posterUrls = $request->input('poster_urls', []);
             $bannerUrls = $request->input('banner_urls', []);
             foreach ($movie->images as $image) {

@@ -14,7 +14,6 @@ class MovieController extends Controller
 {
     public function index(Request $request)
     {
-        $ranking = 'Bronze';
         $movies = Movie::with('images')->get();
         $customer = auth('customer')->user();
         return view('customer.movies.index', compact('customer', 'movies'));

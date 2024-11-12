@@ -30,7 +30,7 @@ class VoucherController extends Controller
             'code' => 'required|min:6|max:6|unique:vouchers,code',
             'description' => 'required|max:255',
             'quantity' => 'required|integer|max:100',
-            'value' => 'required|integer',
+            'value' => 'required|integer|max:100',
             'expires_at' => 'required',
         ]);
         $code = $request->all();

@@ -83,21 +83,23 @@
                 </div>
             </div>
         </div>
-        <div id="seatSelectionModal"
-            class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-75">
-            <div class="bg-white p-8 rounded-lg shadow-lg w-3/4 max-w-2xl relative">
-                <button onclick="closeSeatSelectionModal()"
-                    class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">&times;</button>
-                <h2 class="text-2xl font-bold mb-4">Select Seats</h2>
-                <div id="seats-container" class="grid grid-cols-10 gap-2">
-                </div>
-                <div class="flex justify-between mt-4">
-                    <div class="flex gap-4">
-                        <h1 class="text-lg font-extrabold">Price :</h1>
-                        <span id="total_price" class="text-lg font-extrabold">0 VND</span>
+        <div id="seatSelectionModal" class="hidden">
+            <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
+                <div class="bg-white p-8 rounded-lg shadow-lg w-3/4 max-w-2xl relative">
+                    <button onclick="closeSeatSelectionModal()"
+                        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">&times;</button>
+                    <h2 class="text-2xl font-bold mb-4">Select Seats</h2>
+                    <div id="seats-container" class="grid grid-cols-10 gap-2">
                     </div>
-                    <button onclick="bookSeats()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Book
-                        Selected Seats</button>
+                    <div class="flex justify-between mt-4">
+                        <div class="flex gap-4">
+                            <h1 class="text-lg font-extrabold">Price :</h1>
+                            <span id="total_price" class="text-lg font-extrabold">0 VND</span>
+                        </div>
+                        <button onclick="bookSeats()"
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Book
+                            Selected Seats</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -143,54 +145,62 @@
                 </form>
             </div>
         </div>
-        <div id="voucherSelectionModal"
-            class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-75">
-            <div class="bg-white p-8 rounded-lg shadow-lg w-[1000px] max-h-[500px] relative flex flex-col items-center">
-                <button onclick="closeVoucherModal()"
-                    class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">&times;</button>
-                <h2 class="text-2xl font-bold mb-4">Select Voucher</h2>
-                <div class="ml-[70px] grid grid-cols-2 gap-4 w-full justify-center overflow-y-auto max-h-[400px]">
-                    @if ($customerVouchers && $customerVouchers->isNotEmpty())
-                        @php
-                            $sortedCustomerVouchers = $customerVouchers->sortByDesc(function ($customerVoucher) use (
-                                $vouchers,
-                            ) {
-                                return $vouchers->firstWhere('id', $customerVoucher)->value;
-                            });
-                        @endphp
-                        @foreach ($sortedCustomerVouchers as $customerVoucher)
-                            <div id="voucher_code" class="cursor-pointer"
-                                onclick="selectVoucher('{{ $vouchers->firstWhere('id', $customerVoucher)->code }}')">
-                                <input type="hidden" name="voucher_id" value="{{ $customerVoucher }}">
-                                <div
-                                    class="max-w-sm rounded overflow-hidden shadow-sm bg-gradient-to-r from-[#FF8160] to-[#FEB179] my-4 relative ticket-style">
-                                    <div class="px-6 py-4">
-                                        <div class="font-bold text-2xl mb-2 font-mono"
-                                            style="color: {{ $vouchers->firstWhere('id', $customerVoucher)->value >= 50 ? 'red' : 'green' }}">
-                                            {{ $vouchers->firstWhere('id', $customerVoucher)->description }}
+        <div id="voucherSelectionModal" class="hidden">
+            <div class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-75">
+                <div
+                    class="bg-white p-8 rounded-lg shadow-lg w-[1000px] max-h-[500px] relative flex flex-col items-center justify-center">
+                    <button onclick="closeVoucherModal()"
+                        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">&times;</button>
+                    <h2 class="text-2xl font-bold mb-4">Select Voucher</h2>
+                    <div class="flex items-center justify-centerl w-full">
+                        <div class="grid grid-cols-2 gap-4 overflow-y-auto w-full items-center justify-between mx-16 max-h-[400px]">
+                            @if ($customerVouchers && $customerVouchers->isNotEmpty())
+                                @php
+                                    $sortedCustomerVouchers = $customerVouchers->sortByDesc(function (
+                                        $customerVoucher,
+                                    ) use ($vouchers) {
+                                        return $vouchers->firstWhere('id', $customerVoucher)->value;
+                                    });
+                                @endphp
+                                @foreach ($sortedCustomerVouchers as $customerVoucher)
+                                    <div id="voucher_code" class="cursor-pointer"
+                                        onclick="selectVoucher('{{ $vouchers->firstWhere('id', $customerVoucher)->code }}')">
+                                        <input type="hidden" name="voucher_id" value="{{ $customerVoucher }}">
+                                        <div
+                                            class="max-w-sm rounded overflow-hidden shadow-sm bg-gradient-to-r from-[#FF8160] to-[#FEB179] my-4 relative ticket-style">
+                                            <div class="px-6 py-4">
+                                                <div class="font-bold text-2xl mb-2 font-mono"
+                                                    style="color: {{ $vouchers->firstWhere('id', $customerVoucher)->value >= 50 ? 'red' : 'green' }}">
+                                                    {{ $vouchers->firstWhere('id', $customerVoucher)->description }}
+                                                </div>
+                                                <p class="ml-2 text-gray-100 text-lg font-bold uppercase">
+                                                    {{ $vouchers->firstWhere('id', $customerVoucher)->code }}
+                                                </p>
+                                            </div>
+                                            <div class="px-6 pt-1 pb-2">
+                                                <span
+                                                    class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
+                                                    style="color: {{ $vouchers->firstWhere('id', $customerVoucher)->value >= 50 ? 'red' : 'green' }}">Discount:
+                                                    {{ $vouchers->firstWhere('id', $customerVoucher)->value }}%</span>
+                                            </div>
                                         </div>
-                                        <p class="ml-2 text-gray-100 text-lg font-bold uppercase">
-                                            {{ $vouchers->firstWhere('id', $customerVoucher)->code }}
-                                        </p>
                                     </div>
-                                    <div class="px-6 pt-1 pb-2">
-                                        <span
-                                            class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
-                                            style="color: {{ $vouchers->firstWhere('id', $customerVoucher)->value >= 50 ? 'red' : 'green' }}">Discount:
-                                            {{ $vouchers->firstWhere('id', $customerVoucher)->value }}%</span>
+                                @endforeach
+                            @endif
+                            @if (!$customerVouchers || $customerVouchers->isEmpty())
+                                <div class="col-span-2">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <p class="text-3xl font-bold">Oops, you don't have any voucher</p>
+                                        <img class="h-[300px] w-auto" src="{{ asset('common/empty.jpg') }}"
+                                            alt="EmptyImg">
+                                        <a class="text-2xl font-extrabold text-blue-500 hover:text-blue-700"
+                                            href="{{ route('vouchers') }}" class="text-blue-500 underline">Go get
+                                            some</a>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
-                    @endif
-                    @if (!$customerVouchers || $customerVouchers->isEmpty())
-                        <div class="col-span-2 text-center pr-20">
-                            <p class="text-3xl font-bold">Oops, you don't have any voucher</p>
-                            <a class="text-xl font-extrabold text-blue-500 hover:text-blue-700"
-                                href="{{ route('vouchers') }}" class="text-blue-500 underline">Go get some</a>
+                            @endif
                         </div>
-                    @endif
-
+                    </div>
                 </div>
             </div>
         </div>

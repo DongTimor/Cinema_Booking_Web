@@ -60,8 +60,8 @@
                     <strong>Drop banner file here or click to upload.</strong>
                 </div>
             </div>
-            <input type="hidden" name="poster_urls" id="posterUrls" value="">
-            <input type="hidden" name="banner_urls" id="bannerUrls" value="">
+            <input type="hidden" name="poster_urls[]" id="posterUrls" value="">
+            <input type="hidden" name="banner_urls[]" id="bannerUrls" value="">
             <div class="mt-3">
                 <x-adminlte-input name="trailer" label="Trailer" value="{{ old('trailer') }}" />
             </div>
@@ -77,68 +77,78 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
     <script>
-         $('.datepicker').each(function() {
+        $('.datepicker').each(function() {
             $(this).flatpickr({
                 dateFormat: 'd/m/Y',
             });
-        })
+        });
 
         Dropzone.autoDiscover = false;
         var posterUrls = [];
         var bannerUrls = [];
-        var posterDropzone = new Dropzone("#posterDropzone", {
-            url: "{{ route('movies.features.uploadImages') }}",
-            maxFilesize: 2,
+
+        const posterDropzone = new Dropzone("#posterDropzone", {
+            url: "/admin/movies/features/upload-images",
             acceptedFiles: 'image/*',
             addRemoveLinks: true,
-            autoProcessQueue: false,
-            parallelUploads: 5,
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            init: function() {
-                var myDropzone = this;
-                myDropzone.on("sending", function(file, xhr, formData) {
-                    formData.append("type", "poster");
-                });
-                myDropzone.on("success", function(file, response) {
+            sending: function(file, xhr, formData) {
+                formData.append("type", "poster");
+            },
+            success: function(file, response) {
+                if (response.url) {
+                    file.url = response.url;
                     posterUrls.push(response.url);
                     document.getElementById('posterUrls').value = posterUrls.join(',');
-                    console.log('Poster URLs:', posterUrls); // Log the updated list of poster URLs
-                });
-                myDropzone.on("error", function(file, response) {
-                    console.error(response);
-                    alert("An error occurred while uploading the file: " + response);
-                });
+                }
+            },
+            removedfile: function(file) {
+                const url = file.url;
+                if (posterUrls.includes(url)) {
+                    posterUrls = posterUrls.filter(posterUrl => posterUrl !== url);
+                    document.getElementById('posterUrls').value = posterUrls.join(',');
+                }
+                file.previewElement.remove();
+            },
+            error: function(file, response) {
+                console.error(response);
+                alert("An error occurred while uploading the file: " + response);
             }
         });
 
-        var bannerDropzone = new Dropzone("#bannerDropzone", {
-            url: "{{ route('movies.features.uploadImages') }}",
-            maxFilesize: 2,
+        const bannerDropzone = new Dropzone("#bannerDropzone", {
+            url: "/admin/movies/features/upload-images",
             acceptedFiles: 'image/*',
             addRemoveLinks: true,
-            autoProcessQueue: false,
-            parallelUploads: 5,
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            init: function() {
-                var myDropzone = this;
-                myDropzone.on("sending", function(file, xhr, formData) {
-                    formData.append("type", "banner");
-                });
-                myDropzone.on("success", function(file, response) {
+            sending: function(file, xhr, formData) {
+                formData.append("type", "banner");
+            },
+            success: function(file, response) {
+                if (response.url) {
+                    file.url = response.url;
                     bannerUrls.push(response.url);
                     document.getElementById('bannerUrls').value = bannerUrls.join(',');
-                    console.log('Banner URLs:', bannerUrls); // Log the updated list of banner URLs
-                });
-                myDropzone.on("error", function(file, response) {
-                    console.error(response);
-                    alert("An error occurred while uploading the file: " + response);
-                });
+                }
+            },
+            removedfile: function(file) {
+                const url = file.url;
+                if (bannerUrls.includes(url)) {
+                    bannerUrls = bannerUrls.filter(bannerUrl => bannerUrl !== url);
+                    document.getElementById('bannerUrls').value = bannerUrls.join(',');
+                }
+                file.previewElement.remove();
+            },
+            error: function(file, response) {
+                console.error(response);
+                alert("An error occurred while uploading the file: " + response);
             }
         });
+
         document.getElementById("submitMovieForm").addEventListener("click", function(event) {
             event.preventDefault();
             var posterPromise = new Promise(function(resolve, reject) {

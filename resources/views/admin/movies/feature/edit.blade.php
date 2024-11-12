@@ -105,7 +105,6 @@
                 formData.append("type", "poster");
             },
             success: function(file, response) {
-                console.log(response);
                 let hiddenInput = document.createElement("input");
                 hiddenInput.type = "hidden";
                 hiddenInput.name = "poster_urls[]";
@@ -125,7 +124,6 @@
                 formData.append("type", "banner");
             },
             success: function(file, response) {
-                console.log(response);
                 let hiddenInput = document.createElement("input");
                 hiddenInput.type = "hidden";
                 hiddenInput.name = "banner_urls[]";

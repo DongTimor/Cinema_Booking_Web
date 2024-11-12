@@ -39,14 +39,17 @@ document.addEventListener('DOMContentLoaded', function() {
         todayItem.classList.add('bg-blue-600', 'text-white');
         fetchShowtimes(today, movieId);
     }
-
     dateSelector.addEventListener('click', function(event) {
         const item = event.target.closest('.date-item');
         if (item) {
             const selectedDate = item.getAttribute('data-date');
-            fetchShowtimes(selectedDate, movieId);
             const activeItem = dateSelector.querySelector('.bg-blue-600');
-
+            if (activeItem && activeItem.getAttribute('data-date') === selectedDate) {
+                return;
+            }
+            resetInvoice();
+            resetSeats();
+            fetchShowtimes(selectedDate, movieId);
             if (activeItem) {
                 activeItem.classList.remove('bg-blue-600', 'text-white');
                 activeItem.classList.add('bg-gray-200');
@@ -78,7 +81,7 @@ async function fetchShowtimes(date, movieId) {
                 document.getElementById('hidden_schedule_id').value = data.scheduleId;
                 document.getElementById('hidden_showtime_id').value = showtime.id;
                 if (currentShowtimeId !== showtime.id) {
-                    clearHiddenInputsAndResetSelection();
+                    resetSeats();
                     currentShowtimeId = showtime.id;
                 }
                 openSeatSelectionModal(date, movieId, showtime.id);
@@ -91,7 +94,7 @@ async function fetchShowtimes(date, movieId) {
     }
 }
 
-function clearHiddenInputsAndResetSelection() {
+function resetSeats() {
     document.getElementById('hidden_seats_selected').value = '';
     document.getElementById('hidden_total_amount').value = '';
     document.getElementById('hidden_voucher_code').value = '';
@@ -107,6 +110,7 @@ function clearHiddenInputsAndResetSelection() {
 }
 
 function openSeatSelectionModal(date, movieId, showtimeId) {
+    resetInvoice(); 
     fetchSeats(date, movieId, showtimeId).then(() => {
         selectedSeats.forEach(seatId => {
             const seatDiv = document.querySelector(`[data-seat-id="${seatId}"]`);
@@ -135,7 +139,7 @@ async function fetchSeats(date, movieId, showtimeId) {
         if (seat.tickets.some(ticket => ticket.status === 'ordered')) {
             seatDiv.style.backgroundColor = 'gray';
             seatDiv.classList.remove('hover:bg-gray-300');
-            seatDiv.classList.add('cursor-not-allowed','text-white');
+            seatDiv.classList.add('cursor-not-allowed','text-whitex');
         } else {
             seatDiv.classList.add('hover:bg-gray-300');
             seatDiv.addEventListener('click', function() {
@@ -200,4 +204,17 @@ function selectVoucher(voucherCode) {
     document.getElementById('voucher_code').value = voucherCode;
     applyVoucher();
     closeVoucherModal();
+}
+
+function resetInvoice() {
+    document.getElementById('invoice-field').classList.add('hidden');
+    document.getElementById('default-price').innerHTML = 'Price: <span class="text-gray-700">0 VND</span>';
+    document.getElementById('discount-amount').classList.add('hidden');
+    const discountAmount = document.getElementById('discount-amount').querySelector('h1');
+    if (discountAmount) {
+        discountAmount.innerHTML = '';
+    }
+    document.getElementById('total_amount').innerHTML = '0 VND';
+    document.getElementById('hidden_total_amount').value = '';
+    document.getElementById('hidden_voucher_code').value = '';
 }
