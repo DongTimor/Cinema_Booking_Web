@@ -7,7 +7,7 @@ let currentShowtimeId = null;
 function applyVoucher() {
     const voucherCode = document.getElementById('voucher_code').value;
     let total = Number(originalTotal);
-    const voucher = vouchers.find(v => v.code === voucherCode && customerVouchers.includes(v.id));
+    const voucher = vouchers.find(v => v.code === voucherCode && v.pivot.status === 0);
     let discountValue = total * (voucher.value / 100)
     if (voucher) {
         total = total - discountValue;
@@ -15,6 +15,7 @@ function applyVoucher() {
     document.getElementById('total_amount').innerText = new Intl.NumberFormat('vi-VN').format(total) + ' VND';
     document.getElementById('hidden_total_amount').value = total;
     document.getElementById('hidden_voucher_code').value = voucherCode;
+    document.getElementById('hidden_discount_value').value = discountValue;
     const discountAmountElement = document.getElementById('discount-amount');
     discountAmountElement.innerText = '- ' + new Intl.NumberFormat('vi-VN').format(discountValue)+ ' VND';
     discountAmountElement.classList.remove('hidden');
@@ -183,6 +184,7 @@ function bookSeats() {
     originalTotal = document.getElementById('total_price').textContent.replace(' VND', '').replace(/\./g, '');
     document.getElementById('default-price').innerText = 'Price: ' + new Intl.NumberFormat('vi-VN').format(
         originalTotal) + ' VND';
+    document.getElementById('hidden_default_price').value = originalTotal;
     document.getElementById('total_amount').innerText = document.getElementById('total_price').textContent;
     document.getElementById('invoice-field').classList.remove('hidden');
     closeSeatSelectionModal();

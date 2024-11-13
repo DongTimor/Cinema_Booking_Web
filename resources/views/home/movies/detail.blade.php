@@ -128,11 +128,11 @@
                 <form action="{{ route('momo-payment') }}" method="POST" class="text-center"
                     onsubmit="setDefaultValues()">
                     @csrf
+                    <input type="hidden" name="default_price" id="hidden_default_price">
                     <input type="hidden" name="total_amount" id="hidden_total_amount">
                     <input type="hidden" name="voucher_code" id="hidden_voucher_code">
-                    @if ($customer)
-                        <input type="hidden" name="customer_id" id="hidden_customer_id" value="{{ $customer->id }}">
-                    @endif
+                    <input type="hidden" name="discount_value" id="hidden_discount_value">
+                    <input type="hidden" name="customer_id" id="hidden_customer_id" value="{{ $customer->id }}">
                     <input type="hidden" name="selected_seats" id="hidden_seats_selected">
                     <input type="hidden" name="schedule_id" id="hidden_schedule_id">
                     <input type="hidden" name="showtime_id" id="hidden_showtime_id">
@@ -153,41 +153,41 @@
                         class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">&times;</button>
                     <h2 class="text-2xl font-bold mb-4">Select Voucher</h2>
                     <div class="flex items-center justify-centerl w-full">
-                        <div class="grid grid-cols-2 gap-4 overflow-y-auto w-full items-center justify-between mx-16 max-h-[400px]">
-                            @if ($customerVouchers && $customerVouchers->isNotEmpty())
+                        <div
+                            class="grid grid-cols-2 gap-4 overflow-y-auto w-full items-center justify-between mx-16 max-h-[400px]">
+                            @if ($vouchers && $vouchers->isNotEmpty())
                                 @php
-                                    $sortedCustomerVouchers = $customerVouchers->sortByDesc(function (
-                                        $customerVoucher,
-                                    ) use ($vouchers) {
-                                        return $vouchers->firstWhere('id', $customerVoucher)->value;
+                                    $sortedvouchers = $vouchers->sortByDesc(function ($voucher) {
+                                        return $voucher->value;
                                     });
                                 @endphp
-                                @foreach ($sortedCustomerVouchers as $customerVoucher)
-                                    <div id="voucher_code" class="cursor-pointer"
-                                        onclick="selectVoucher('{{ $vouchers->firstWhere('id', $customerVoucher)->code }}')">
-                                        <input type="hidden" name="voucher_id" value="{{ $customerVoucher }}">
-                                        <div
-                                            class="max-w-sm rounded overflow-hidden shadow-sm bg-gradient-to-r from-[#FF8160] to-[#FEB179] my-4 relative ticket-style">
-                                            <div class="px-6 py-4">
-                                                <div class="font-bold text-2xl mb-2 font-mono"
-                                                    style="color: {{ $vouchers->firstWhere('id', $customerVoucher)->value >= 50 ? 'red' : 'green' }}">
-                                                    {{ $vouchers->firstWhere('id', $customerVoucher)->description }}
+                                @foreach ($sortedvouchers as $voucher)
+                                    @if ($voucher->pivot->status == 0)
+                                        <div id="voucher_code" class="cursor-pointer"
+                                            onclick="selectVoucher('{{ $voucher->code }}')">
+                                            <input type="hidden" name="voucher_id" value="{{ $voucher }}">
+                                            <div
+                                                class="max-w-sm rounded overflow-hidden shadow-sm bg-gradient-to-r from-[#FF8160] to-[#FEB179] my-4 relative ticket-style">
+                                                <div class="px-6 py-4">
+                                                    <div class="font-bold text-2xl mb-2 font-mono"
+                                                        style="color: {{ $voucher->value >= 50 ? 'red' : 'green' }}">
+                                                        {{ $voucher->description }}
+                                                    </div>
+                                                    <p class="ml-2 text-gray-100 text-lg font-bold uppercase">
+                                                        {{ $voucher->code }}
+                                                    </p>
                                                 </div>
-                                                <p class="ml-2 text-gray-100 text-lg font-bold uppercase">
-                                                    {{ $vouchers->firstWhere('id', $customerVoucher)->code }}
-                                                </p>
-                                            </div>
-                                            <div class="px-6 pt-1 pb-2">
-                                                <span
-                                                    class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
-                                                    style="color: {{ $vouchers->firstWhere('id', $customerVoucher)->value >= 50 ? 'red' : 'green' }}">Discount:
-                                                    {{ $vouchers->firstWhere('id', $customerVoucher)->value }}%</span>
+                                                <div class="px-6 pt-1 pb-2">
+                                                    <span
+                                                        class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
+                                                        style="color: {{ $voucher->value >= 50 ? 'red' : 'green' }}">Discount:
+                                                        {{ $voucher->value }}%</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 @endforeach
-                            @endif
-                            @if (!$customerVouchers || $customerVouchers->isEmpty())
+                            @else
                                 <div class="col-span-2">
                                     <div class="flex flex-col items-center justify-center">
                                         <p class="text-3xl font-bold">Oops, you don't have any voucher</p>
@@ -208,7 +208,6 @@
     @section('scripts')
         <script src="{{ asset('js/home/movie.js') }}"></script>
         <script>
-            const customerVouchers = @json($customerVouchers);
             const vouchers = @json($vouchers);
         </script>
     @endsection

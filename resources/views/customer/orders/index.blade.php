@@ -20,7 +20,7 @@
                                 <li><a href="#">Auditotium: {{ $item->auditorium }}</a></li>
                                 <li><a href="#">Quantity: {{ $item->quantity }}</a></li>
                                 <li><a href="#">Ticket: {{ $item->ticket_ids }}</a></li>
-                                <li><a href="#">Voucher: {{ $item->voucher }}</a></li>
+                                <li><a href="#">Voucher: {{ number_format($item->voucher) }} VND</a></li>
                                 <li><a href="#">Original price: {{ number_format($item->price) }} VND</a></li>
                                 <li><a href="#">Total price: {{ number_format($item->total) }} VND</a></li>
                             </ul>

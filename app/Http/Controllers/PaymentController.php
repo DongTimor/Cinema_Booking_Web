@@ -44,19 +44,23 @@ class PaymentController extends Controller
         $accessKey = 'klm05TvNBzhg7h7j';
         $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
         $orderInfo = "Thanh toán qua MoMo";
+        $defaultPrice = $request->input('default_price');
+        $discountValue = $request->input('discount_value');
         $amount = $request->input('total_amount');
-        $customer_id = $request->input('customer_id');
-        $selected_seats = $request->input('selected_seats');
-        $schedule_id = $request->input('schedule_id');
-        $showtime_id = $request->input('showtime_id');
+        $customerId = $request->input('customer_id');
+        $selectedSeats = $request->input('selected_seats');
+        $scheduleId = $request->input('schedule_id');
+        $showtimeId = $request->input('showtime_id');
         $voucherCode = $request->input('voucher_code');
-        $movie_id = $request->input('movie_id');
-        session()->flash('customer_id', $customer_id);
-        session()->flash('selected_seats', $selected_seats);
-        session()->flash('schedule_id', $schedule_id);
-        session()->flash('showtime_id', $showtime_id);
+        $movieId = $request->input('movie_id');
+        session()->flash('customer_id', $customerId);
+        session()->flash('selected_seats', $selectedSeats);
+        session()->flash('schedule_id', $scheduleId);
+        session()->flash('showtime_id', $showtimeId);
         session()->flash('voucher_code', $voucherCode);
-        session()->flash('movie_id', $movie_id);
+        session()->flash('movie_id', $movieId);
+        session()->flash('default_price', $defaultPrice);
+        session()->flash('discount_value', $discountValue);
         $orderId = time() . "";
         $redirectUrl = "http://localhost/momopayment/paymentsuccess";
         $ipnUrl = "http://localhost";
@@ -96,7 +100,8 @@ class PaymentController extends Controller
         $voucherCode = session('voucher_code');
         if (isset($data['resultCode']) && $data['resultCode'] == 0) {
             $amount = $data['amount'];
-            $price = $amount;
+            $defaultPrice = session('default_price');
+            $discountValue = session('discount_value');
             $points = intval($amount / 1000);
             $this->handlePoints($customer, $points);
             $selectedSeats = session('selected_seats');
@@ -123,8 +128,6 @@ class PaymentController extends Controller
                 $voucher = $customer->vouchers->where('code', $voucherCode)->first();
                 if ($voucher) {
                     $voucher->customers()->updateExistingPivot($customer->id, ['status' => 1]);
-                    $discount = $voucher->type == 'percent' ? $amount * $voucher->value / 100 : $voucher->value;
-                    $price = $amount + $discount;
                 }
             }
             $tikets = Ticket::where('customer_id', $customer->id)
@@ -133,18 +136,17 @@ class PaymentController extends Controller
             $showtime = Showtime::findOrFail($showtimeId);
             $movie = Movie::select('name')->find($movie_id);
             $seats = Seat::with('auditorium')->find($seatId);
-            $voucher = Voucher::select('value', 'type', 'description')->find($voucherId);
 
             $orders = Order::create([
                 'customer_id' => $customer->id,
                 'movie' => $movie->name,
                 'start_time' => $showtime->start_time,
                 'end_time' => $showtime->end_time,
-                'price' => $price,
+                'price' => $defaultPrice,
                 'auditorium' => $seats->auditorium->name,
                 'quantity' => count($selectedSeats),
                 'ticket_ids' => $tikets->pluck('id')->implode(','),
-                'voucher' => $discount,
+                'voucher' => $discountValue,
                 'total' => $amount,
             ]);
             $orders->save();

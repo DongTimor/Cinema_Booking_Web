@@ -8,12 +8,16 @@
             @endforeach
             <div class="w-72 h-fit group">
             </div>
-            <div id="trailerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-10 flex">
-                <div class="bg-white rounded-lg overflow-hidden w-[90%] md:w-[800px]">
-                    <div class="relative text-black">
-                        <button id="closeModal" class="absolute top-2 right-2 text-[30px] hover:text-white z-20">✖</button>
-                        <iframe id="trailerVideo" class="w-full h-[500px]" src="" frameborder="0"
-                            allowfullscreen></iframe>
+            <div id="trailerModal" class="hidden"> 
+                <div 
+                    class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-10 flex">
+                    <div class="bg-white rounded-lg overflow-hidden w-[90%] md:w-[800px]">
+                        <div class="relative text-black">
+                            <button id="closeModal"
+                                class="absolute top-2 right-2 text-[30px] hover:text-white z-20">✖</button>
+                            <iframe id="trailerVideo" class="w-full h-[500px]" src="" frameborder="0"
+                                allowfullscreen></iframe>
+                        </div>
                     </div>
                 </div>
             </div>

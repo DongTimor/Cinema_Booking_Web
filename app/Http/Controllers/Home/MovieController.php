@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
 use App\Models\Schedule;
 use App\Models\Seat;
-use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -16,14 +15,15 @@ class MovieController extends Controller
     {
         $movies = Movie::with('images')->get();
         $customer = auth('customer')->user();
-        return view('customer.movies.index', compact('customer', 'movies'));
+        return view('home.movies.index', compact('customer', 'movies'));
     }
 
     public function detail($id)
     {
         $customer = auth('customer')->user();
-        $customerVouchers = $customer->vouchers->where('pivot.status', 0)->pluck('pivot.voucher_id');
-        $vouchers = Voucher::all();
+        $vouchers = $customer->vouchers
+        ->where('expires_at', '>=', now()->format('Y-m-d'))
+        ->where('quantity', '>', 0);
         $movie = Movie::findOrFail($id);
         $today = Carbon::today()->format('Y-m-d');
         $schedules = Schedule::with('showtimes')
@@ -31,7 +31,7 @@ class MovieController extends Controller
             ->whereDate('date', $today)
             ->get();
         $showtimes = $schedules->pluck('showtimes')->flatten();
-        return view('customer.movie-detail', compact('movie', 'customerVouchers', 'vouchers', 'showtimes', 'today', 'customer', 'schedules'));
+        return view('home.movies.detail', compact('movie', 'vouchers', 'showtimes', 'today', 'customer', 'schedules'));
     }
 
     public function getTimeslotsByDate(Request $request)

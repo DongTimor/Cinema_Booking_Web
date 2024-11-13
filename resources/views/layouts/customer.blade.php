@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="{{ asset('css/customer/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/customer/order.css') }}">
     @yield('styles')
-    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
     @vite(['resources/sass/app.scss', 'resources/js/app.js', 'resources/css/app.css'])
 </head>
 
