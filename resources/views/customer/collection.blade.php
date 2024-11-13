@@ -28,6 +28,7 @@
                     <a class="text-xl font-extrabold text-blue-500 hover:text-blue-700 my-2" href="{{ route("vouchers") }}"
                         class="text-blue-500 underline">Go get some</a>
                     </img>
+                </div>
             @endif
             <div class="my-3 grid grid-cols-1 justify-center gap-20 md:grid-cols-2">
                 @foreach ($vouchers as $voucher)
@@ -44,7 +45,7 @@
                                 data-value="{{ $voucher->value }}" data-type="{{ $voucher->type }}">
                         </div>
                         <a href="{{ route("movies") }}"
-                            class="btn use-btn {{ $voucher->pivot->status == 1 ? "pe-none bg-secondary-subtle" : "" }} mb-2 rounded-lg border-0 bg-green-500 px-4 py-1 text-lg font-extrabold text-white hover:bg-green-700"
+                            class="btn use-btn {{ $voucher->pivot->status == 1 ? "pe-none bg-gray-600" : "" }} mb-2 rounded-lg border-0 bg-green-500 px-4 py-1 text-lg font-extrabold text-white hover:bg-green-700"
                             role="button">
                             Use
                         </a>
