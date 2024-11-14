@@ -30,7 +30,15 @@ class VoucherController extends Controller
             'code' => 'required|min:6|max:6|unique:vouchers,code',
             'description' => 'required|max:255',
             'quantity' => 'required|integer|max:100',
-            'value' => 'required|integer|max:100',
+            'value' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->type == 'percent' && ($value < 0 || $value > 100)) {
+                        $fail('The ' . $attribute . ' must be between 0 and 100 when type is percent.');
+                    }
+                },
+            ],
             'points_required' => 'integer|min:0',
             'expires_at' => 'required',
         ]);
@@ -48,9 +56,18 @@ class VoucherController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
+            'code' => 'required|min:6|max:6|unique:vouchers,code',
             'description' => 'required|max:255',
             'quantity' => 'required|integer|max:100',
-            'value' => 'required|integer',
+            'value' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->type == 'percent' && ($value < 0 || $value > 100)) {
+                        $fail('The ' . $attribute . ' must be between 0 and 100 when type is percent.');
+                    }
+                },
+            ],
             'points_required' => 'integer|min:0',
             'expires_at' => 'required',
         ]);

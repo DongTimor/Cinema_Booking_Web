@@ -117,13 +117,6 @@
                     onsubmit="handleTotalPrice()">
                     @csrf
                     <input type="hidden" name="order_data" id="order-data">
-                    <input type="hidden" name="total_amount" id="hidden_total_amount">
-                    <input type="hidden" name="voucher_code" id="hidden_voucher_code">
-                    <input type="hidden" name="selected_seats" id="hidden_seats_selected">
-                    <input type="hidden" name="schedule_id" id="hidden_schedule_id">
-                    <input type="hidden" name="showtime_id" id="hidden_showtime_id">
-                    <input type="hidden" name="auditorium_id" id="hidden_auditorium_id">
-                    <input type="hidden" name="movie_id" id="hidden_movie_id" value="{{ $movie->id }}">
                     <button type="submit" name="payUrl"
                         class="w-full rounded-md bg-pink-500 px-14 py-2 font-extrabold text-white hover:bg-pink-600">
                         Checkout with MOMO
@@ -165,7 +158,7 @@
                                                         <span
                                                             class="value mb-2 mr-2 inline-block rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-700"
                                                             style="color: {{ $voucher->value >= 50 ? "red" : "green" }}">Discount:
-                                                            {{ $voucher->value }}%</span>
+                                                            {{ $voucher->type == 'percent' ? $voucher->value . '%' : number_format($voucher->value) . ' VND' }}</span>
                                                     </div>
                                                 </div>
                                             </div>

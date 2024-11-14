@@ -31,18 +31,18 @@
     @endif
     </div>
     <div class="mb-3">
-        <label for="value" class="form-label">Value</label>
-        <input type="number" class="form-control" name="value" value="{{ $voucher->value }}">
-    @if ($errors->has('value'))
-        <span class="text-danger">{{ $errors->first('value') }}</span>
-    @endif
-    </div>
-    <div class="mb-3">
         <label for="type" class="form-label">Type</label>
         <select class="form-select" name="type">
             <option value="percent" {{ $voucher->type == 'percent' ? 'selected' : '' }}>Percent</option>
             <option value="fixed" {{ $voucher->type == 'fixed' ? 'selected' : '' }}>Fixed</option>
         </select>
+    </div>
+    <div class="mb-3">
+        <label for="value" class="form-label">Value</label>
+        <input type="number" class="form-control" name="value" value="{{ $voucher->value }}">
+    @if ($errors->has('value'))
+        <span class="text-danger">{{ $errors->first('value') }}</span>
+    @endif
     </div>
     <div class="mb-3">
         <label for="expires_at" class="form-label">Expires at</label>
