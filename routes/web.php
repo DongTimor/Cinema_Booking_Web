@@ -46,7 +46,7 @@ Auth::routes();
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/momo-payment', [PaymentController::class, 'momo_payment'])->name('momo-payment');
 Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
-Route::get('/showtimes', [HomeMovieController::class, 'getTimeslotsByDate']);
+Route::get('/showtimes', [HomeMovieController::class, 'getShowtimes']);
 Route::get('/seats', [HomeMovieController::class, 'getSeats']);
 Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
 Route::get('/movie',[HomeMovieController::class,'index'])->name('movies');

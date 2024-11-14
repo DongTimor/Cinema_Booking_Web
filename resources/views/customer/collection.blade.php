@@ -45,7 +45,7 @@
                                 data-value="{{ $voucher->value }}" data-type="{{ $voucher->type }}">
                         </div>
                         <a href="{{ route("movies") }}"
-                            class="btn use-btn {{ $voucher->pivot->status == 1 ? "pe-none bg-gray-600" : "" }} mb-2 rounded-lg border-0 bg-green-500 px-4 py-1 text-lg font-extrabold text-white hover:bg-green-700"
+                            class="btn use-btn {{ $voucher->pivot->status == 1 ? "pe-none bg-gray-600" : "bg-green-500 hover:bg-green-700" }} mb-2 rounded-lg border-0 px-4 py-1 text-lg font-extrabold text-white"
                             role="button">
                             Use
                         </a>

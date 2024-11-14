@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Movie;
 use App\Models\Schedule;
 use App\Models\Seat;
+use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -21,34 +22,35 @@ class MovieController extends Controller
     public function detail($id)
     {
         $customer = auth('customer')->user();
-        $vouchers = $customer->vouchers
-        ->where('expires_at', '>=', now()->format('Y-m-d'))
-        ->where('quantity', '>', 0);
+        $vouchers = $customer->vouchers()
+            ->where('expires_at', '>=', now()->format('Y-m-d'))
+            ->where('quantity', '>', 0)
+            ->wherePivot('status', 0)
+            ->get()
+            ->groupBy('type')
+            ->flatten()
+            ->sortBy('value');
         $movie = Movie::findOrFail($id);
-        $today = Carbon::today()->format('Y-m-d');
+        $today = Carbon::today();
+        $dates = collect(range(0, 6))->map(fn(int $day) => $today->copy()->addDays($day));
         $schedules = Schedule::with('showtimes')
             ->where('movie_id', $id)
             ->whereDate('date', $today)
             ->get();
-        $showtimes = $schedules->pluck('showtimes')->flatten();
-        return view('home.movies.detail', compact('movie', 'vouchers', 'showtimes', 'today', 'customer', 'schedules'));
+        $showtimes = $schedules->pluck('showtimes')->flatten()->sortBy('start_time');
+        return view('home.movies.detail', compact('movie', 'vouchers', 'showtimes', 'today', 'dates', 'customer'));
     }
 
-    public function getTimeslotsByDate(Request $request)
+    public function getShowtimes(Request $request)
     {
-        $date = $request->query('date');
-        $movieId = $request->query('movie_id');
-        $scheduleId = Schedule::where('movie_id', $movieId)->whereDate('date', $date)->value('id');
-        $showtimes = Schedule::where('movie_id', $movieId)
+        $date = $request->input('date');
+        $movieId = $request->input('movie_id');
+        $schedules = Schedule::with('showtimes')
+            ->where('movie_id', $movieId)
             ->whereDate('date', $date)
-            ->with('showtimes')
-            ->get()
-            ->pluck('showtimes')
-            ->flatten();
-        return response()->json([
-            'showtimes' => $showtimes,
-            'scheduleId' => $scheduleId
-        ]);
+            ->get();
+        $showtimes = $schedules->pluck('showtimes')->flatten()->sortBy('start_time');
+        return view('home.movies.showtimes', compact('showtimes', 'date', 'movieId'));
     }
 
     public function getSeats(Request $request)
@@ -56,25 +58,20 @@ class MovieController extends Controller
         $date = $request->input('date');
         $movieId = $request->input('movie_id');
         $showtimeId = $request->input('showtime_id');
+        $price = $request->input('price');
         $schedule = Schedule::with('showtimes')
-            ->whereHas('showtimes', function ($query) use ($showtimeId) {
-                $query->where('showtime_id', $showtimeId);
-            })
             ->whereDate('date', $date)
             ->where('movie_id', $movieId)
+            ->whereRelation('showtimes', 'showtime_id', $showtimeId)
             ->first();
-        if (!$schedule) {
-            return response()->json(['error' => 'Schedule not found'], 404);
-        }
         $auditoriumId = $schedule->auditorium_id;
-        $price = Movie::where('id', $movieId)->value('price');
-        $seats = Seat::where('auditorium_id', $auditoriumId)
-            ->with(['tickets' => function ($query) use ($showtimeId, $schedule) {
-                $query->where('showtime_id', $showtimeId)
-                    ->where('status', 'ordered')
-                    ->where('schedule_id', $schedule->id);
-            }])
-            ->get();
-        return response()->json(['seats' => $seats, 'price' => $price]);
+        $seats = Seat::where('auditorium_id', $auditoriumId)->get();
+        $rows = $seats->groupBy('row')->count();
+        $orderedSeats = Ticket::where('movie_id', $movieId)
+            ->where('schedule_id', $schedule->id)
+            ->where('showtime_id', $showtimeId)
+            ->pluck('seat_id')
+            ->toArray();
+        return view('home.movies.seats', compact('seats', 'rows', 'orderedSeats'));
     }
 }
