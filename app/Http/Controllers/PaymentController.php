@@ -159,7 +159,7 @@ class PaymentController extends Controller
             $customerPoint->increment('total_points', $points);
             $customerPoint->increment('points_earned', $points);
             $customerPoint->update([
-                'date_expire' => now()->addMinutes(5),
+                'date_expire' => now()->addDay(),
                 'last_updated' => now(),
             ]);
 
@@ -177,7 +177,7 @@ class PaymentController extends Controller
                 'customer_id' => $customer->id,
                 'total_points' => $points,
                 'points_earned' => $points,
-                'date_expire' => now()->addMinutes(5),
+                'date_expire' => now()->addDay(),
                 'last_updated' => now(),
             ]);
         }

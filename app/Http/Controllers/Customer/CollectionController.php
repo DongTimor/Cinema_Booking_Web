@@ -16,7 +16,10 @@ class CollectionController extends Controller
             ->where('expires_at', '>=', now()->format('Y-m-d'))
             ->where('quantity', '>', 0);
         $customerPoint = Point::where('customer_id', $customer->id)->first();
-
+        if($customerPoint->date_expire && Carbon::now()->greaterThan($customerPoint->date_expire)){
+            $customerPoint->total_points = 0;
+            $customerPoint->save();
+        }
         switch ($customerPoint->ranking_level) {
             case 'Bronze':
                 $points = 150;
