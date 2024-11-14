@@ -24,6 +24,13 @@
     @endif
     </div>
     <div class="mb-3">
+        <label for="points_required" class="form-label">Points Required</label>
+        <input type="number" class="form-control" name="points_required" value="{{ $voucher->points_required }}">
+    @if ($errors->has('points_required'))
+        <span class="text-danger">{{ $errors->first('points_required') }}</span>
+    @endif
+    </div>
+    <div class="mb-3">
         <label for="value" class="form-label">Value</label>
         <input type="number" class="form-control" name="value" value="{{ $voucher->value }}">
     @if ($errors->has('value'))

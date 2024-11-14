@@ -31,6 +31,7 @@ class VoucherController extends Controller
             'description' => 'required|max:255',
             'quantity' => 'required|integer|max:100',
             'value' => 'required|integer|max:100',
+            'points_required' => 'integer|min:0',
             'expires_at' => 'required',
         ]);
         $code = $request->all();
@@ -50,6 +51,7 @@ class VoucherController extends Controller
             'description' => 'required|max:255',
             'quantity' => 'required|integer|max:100',
             'value' => 'required|integer',
+            'points_required' => 'integer|min:0',
             'expires_at' => 'required',
         ]);
         $voucher = Voucher::find($id);

@@ -8,7 +8,7 @@
             </div>
             <div class="mb-2 mt-2 h-4 w-full rounded-full bg-gray-200">
                 <div class="h-4 rounded-full bg-green-500"
-                    style="width: {{ ($customerPoint->total_points / $points) * 100 }}%">
+                    style="width: {{ $customerPoint->total_points > 0 ? ($customerPoint->total_points / $points) * 100 : 0 }}%">
                 </div>
             </div>
             <div class="text-sm">
@@ -32,7 +32,7 @@
             @endif
             <div class="my-3 grid grid-cols-1 justify-center gap-20 md:grid-cols-2">
                 @foreach ($vouchers as $voucher)
-                    <div class="voucher-card my-2">
+                    <div class="voucher-card my-2 {{ $voucher->points_required > 0 ? 'bg-gradient-to-r from-sky-500 to-emerald-500' : '' }}">
                         <div class="voucher-title">{{ $voucher->description }}</div>
                         <div class="text-uppercase h3 text-white">{{ $voucher->code }}</div>
                         <div class="voucher-details flex flex-wrap gap-3">

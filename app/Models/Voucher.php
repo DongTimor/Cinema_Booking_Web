@@ -19,6 +19,7 @@ class Voucher extends Model
         'expires_at',
         'value',
         'type',
+        'points_required',
     ];
 
     public function users(): BelongsToMany
