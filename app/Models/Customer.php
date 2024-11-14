@@ -64,7 +64,7 @@ class Customer extends Authenticatable implements JWTSubject
 
     public function vouchers(): BelongsToMany
     {
-        return $this->belongsToMany(Voucher::class, 'customer_voucher')->withPivot('status');
+        return $this->belongsToMany(Voucher::class)->withPivot('status');
     }
 
     protected static function boot()
