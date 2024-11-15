@@ -7,7 +7,7 @@
     @method('put')
     <div class="mb-3">
         <label for="code" class="form-label">Code voucher</label>
-        <input type="text" class="form-control" name="code" value="{{ $voucher->code }}" disabled>
+        <input type="text" class="form-control text-uppercase" name="code" value="{{ $voucher->code }}" disabled>
     </div>
     <div class="mb-3">
         <label for="description" class="form-label">Description</label>
@@ -24,10 +24,10 @@
     @endif
     </div>
     <div class="mb-3">
-        <label for="value" class="form-label">Value</label>
-        <input type="number" class="form-control" name="value" value="{{ $voucher->value }}">
-    @if ($errors->has('value'))
-        <span class="text-danger">{{ $errors->first('value') }}</span>
+        <label for="points_required" class="form-label">Points Required</label>
+        <input type="number" class="form-control" name="points_required" value="{{ $voucher->points_required }}">
+    @if ($errors->has('points_required'))
+        <span class="text-danger">{{ $errors->first('points_required') }}</span>
     @endif
     </div>
     <div class="mb-3">
@@ -36,6 +36,13 @@
             <option value="percent" {{ $voucher->type == 'percent' ? 'selected' : '' }}>Percent</option>
             <option value="fixed" {{ $voucher->type == 'fixed' ? 'selected' : '' }}>Fixed</option>
         </select>
+    </div>
+    <div class="mb-3">
+        <label for="value" class="form-label">Value</label>
+        <input type="number" class="form-control" name="value" value="{{ $voucher->value }}">
+    @if ($errors->has('value'))
+        <span class="text-danger">{{ $errors->first('value') }}</span>
+    @endif
     </div>
     <div class="mb-3">
         <label for="expires_at" class="form-label">Expires at</label>

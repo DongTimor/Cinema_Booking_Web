@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="{{ asset('css/customer/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/customer/order.css') }}">
     @yield('styles')
-    <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js', 'resources/css/app.css'])
 </head>
 
@@ -171,6 +170,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.14.4/sweetalert2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     @include('layouts.alert')
     @yield('scripts')
 </body>

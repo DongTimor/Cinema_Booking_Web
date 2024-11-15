@@ -10,7 +10,7 @@ class Image extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['movie_id', 'url'];
+    protected $fillable = ['movie_id', 'url', 'type'];
 
     public function movies(): BelongsTo
     {

@@ -14,6 +14,7 @@
             <th>Value</th>
             <th>Description</th>
             <th>Code</th>
+            <th>Points Required</th>
             <th>Expires at</th>
             <th class="text-center">Action</th>
         </tr>
@@ -33,6 +34,9 @@
                 </td>
                 <td class="text-uppercase">
                     {{ $item->code }}
+                </td>
+                <td>
+                    {{ $item->points_required}}
                 </td>
                 <td>
                     {{ \Carbon\Carbon::parse($item->expires_at)->format("d/m/Y") }}

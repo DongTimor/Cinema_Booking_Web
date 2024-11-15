@@ -24,6 +24,7 @@ use App\Http\Controllers\Customer\ForgotPasswordController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\Customer\VoucherController as CustomerVoucherController;
+use App\Http\Controllers\Home\MovieController as HomeMovieController;
 use App\Http\Controllers\Admin\EventController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -42,21 +43,22 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-// Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/momo-payment', [PaymentController::class, 'momo_payment'])->name('momo-payment');
 Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
-Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
-Route::get('/seats', [HomeController::class, 'getSeats']);
+Route::get('/showtimes', [HomeMovieController::class, 'getShowtimes']);
+Route::get('/seats', [HomeMovieController::class, 'getSeats']);
 Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
 Route::get('/', [HomeController::class, 'homepage'])->name('home');
 Route::get('/favorite-all', [HomeController::class, 'favoriteMovieAll'])->name('favorite');
 Route::get('/vouchers-now', [HomeController::class, 'voucherNowAll'])->name('vouchers-now');
 Route::get('/movies/discounted', [HomeController::class, 'discountMovieAll'])->name('movies');
 Route::get('/events/now', [HomeController::class, 'eventNowAll'])->name('events');
+Route::get('/movie',[HomeMovieController::class,'index'])->name('movies');
 Route::middleware('auth.jwt')->group(function () {
-    Route::get('/booking/{id}', [HomeController::class, 'detail'])->name('detail');
+    Route::get('/booking/{id}', [HomeMovieController::class, 'detail'])->name('detail');
     Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');
-    Route::post('/vouchers', [CustomerVoucherController::class, 'saveVoucher'])->name('vouchers.save');
+    Route::post('/vouchers/save/{id}', [CustomerVoucherController::class, 'save'])->name('vouchers.save');
+    Route::post('/vouchers/exchange/{id}', [CustomerVoucherController::class, 'exchange'])->name('vouchers.exchange');
 });
 // admin
 Route::prefix('admin')->group(function () {

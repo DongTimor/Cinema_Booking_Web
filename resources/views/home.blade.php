@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="bg-white flex flex-col items-center justify-center">
-        <div class="relative mt-7">
+        <div class="relative">
             <div class="swiper-container relative overflow-hidden">
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">

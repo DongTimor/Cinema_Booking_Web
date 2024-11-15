@@ -62,16 +62,16 @@ class Customer extends Authenticatable implements JWTSubject
         return $this->hasOne(Point::class);
     }
 
-    public function vouchers() : BelongsToMany
+    public function vouchers(): BelongsToMany
     {
-        return $this->belongsToMany(Voucher::class, 'customer_voucher')->withPivot('voucher_id', 'status');
+        return $this->belongsToMany(Voucher::class)->withPivot('status');
     }
 
     protected static function boot()
     {
         parent::boot();
 
-        static::created(function($customer){
+        static::created(function ($customer) {
             Point::create([
                 'customer_id' => $customer->id,
                 'total_points' => 0,

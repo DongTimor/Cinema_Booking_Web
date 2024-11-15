@@ -12,8 +12,8 @@ class AuditoriumController extends Controller
     public function index()
     {
         try {
-            $auditorums = Auditorium::paginate(10);
-            return view('admin.auditoriums.index', ['auditoriums' => $auditorums]);
+            $auditoriums = Auditorium::all();
+            return view('admin.auditoriums.index', ['auditoriums' => $auditoriums]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Create error', 'message' => $e->getMessage()], 500);
         }

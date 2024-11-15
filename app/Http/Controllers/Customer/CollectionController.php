@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Point;
-use App\Models\Voucher;
 use Carbon\Carbon;
 
 class CollectionController extends Controller
@@ -12,48 +11,32 @@ class CollectionController extends Controller
     public function index()
     {
         $customer = auth('customer')->user();
-        $customerVouchers = $customer->vouchers->where('expires_at', '>=', Carbon::now())->pluck('pivot.voucher_id');
-        $vouchers = Voucher::whereDate('expires_at', '>=', Carbon::now())->get();
-        $points = Point::where('customer_id', $customer->id)->first();
-        if ($points) {
-            if ($points->ranking_level == 'Silver') {
-                $pointsToNextLevel = 200 - $points->total_points;
-            } elseif ($points->ranking_level == 'Gold') {
-                $pointsToNextLevel = 0; 
-            } else {
-                $pointsToNextLevel = 150 - $points->total_points;
-            }
-        } else {
-            $pointsToNextLevel = null;
+        $vouchers = $customer->vouchers
+            ->where('expires_at', '>=', now()->format('Y-m-d'))
+            ->where('quantity', '>', 0);
+        $customerPoint = Point::where('customer_id', $customer->id)->first();
+        if($customerPoint->date_expire && Carbon::now()->greaterThan($customerPoint->date_expire)){
+            $customerPoint->total_points = 0;
+            $customerPoint->save();
         }
-        $this->checkAndUpdatePoints();
-        return view('customer.collection', compact('points', 'pointsToNextLevel','vouchers', 'customerVouchers','customer'));
-    }
+        switch ($customerPoint->ranking_level) {
+            case 'Bronze':
+                $points = 150;
+                $nextLevel = 'Silver';
+                $color = '#854C12';
+                break;
+            case 'Silver':
+                $points = 200;
+                $nextLevel = 'Gold';
+                $color = '#868686';
+                break;
+            default:
+                $points = $customerPoint->total_points;
+                $nextLevel = 'Next Level';
+                $color = '#FFD700';
+                break;
+        }
 
-    public function checkAndUpdatePoints()
-    {
-        $customer = auth('customer')->user();
-        $point = Point::where('customer_id', $customer->id)->first();
-        if ($point) {
-            if ($point->date_expire && Carbon::now()->greaterThan($point->date_expire)) {
-                $point->total_points = 0;
-            }
-            if ($point->total_points > 200) {
-                $point->ranking_level = 'Gold';
-            } elseif ($point->total_points > 150) {
-                $point->ranking_level = 'Silver';
-            } else {
-                $point->ranking_level = 'Bronze';
-            }
-            $point->save();
-            return response()->json([
-                'message' => 'customer points and ranking level updated successfully',
-                'data' => $point
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'customer points record not found'
-            ], 404);
-        }
+        return view('customer.collection', compact('customerPoint', 'points', 'nextLevel', 'color', 'vouchers', 'customer'));
     }
 }

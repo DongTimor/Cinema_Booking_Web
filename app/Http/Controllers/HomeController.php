@@ -153,19 +153,6 @@ class HomeController extends Controller
         ]);
     }
 
-    // public function voucherNowAll()
-    // {
-    //     $customer = auth('customer')->user();
-    //     $today = Carbon::today();
-
-    //     $vouchers = Voucher::whereDate('expires_at', '=', $today)->get();
-
-    //     return view('today.vouchers', [
-    //         'vouchers' => $vouchers,
-    //         'customer' => $customer
-    //     ]);
-    // }
-
     public function voucherNowAll(Request $request)
     {
         $customer = auth('customer')->user();
