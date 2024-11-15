@@ -53,7 +53,8 @@ Route::get('/movie',[HomeMovieController::class,'index'])->name('movies');
 Route::middleware('auth.jwt')->group(function () {
     Route::get('/booking/{id}', [HomeMovieController::class, 'detail'])->name('detail');
     Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');
-    Route::post('/vouchers', [CustomerVoucherController::class, 'saveVoucher'])->name('vouchers.save');
+    Route::post('/vouchers/save/{id}', [CustomerVoucherController::class, 'save'])->name('vouchers.save');
+    Route::post('/vouchers/exchange/{id}', [CustomerVoucherController::class, 'exchange'])->name('vouchers.exchange');
 });
 // admin
 Route::prefix('admin')->group(function () {

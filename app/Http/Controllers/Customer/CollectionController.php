@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Point;
-use App\Models\Voucher;
 use Carbon\Carbon;
 
 class CollectionController extends Controller

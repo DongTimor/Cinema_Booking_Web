@@ -7,7 +7,7 @@
     @method('put')
     <div class="mb-3">
         <label for="code" class="form-label">Code voucher</label>
-        <input type="text" class="form-control" name="code" value="{{ $voucher->code }}" disabled>
+        <input type="text" class="form-control text-uppercase" name="code" value="{{ $voucher->code }}" disabled>
     </div>
     <div class="mb-3">
         <label for="description" class="form-label">Description</label>

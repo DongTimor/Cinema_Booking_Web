@@ -16,7 +16,7 @@
                 <h2 class="text-2xl font-semibold mt-8 mb-4">Free to Get</h2>
                 <div class="my-3 grid grid-cols-1 justify-center gap-20 md:grid-cols-2">
                     @foreach ($vouchers->where('points_required', 0) as $voucher)
-                        <form action="{{ route('vouchers.save') }}" method="POST">
+                        <form action="{{ route('vouchers.save', $voucher->id) }}" method="POST">
                             @csrf
                             <input type="hidden" name="voucher_id" value="{{ $voucher->id }}">
                             <div class="voucher-card my-2">
@@ -45,9 +45,9 @@
                 <h2 class="text-2xl font-semibold mt-8 mb-4">Exchange Points</h2>
                 <div class="my-3 grid grid-cols-1 justify-center gap-20 md:grid-cols-2">
                     @foreach ($vouchers->where('points_required', '>', 0) as $voucher)
-                        <form action="{{ route('vouchers.save') }}" method="POST">
+                        <form action="{{ route('vouchers.exchange', $voucher->id) }}" method="POST">
                             @csrf
-                            <input type="hidden" name="voucher_id" value="{{ $voucher->id }}">
+                            <input type="hidden" name="points" value="{{ $voucher->points_required }}">
                             <div class="voucher-card my-2 bg-gradient-to-r from-sky-500 to-emerald-500">
                                 <div class="voucher-title">{{ $voucher->description }}</div>
                                 <div class="text-uppercase h3 text-white">{{ $voucher->code }}</div>

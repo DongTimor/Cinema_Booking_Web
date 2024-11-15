@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Point;
 use App\Models\Voucher;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VoucherController extends Controller
 {
@@ -14,29 +13,44 @@ class VoucherController extends Controller
     {
         $customer = auth('customer')->user();
         $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id');
-        $vouchers = Voucher::whereDate('expires_at', '>=', Carbon::now())->get();
-        return view('customer.voucher', compact('vouchers', 'customerVouchers','customer'));
+        $vouchers = Voucher::whereDate('expires_at', '>=', today())
+            ->where('quantity', '>', 0)
+            ->get();
+        return view('customer.voucher', compact('customer', 'customerVouchers', 'vouchers'));
     }
 
-    public function saveVoucher(Request $request)
+    public function save($id)
     {
+        $voucher = Voucher::find($id);
         $customer = auth('customer')->user();
-        $customerPoint = Point::where('customer_id', $customer->id)->first();
-        $voucherId = $request->input('voucher_id');
-        $voucher = Voucher::find($voucherId);
-        if ($voucher && $voucher->quantity > 0) {
-            $pointsRequired = $voucher->points_required;
-            if ($customerPoint->total_points < $pointsRequired) {
-                return redirect()->route('vouchers')->with('error', 'You do not have enough points to redeem this voucher.');
-            }
-            $customerPoint->total_points -= $pointsRequired;
-            $customerPoint->points_redeemed += $pointsRequired;
-            $customerPoint->save();
-            $voucher->quantity -= 1;
-            $voucher->save();
-            $voucher->customers()->attach(auth('customer')->user()->id, ['voucher_id' => $voucherId]);
-            return redirect()->route('vouchers')->with('success', 'Voucher saved successfully.');
+
+        DB::transaction(function () use ($voucher, $customer) {
+            $voucher->decrement('quantity', 1);
+            $voucher->customers()->attach($customer->id);
+        });
+
+        return redirect()->route('vouchers')->with('success', 'Voucher saved successfully!');
+    }
+
+
+    public function exchange(Request $request, $id)
+    {
+        $voucher = Voucher::find($id);
+        $customer = auth('customer')->user();
+        $points = $request->input('points', 0);
+        $customerPoints = $customer->point;
+
+        if ($customerPoints->points_earned < $points) {
+            return redirect()->route('vouchers')->with('error', 'You do not have enough points to redeem this voucher!');
         }
-        return redirect()->route('vouchers')->with('error', 'Voucher could not be saved.');
+
+        DB::transaction(function () use ($voucher, $customer, $points, $customerPoints) {
+            $voucher->decrement('quantity', 1);
+            $customerPoints->decrement('points_earned', $points);
+            $customerPoints->increment('points_redeemed', $points);
+            $voucher->customers()->attach($customer->id);
+        });
+
+        return redirect()->route('vouchers')->with('success', 'Points exchanged successfully!');
     }
 }
