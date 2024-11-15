@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Movie;
-use App\Models\Point;
 use App\Models\Schedule;
 use App\Models\Seat;
 use App\Models\Ticket;
@@ -21,22 +20,6 @@ class HomeController extends Controller
      * @return void
      */
     public function __construct() {}
-
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function index(Request $request)
-    {
-        $ranking = 'Bronze';
-        $movies = Movie::with('images')->get();
-        $customer = auth('customer')->user();
-        if ($customer) {
-            $ranking = Point::where('customer_id', $customer->id)->value('ranking_level');
-        }
-        return view('home', compact('customer', 'movies', 'ranking'));
-    }
 
     public function detail($id)
     {
@@ -97,38 +80,32 @@ class HomeController extends Controller
         return response()->json(['seats' => $seats, 'price' => $price]);
     }
 
-    public function favoriteMovie()
-    {
-        $oneWeekAgo = now()->subWeek();
-
-        $favoriteMovies = Ticket::where('created_at', '>=', $oneWeekAgo)
-            ->select('movie_id', DB::raw('count(*) as total_tickets'))
-            ->groupBy('movie_id')
-            ->orderBy('total_tickets', 'desc')
-            ->with('movie')
-            ->take(20)
-            ->get();
-        if ($favoriteMovies->isEmpty()) {
-            return response()->json(['message' => 'There were no popular movies last week.']);
-        }
-        return response()->json([
-            'favorite_movies' => $favoriteMovies->map(function ($movie) {
-                return [
-                    'movie_id' => $movie->movie->id,
-                    'movie_name' => $movie->movie->name,
-                    'total_tickets' => $movie->total_tickets
-                ];
-            })
-        ]);
-    }
-
-    public function todayEvent()
+    public function homepage()
     {
         $today = Carbon::today();
         $events = Event::whereDate('start_date', '<=', $today)
-                    ->whereDate('end_date', '>=', $today)
-                    ->get();
-        return response()->json([
+                        ->whereDate('end_date', '>=', $today)
+                        ->get();
+
+        $oneWeekAgo = now()->subWeek();
+
+        $favoriteMovies = Ticket::where('tickets.created_at', '<=', $oneWeekAgo)
+            ->join('movies', 'tickets.movie_id', '=', 'movies.id')
+            ->select('movies.id as movie_id', 'movies.name as movie_name', DB::raw('count(tickets.id) as total_tickets'))
+            ->groupBy('movies.id', 'movies.name')
+            ->orderBy('total_tickets', 'desc')
+            ->take(20)
+            ->get();
+
+            if ($favoriteMovies === null) {
+                return view('home', ['message' => 'There were no popular movies last week.']);
+            }
+
+        $customer = auth('customer')->user();
+        $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id');
+        $vouchers = Voucher::whereDate('expires_at', '=', Carbon::now())->get();
+
+        return view('home', [
             'events' => $events->map(function ($event) {
                 return [
                     'event_id' => $event->id,
@@ -148,10 +125,120 @@ class HomeController extends Controller
                             'price' => $movie->price,
                             'start_date' => $movie->start_date,
                             'end_date' => $movie->end_date,
+                            'image_url' => $movie->images()->first()->url ?? asset('default.jpg'),
                         ];
                     }),
                 ];
-            })
+            }),
+            'favoriteMovies' => $favoriteMovies,
+            'customerVouchers' => $customerVouchers,
+            'vouchers' => $vouchers,
+            'customer' => $customer
+        ]);
+    }
+
+    public function favoriteMovieAll()
+    {
+        $customer = auth('customer')->user();
+        $favoriteMovies = Ticket::join('movies', 'tickets.movie_id', '=', 'movies.id')
+            ->select('movies.id as movie_id', 'movies.name as movie_name', DB::raw('count(tickets.id) as total_tickets'))
+            ->groupBy('movies.id', 'movies.name')
+            ->orderBy('total_tickets', 'desc')
+            ->take(20)
+            ->get();
+
+        return view('today.favorite_movies', [
+            'favoriteMovies' => $favoriteMovies,
+            'customer' => $customer
+        ]);
+    }
+
+    // public function voucherNowAll()
+    // {
+    //     $customer = auth('customer')->user();
+    //     $today = Carbon::today();
+
+    //     $vouchers = Voucher::whereDate('expires_at', '=', $today)->get();
+
+    //     return view('today.vouchers', [
+    //         'vouchers' => $vouchers,
+    //         'customer' => $customer
+    //     ]);
+    // }
+
+    public function voucherNowAll(Request $request)
+    {
+        $customer = auth('customer')->user();
+        $today = Carbon::today();
+
+        if ($request->has('voucher_id')) {
+            $voucherId = $request->input('voucher_id');
+            $voucher = Voucher::find($voucherId);
+
+            if ($voucher && $voucher->quantity > 0) {
+                $voucher->quantity -= 1;
+                $voucher->save();
+
+                $voucher->customers()->attach($customer->id, ['voucher_id' => $voucherId]);
+
+                return redirect()->route('vouchers')->with('success', 'Voucher saved successfully.');
+            }
+
+            return redirect()->route('vouchers')->with('error', 'Voucher could not be saved.');
+        }
+
+        $vouchers = Voucher::whereDate('expires_at', '=', $today)->get();
+
+        $customerVouchers = $customer->vouchers->pluck('id');
+
+        return view('today.vouchers', [
+            'vouchers' => $vouchers,
+            'customer' => $customer,
+            'customerVouchers' => $customerVouchers,
+        ]);
+    }
+
+    public function discountMovieAll()
+    {
+        $customer = auth('customer')->user();
+        $today = Carbon::today();
+
+        $events = Event::whereDate('start_date', '<=', $today)
+                       ->whereDate('end_date', '>=', $today)
+                       ->get();
+
+        $discountMovies = $events->map(function ($event) {
+            return $event->movies->map(function ($movie) use ($event) {
+                return [
+                    'id' => $movie->id,
+                    'name' => $movie->name,
+                    'price' => $movie->price,
+                    'start_date' => $movie->start_date,
+                    'end_date' => $movie->end_date,
+                    'image_url' => $movie->images()->first()->url ?? asset('default.jpg'),
+                    'discount_percentage' => $event->discount_percentage,
+                    'discounted_price' => $movie->price - ($movie->price * ($event->discount_percentage / 100)),
+                ];
+            });
+        })->flatten(1);
+        return view('today.discount_movies', [
+            'discountMovies' => $discountMovies,
+            'customer' => $customer
+        ]);
+    }
+
+    public function eventNowAll()
+    {
+        $customer = auth('customer')->user();
+        $today = Carbon::today();
+
+        $events = Event::whereDate('start_date', '<=', $today)
+                       ->whereDate('end_date', '>=', $today)
+                       ->get();
+
+        return view('today.events', [
+            'events' => $events,
+            'customer' => $customer
         ]);
     }
 }

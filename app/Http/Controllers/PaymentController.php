@@ -142,7 +142,7 @@ class PaymentController extends Controller
             $showtime = Showtime::findOrFail($showtimeId);
             $movie = Movie::select('name')->find($movie_id);
             $seats = Seat::with('auditorium')->find($seatId);
-            $voucher = Voucher::select('value', 'type', 'description')->find($voucherId);
+            $voucher = Voucher::select('value', 'type')->find($voucherId);
 
             $orders = Order::create([
                 'customer_id' => $customer->id,
@@ -153,7 +153,7 @@ class PaymentController extends Controller
                 'auditorium' => $seats->auditorium->name,
                 'quantity' => count($selectedSeats),
                 'ticket_ids' => $tikets->pluck('id')->implode(','),
-                'voucher' => $voucher->description,
+                'voucher' => $voucher->value ? $voucher->value . ($voucher->type === 'percent' ? '%' : 'VND') : null,
                 'total' => $amount,
             ]);
             $orders->save();
