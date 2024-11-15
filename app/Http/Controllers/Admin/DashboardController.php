@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     public function index() {
-        $dashboards = Dashboard::paginate(10);
+        $dashboards = Dashboard::all();
         return view('admin.dashboards.index',compact('dashboards'));
     }
 }

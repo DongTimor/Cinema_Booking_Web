@@ -2,63 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Customer\CollectionController;
 use App\Mail\Booking;
-use App\Models\Movie;
 use App\Models\Order;
 use App\Models\Point;
-use App\Models\Seat;
-use App\Models\Showtime;
+use App\Models\Schedule;
 use App\Models\Ticket;
-use App\Models\Voucher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
+    function execPostRequest($url, $data)
+    {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt(
+            $ch,
+            CURLOPT_HTTPHEADER,
+            array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data)
+            )
+        );
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
+    }
+
     public function momo_payment(Request $request)
     {
-        function execPostRequest($url, $data)
-        {
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt(
-                $ch,
-                CURLOPT_HTTPHEADER,
-                array(
-                    'Content-Type: application/json',
-                    'Content-Length: ' . strlen($data)
-                )
-            );
-            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-            $result = curl_exec($ch);
-            curl_close($ch);
-            return $result;
-        }
-
         $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-
         $partnerCode = 'MOMOBKUN20180529';
         $accessKey = 'klm05TvNBzhg7h7j';
         $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
         $orderInfo = "Thanh toán qua MoMo";
-        $amount = $request->input('total_amount');
-        $customer_id = $request->input('customer_id');
-        $selected_seats = $request->input('selected_seats');
-        $schedule_id = $request->input('schedule_id');
-        $showtime_id = $request->input('showtime_id');
-        $voucherCode = $request->input('voucher_code');
-        $movie_id = $request->input('movie_id');
-        session()->flash('customer_id', $customer_id);
-        session()->flash('selected_seats', $selected_seats);
-        session()->flash('schedule_id', $schedule_id);
-        session()->flash('showtime_id', $showtime_id);
-        session()->flash('voucher_code', $voucherCode);
-        session()->flash('movie_id', $movie_id);
+        $orderData = base64_decode($request->input('order_data'));
+        $jsonData = json_decode($orderData, true);
+        $amount = $jsonData['totalPrice'];
+        session()->flash('orderData', $orderData);
         $orderId = time() . "";
         $redirectUrl = "http://localhost/momopayment/paymentsuccess";
         $ipnUrl = "http://localhost";
@@ -86,100 +71,114 @@ class PaymentController extends Controller
             'signature' => $signature
         );
 
-        $result = execPostRequest($endpoint, json_encode($data));
+        $result = $this->execPostRequest($endpoint, json_encode($data));
         $jsonResult = json_decode($result, true);
         return redirect()->to($jsonResult['payUrl']);
     }
 
     public function handleMoMoReturn(Request $request)
     {
-        $allData = $request->all();
+        $data = $request->all();
         $customer = auth('customer')->user();
-        $voucherCode = session('voucher_code');
-        if (isset($allData['resultCode']) && $allData['resultCode'] == 0) {
-            $amount = $allData['amount'];
+        if (isset($data['resultCode']) && $data['resultCode'] == 0) {
+            $orderData = session('orderData');
+            $jsonData = json_decode($orderData, true);
+            $schedule = Schedule::with('showtimes')
+                ->where('movie_id', $jsonData['movieId'])
+                ->whereDate('date', $jsonData['date'])
+                ->first();
+            $amount = $data['amount'];
             $points = intval($amount / 1000);
-            $customer = auth('customer')->user();
-            $point = Point::firstOrCreate(
-                ['customer_id' => $customer->id],
-                ['total_points' => 0, 'points_earned' => 0, 'points_redeemed' => 0, 'ranking_level' => 'Bronze']
-            );
-            $point->total_points += $points;
-            $point->points_earned += $points;
-            $point->date_expire = now()->addMinute(5);
-            $point->last_updated = now();
-            $point->save();
-            $selectedSeats = session('selected_seats');
-            $scheduleId = session('schedule_id');
-            $showtimeId = session('showtime_id');
-            $movie_id = session('movie_id');
-            $voucherId = $voucherCode ? Voucher::where('code', $voucherCode)->first()->id : null;
-            $selectedSeats = explode(',', $selectedSeats);
-                foreach ($selectedSeats as $seatId) {
-                    Ticket::create([
-                        'seat_id' => $seatId,
-                        'customer_id' => $customer->id,
-                        'price' => $amount / count($selectedSeats),
-                        'schedule_id' => $scheduleId,
-                        'showtime_id' => $showtimeId,
-                        'voucher_id' => $voucherId,
-                        'status' => 'ordered',
-                        'movie_id' => $movie_id,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
-                }
-            if ($voucherCode) {
-                $voucher = Voucher::where('code', $voucherCode)->first();
-                DB::table('customer_voucher')
-                ->where('customer_id', $customer['id'])
-                ->where('voucher_id', $voucher->id)
-                ->update(['status' => '1']);
-            }
-            $tikets = Ticket::where('customer_id', $customer->id)
-            ->where('created_at', '=', now())
-            ->get();
-            $showtime = Showtime::findOrFail($showtimeId);
-            $movie = Movie::select('name')->find($movie_id);
-            $seats = Seat::with('auditorium')->find($seatId);
-            $voucher = Voucher::select('value', 'type', 'description')->find($voucherId);
+            $this->handlePoints($customer, $points);
+            $ticketIds = [];
 
-            $orders = Order::create([
+            foreach ($jsonData['seatIds'] as $seatId) {
+                $ticket = Ticket::create([
+                    'seat_id' => $seatId,
+                    'customer_id' => $customer->id,
+                    'price' => $jsonData['totalPrice'],
+                    'schedule_id' => $schedule->id,
+                    'showtime_id' => $jsonData['showtimeId'],
+                    'voucher_id' => $jsonData['voucherId'],
+                    'status' => 'ordered',
+                    'movie_id' => $jsonData['movieId'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                $ticketIds[] = $ticket->id;
+            }
+
+            if ($jsonData['voucherId']) {
+                $customer->vouchers()->updateExistingPivot($jsonData['voucherId'], ['status' => 1]);
+            }
+
+            Order::create([
                 'customer_id' => $customer->id,
-                'movie' => $movie->name,
-                'start_time' => $showtime->start_time,
-                'end_time' => $showtime->end_time,
-                'price' => $amount /(1-$voucher->value/100),
-                'auditorium' => $seats->auditorium->name,
-                'quantity' => count($selectedSeats),
-                'ticket_ids' => $tikets->pluck('id')->implode(','),
-                'voucher' => $voucher->description,
+                'movie' => $jsonData['movieName'],
+                'start_time' => $jsonData['startTime'],
+                'end_time' => $jsonData['endTime'],
+                'price' => $jsonData['defaultPrice'],
+                'auditorium' => $schedule->auditorium->name,
+                'quantity' => count($jsonData['seatIds']),
+                'ticket_ids' => implode(',', $ticketIds),
+                'voucher' => $jsonData['discount'],
                 'total' => $amount,
             ]);
-            $orders->save();
-            app(CollectionController::class)->checkAndUpdatePoints();
             Mail::to($customer->email)->send(new Booking());
-            return redirect(route('home'));
+            return redirect()->route('home')->with('success', 'Thanh toán thành công!');
         } else {
             return response()->json([
                 'message' => 'Thanh toán thất bại',
-                'data' => $allData
+                'data' => $data
             ]);
         }
     }
 
     public function handleMoMoIPN(Request $request)
     {
-        $allData = $request->all();
-        if (isset($allData['resultCode']) && $allData['resultCode'] == 0) {
+        $data = $request->all();
+        if (isset($data['resultCode']) && $data['resultCode'] == 0) {
             return response()->json([
                 'message' => 'IPN nhận thành công',
-                'data' => $allData
+                'data' => $data
             ]);
         } else {
             return response()->json([
                 'message' => 'IPN thất bại',
-                'data' => $allData
+                'data' => $data
+            ]);
+        }
+    }
+
+    public function handlePoints($customer, $points)
+    {
+        $customerPoint = $customer->point;
+
+        if ($customerPoint) {
+            $customerPoint->increment('total_points', $points);
+            $customerPoint->increment('points_earned', $points);
+            $customerPoint->update([
+                'date_expire' => now()->addDay(),
+                'last_updated' => now(),
+            ]);
+
+            if ($customerPoint->total_points > 200) {
+                $customerPoint->update([
+                    'ranking_level' => 'Gold',
+                ]);
+            } elseif ($customerPoint->total_points > 150) {
+                $customerPoint->update([
+                    'ranking_level' => 'Silver',
+                ]);
+            }
+        } else {
+            Point::create([
+                'customer_id' => $customer->id,
+                'total_points' => $points,
+                'points_earned' => $points,
+                'date_expire' => now()->addDay(),
+                'last_updated' => now(),
             ]);
         }
     }

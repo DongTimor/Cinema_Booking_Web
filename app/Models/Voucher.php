@@ -19,6 +19,7 @@ class Voucher extends Model
         'expires_at',
         'value',
         'type',
+        'points_required',
     ];
 
     public function users(): BelongsToMany
@@ -28,6 +29,6 @@ class Voucher extends Model
 
     public function customers(): BelongsToMany
     {
-        return $this->belongsToMany(Customer::class);
+        return $this->belongsToMany(Customer::class)->withPivot('status');
     }
 }

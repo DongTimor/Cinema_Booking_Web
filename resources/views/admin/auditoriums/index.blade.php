@@ -1,53 +1,53 @@
 @extends('layouts.admin')
+
 @section('content')
-    <div class="flex flex-col">
-        <div class="flex justify-end mt-10">
-            <a href="{{ route('auditoriums.create') }}">
-                <div
-                    class="w-14 h-14 rounded-full group hover:text-white hover:font-bold bg-[#78838f] flex items-center justify-center p-3 ease-in duration-300 cursor-pointer">
-                    <h1 class="group-hover:text-[50px]">+</h1>
-                </div>
-            </a>
-        </div>
-        <table class="shadow-2xl border-2 border-cyan-200 w-full mt-2">
-            <thead class="text-center">
-                <tr>
-                    <th class="py-3 bg-[#5b8fc4] border-2 ">S.No</th>
-                    <th class="py-3 bg-[#5b8fc4] border-2">Name</th>
-                    <th class="py-3 bg-[#5b8fc4] border-2">Seat</th>
-                    <th class="py-3 bg-[#5b8fc4] border-2">Status</th>
-                    <th class="py-3 bg-[#5b8fc4] border-2">Action</th>
-                </tr>
-            </thead>
-            <tbody class="text-center">
-                @foreach ($auditoriums as $auditorium)
-                    <tr class="cursor-pointer">
-                        <td class="px-6">{{ $auditorium->id }}</td>
-                        <td class="px-6">{{ $auditorium->name }}</td>
-                        <td class="px-6">0/{{ $auditorium->total }}</td>
-                        <td>
-                            <div class="flex gap-3 justify-center items-center">
-                                <div class="w-[10px] h-[10px] rounded-full bg-yellow-500"></div>
-                                <p class="mt-3">Maintaince</p>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="flex items-center justify-center gap-3">
-                                <a href="{{ route('auditoriums.edit', $auditorium->id) }}"
-                                    class="no-underline font-bold">Edit</a>
-                                <form action="{{ route('auditoriums.destroy', $auditorium->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-400 hover:text-red-600 font-bold mt-3">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <div class="mt-10">
-            {{ $auditoriums->links() }}
-        </div>
-    </div>
+    <h3>Auditoriums</h3>
+
+    <!-- Create Button -->
+    <x-adminlte-button label="Create Auditorium" icon="fas fa-plus" theme="success" class="mb-4"
+        onclick="window.location.href='{{ route('auditoriums.create') }}'" />
+
+    <!-- Auditorium Table -->
+    @php
+        $heads = [
+            'S.No',
+            'Name',
+            'Seats',
+            'Status',
+            ['label' => 'Actions', 'no-export' => true, 'width' => 10]
+        ];
+        
+        $config = [
+            'order' => [[0, 'asc']],
+            'columns' => [null, null, null, null, ['orderable' => false]],
+        ];
+    @endphp
+
+    <x-adminlte-datatable id="auditoriumTable" :heads="$heads" head-theme="dark" :config="$config" striped hoverable bordered compressed>
+        @foreach ($auditoriums as $auditorium)
+            <tr>
+                <td>{{ $auditorium->id }}</td>
+                <td>{{ $auditorium->name }}</td>
+                <td>0/{{ $auditorium->total }}</td>
+                <td>
+                    <div class="d-flex align-items-center justify-content-center">
+                        <span class="badge bg-warning">Maintenance</span>
+                    </div>
+                </td>
+                <td class="flex items-center justify-center">
+                    <nobr>
+                        <x-adminlte-button theme="primary" icon="fas fa-edit" 
+                            onclick="window.location.href='{{ route('auditoriums.edit', $auditorium->id) }}'" class="btn-xs mx-1" />
+                        
+                        <form action="{{ route('auditoriums.destroy', $auditorium->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <x-adminlte-button type="submit" theme="danger" icon="fas fa-trash" 
+                                class="btn-xs mx-1" />
+                        </form>
+                    </nobr>
+                </td>
+            </tr>
+        @endforeach
+    </x-adminlte-datatable>
 @endsection
