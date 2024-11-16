@@ -49,7 +49,21 @@ class MovieController extends Controller
             ->where('movie_id', $movieId)
             ->whereDate('date', $date)
             ->get();
-        $showtimes = $schedules->pluck('showtimes')->flatten()->sortBy('start_time');
+        
+        $showtimes = $schedules->pluck('showtimes')->flatten()->unique('id')->sortBy('start_time');
+        foreach ($showtimes as $showtime) {
+            $showtime_schedules = $schedules->filter(function($schedule) use ($showtime) {
+                return $schedule->showtimes->contains('id', $showtime->id);
+            });
+            $totalOrderedSeats = Ticket::where('movie_id', $movieId)
+                ->where('showtime_id', $showtime->id)
+                ->whereIn('schedule_id', $showtime_schedules->pluck('id'))
+                ->count();
+            $totalSeats = Seat::whereIn('auditorium_id', $showtime_schedules->pluck('auditorium_id'))->count();
+            $showtime->is_full = $totalOrderedSeats == $totalSeats;
+            $showtimeDateTime = Carbon::parse($showtime_schedules->first()->date . ' ' . $showtime->start_time);
+            $showtime->is_past = $showtimeDateTime->isPast();
+        }
         return view('home.movies.showtimes', compact('showtimes', 'date', 'movieId'));
     }
 
@@ -59,19 +73,36 @@ class MovieController extends Controller
         $movieId = $request->input('movie_id');
         $showtimeId = $request->input('showtime_id');
         $price = $request->input('price');
-        $schedule = Schedule::with('showtimes')
+        $schedules = Schedule::with('showtimes')
             ->whereDate('date', $date)
             ->where('movie_id', $movieId)
             ->whereRelation('showtimes', 'showtime_id', $showtimeId)
-            ->first();
-        $auditoriumId = $schedule->auditorium_id;
-        $seats = Seat::where('auditorium_id', $auditoriumId)->get();
-        $rows = $seats->groupBy('row')->count();
-        $orderedSeats = Ticket::where('movie_id', $movieId)
-            ->where('schedule_id', $schedule->id)
-            ->where('showtime_id', $showtimeId)
-            ->pluck('seat_id')
-            ->toArray();
-        return view('home.movies.seats', compact('seats', 'rows', 'orderedSeats'));
+            ->get();
+
+        $auditorium = null;
+        foreach ($schedules as $schedule) {
+            $auditoriumId = $schedule->auditorium_id;
+            $seats = Seat::where('auditorium_id', $auditoriumId)->get();
+            $rows = $seats->groupBy('row')->count();
+            $orderedSeats = Ticket::where('movie_id', $movieId)
+                ->where('auditorium_id', $auditoriumId)
+                ->where('schedule_id', $schedule->id)
+                ->where('showtime_id', $showtimeId)
+                ->pluck('seat_id')
+                ->toArray();
+            if (count($orderedSeats) < $seats->count()) {
+                $auditorium = [
+                    'seats' => $seats,
+                    'rows' => $rows,
+                    'orderedSeats' => $orderedSeats,
+                    'auditoriumId' => $auditoriumId,
+                ];
+                break;
+            }
+        }
+        if (is_null($auditorium)) {
+            return back()->with('error', 'Currently, there are no available seats for this showtime. Please try again later or choose another showtime!');
+        }
+        return view('home.movies.seats', compact('auditorium'));
     }
 }

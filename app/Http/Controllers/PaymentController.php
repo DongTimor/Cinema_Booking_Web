@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\Booking;
+use App\Models\Auditorium;
 use App\Models\Order;
 use App\Models\Point;
 use App\Models\Schedule;
@@ -83,7 +84,9 @@ class PaymentController extends Controller
         if (isset($data['resultCode']) && $data['resultCode'] == 0) {
             $orderData = session('orderData');
             $jsonData = json_decode($orderData, true);
+            $auditorium = Auditorium::find($jsonData['auditorium_id']);
             $schedule = Schedule::with('showtimes')
+                ->where('auditorium_id', $auditorium->id)
                 ->where('movie_id', $jsonData['movieId'])
                 ->whereDate('date', $jsonData['date'])
                 ->first();
@@ -99,7 +102,8 @@ class PaymentController extends Controller
                     'price' => $jsonData['totalPrice'],
                     'schedule_id' => $schedule->id,
                     'showtime_id' => $jsonData['showtimeId'],
-                    'voucher_id' => $jsonData['voucherId'],
+                    'voucher_id' => $jsonData['voucherId'] ?? null,
+                    'auditorium_id' => $auditorium->id,
                     'status' => 'ordered',
                     'movie_id' => $jsonData['movieId'],
                     'created_at' => now(),
@@ -109,7 +113,7 @@ class PaymentController extends Controller
                 $ticketIds[] = $ticket->id;
             }
 
-            if ($jsonData['voucherId']) {
+            if (isset($jsonData['voucherId']) && $jsonData['voucherId']) {
                 $customer->vouchers()->updateExistingPivot($jsonData['voucherId'], ['status' => 1]);
             }
 
@@ -119,10 +123,10 @@ class PaymentController extends Controller
                 'start_time' => $jsonData['startTime'],
                 'end_time' => $jsonData['endTime'],
                 'price' => $jsonData['defaultPrice'],
-                'auditorium' => $schedule->auditorium->name,
+                'auditorium' => $auditorium->name,
                 'quantity' => count($jsonData['seatIds']),
                 'ticket_ids' => implode(',', $ticketIds),
-                'voucher' => $jsonData['discount'],
+                'voucher' => $jsonData['discount'] ?? 0,
                 'total' => $amount,
             ]);
             Mail::to($customer->email)->send(new Booking());

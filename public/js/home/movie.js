@@ -7,6 +7,12 @@ async function fetchShowtimes(date, movieId) {
     $("#showtimes-container").html(showtimes);
 }
 
+$(document).ready(function() {
+    const date = $(".date-item.bg-blue-600").attr("date") || $(".date-item").first().attr("date");
+    const movieId = $("#movie-id").val();
+    fetchShowtimes(date, movieId);
+});
+
 $(document).on("click", ".date-item", function () {
     const date = $(this).attr("date");
     const movieId = $(".movie").attr("id");
@@ -97,7 +103,9 @@ async function handleTotalPrice() {
     }
     const date = $(".date-item.bg-blue-600").attr("date");
     const totalPrice = defaultPrice - discount;
+    const auditorium_id = $("#auditorium-id").attr("data-id")
     const data = {
+        auditorium_id,
         movieId,
         movieName,
         defaultPrice,

@@ -32,6 +32,11 @@ class Auditorium extends Model
         return $this->hasMany(Schedule::class);
     }
 
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     protected static function boot()
     {
         parent::boot();
