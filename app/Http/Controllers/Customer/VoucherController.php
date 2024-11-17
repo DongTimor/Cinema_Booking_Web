@@ -15,6 +15,7 @@ class VoucherController extends Controller
         $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id');
         $vouchers = Voucher::whereDate('expires_at', '>=', today())
             ->where('quantity', '>', 0)
+            ->where('points_required', '=', '0')
             ->get();
         return view('customer.voucher', compact('customer', 'customerVouchers', 'vouchers'));
     }
@@ -51,6 +52,6 @@ class VoucherController extends Controller
             $voucher->customers()->attach($customer->id);
         });
 
-        return redirect()->route('vouchers')->with('success', 'Points exchanged successfully!');
+        return redirect()->route('collection')->with('success', 'Points exchanged successfully!');
     }
 }
