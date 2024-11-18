@@ -36,36 +36,17 @@ class MovieController extends Controller
             ->sortBy('value');
         $movie = Movie::findOrFail($id);
         $dates = collect(range(0, 6))->map(fn(int $day) => today()->addDays($day));
-        $schedules = Schedule::with('showtimes')
-            ->where('movie_id', $id)
-            ->whereDate('date', today())
-            ->get();
-        $showtimes = $schedules->pluck('showtimes')
-            ->flatten()
-            ->where('start_time', '>=', now()->format('H:i'))
-            ->unique('id')
-            ->sortBy('start_time');
-        $auditoriumIds = $schedules->pluck('auditorium_id')->toArray();
-        $orderedCount = Seat::whereIn('auditorium_id', $auditoriumIds)->count();
-        return view('home.movies.detail', compact('movie', 'vouchers', 'showtimes', 'dates', 'customer', 'orderedCount'));
+        $showtimes = $this->handleShowtimes($id, today());
+
+        return view('home.movies.detail', compact('movie', 'vouchers', 'showtimes', 'dates', 'customer'));
     }
 
     public function getShowtimes(Request $request)
     {
         $date = $request->input('date');
-        $movieId = $request->input('movie_id');
-        $schedules = Schedule::with('showtimes')
-            ->where('movie_id', $movieId)
-            ->whereDate('date', $date)
-            ->get();
-        $showtimes = $schedules->pluck('showtimes')
-            ->flatten()
-            ->where('start_time', '>=', now()->format('H:i'))
-            ->unique('id')
-            ->sortBy('start_time');
-        $auditoriumIds = $schedules->pluck('auditorium_id')->toArray();
-        $orderedCount = Seat::whereIn('auditorium_id', $auditoriumIds)->count();
-        return view('home.movies.showtimes', compact('showtimes', 'date', 'movieId', 'orderedCount'));
+        $movie_id = $request->input('movie_id');
+        $showtimes = $this->handleShowtimes($movie_id, $date);
+        return view('home.movies.showtimes', compact('showtimes', 'date', 'movie_id'));
     }
 
     public function getSeats(Request $request)
@@ -98,5 +79,45 @@ class MovieController extends Controller
                 return view('home.movies.seats', compact('seats', 'rows', 'orderedSeats', 'schedule_id', 'auditorium_id', 'auditorium_name'));
             }
         }
+    }
+
+    public function handleShowtimes($movie_id, $date)
+    {
+        $schedules = Schedule::with('showtimes')
+            ->where('movie_id', $movie_id)
+            ->whereDate('date', $date)
+            ->get();
+        $showtimes = $schedules->flatMap(fn($schedule) => $schedule->showtimes)
+            ->where('start_time', '>=', now()->format('H:i'))
+            ->unique('id')
+            ->sortBy('start_time');
+
+        $scheduleIds = $schedules->pluck('id');
+        $auditoriumIds = $schedules->pluck('auditorium_id');
+
+        $tickets = Ticket::where('movie_id', $movie_id)
+            ->whereIn('auditorium_id', $auditoriumIds)
+            ->whereIn('schedule_id', $scheduleIds)
+            ->get()
+            ->groupBy('showtime_id')
+            ->map(fn($group) => $group->count());
+
+        $seats = Seat::whereIn('auditorium_id', $auditoriumIds)
+            ->get()
+            ->groupBy('auditorium_id')
+            ->map(fn($group) => $group->count());
+
+        $showtimes = $showtimes->map(function ($showtime) use ($tickets, $seats) {
+            $auditoriumIds = $showtime->schedules->pluck('auditorium_id');
+            $orderedCount = $tickets->get($showtime->id, 0);
+            $seats = $auditoriumIds->reduce(fn($carry, $auditoriumId) => $carry + $seats->get($auditoriumId, 0), 0);
+
+            $showtime->count = $orderedCount;
+            $showtime->seats = $seats;
+
+            return $showtime;
+        });
+
+        return $showtimes;
     }
 }
