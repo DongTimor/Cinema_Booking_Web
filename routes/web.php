@@ -45,13 +45,13 @@ Auth::routes();
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/momo-payment', [PaymentController::class, 'momo_payment'])->name('momo-payment');
-Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
+Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn'])->name('payment.success');
 Route::get('/showtimes', [HomeMovieController::class, 'getShowtimes']);
 Route::get('/seats', [HomeMovieController::class, 'getSeats']);
 Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
 Route::get('/movie',[HomeMovieController::class,'index'])->name('movies');
 Route::middleware('auth.jwt')->group(function () {
-    Route::get('/booking/{id}', [HomeMovieController::class, 'detail'])->name('detail');
+    Route::get('/booking/{id}', [HomeMovieController::class, 'detail'])->name('movies.detail');
     Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');
     Route::post('/vouchers', [CustomerVoucherController::class, 'saveVoucher'])->name('vouchers.save');
 });

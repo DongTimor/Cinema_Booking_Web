@@ -1,4 +1,7 @@
 let count = 0;
+let scheduleId;
+let auditoriumId; 
+let auditoriumName;
 const price = $(".movie").attr("price");
 
 async function fetchShowtimes(date, movieId) {
@@ -6,12 +9,6 @@ async function fetchShowtimes(date, movieId) {
     const showtimes = await response.text();
     $("#showtimes-container").html(showtimes);
 }
-
-$(document).ready(function() {
-    const date = $(".date-item.bg-blue-600").attr("date") || $(".date-item").first().attr("date");
-    const movieId = $("#movie-id").val();
-    fetchShowtimes(date, movieId);
-});
 
 $(document).on("click", ".date-item", function () {
     const date = $(this).attr("date");
@@ -86,6 +83,14 @@ function applyVoucher(id, type, value) {
     );
 }
 
+function bookSeats(schedule_id, auditorium_id, auditorium_name) {
+    $(".discount").text("");
+    $("#invoice-field").removeClass("hidden");
+    scheduleId = schedule_id;
+    auditoriumId = auditorium_id;
+    auditoriumName = auditorium_name;
+}
+
 async function handleTotalPrice() {
     let discount = 0;
     const movieId = $(".movie").attr("id");
@@ -103,9 +108,7 @@ async function handleTotalPrice() {
     }
     const date = $(".date-item.bg-blue-600").attr("date");
     const totalPrice = defaultPrice - discount;
-    const auditorium_id = $("#auditorium-id").attr("data-id")
     const data = {
-        auditorium_id,
         movieId,
         movieName,
         defaultPrice,
@@ -117,11 +120,10 @@ async function handleTotalPrice() {
         date,
         startTime,
         endTime,
+        scheduleId,
+        auditoriumId,
+        auditoriumName,
     };
     const encodedData = btoa(JSON.stringify(data));
     document.getElementById("order-data").value = encodedData;
-}
-
-function bookSeats() {
-    $("#invoice-field").removeClass("hidden");
 }

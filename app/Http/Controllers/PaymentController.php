@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Mail\Booking;
-use App\Models\Auditorium;
 use App\Models\Order;
 use App\Models\Point;
-use App\Models\Schedule;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -84,13 +82,7 @@ class PaymentController extends Controller
         if (isset($data['resultCode']) && $data['resultCode'] == 0) {
             $orderData = session('orderData');
             $jsonData = json_decode($orderData, true);
-            $auditorium = Auditorium::find($jsonData['auditorium_id']);
-            $schedule = Schedule::with('showtimes')
-                ->where('auditorium_id', $auditorium->id)
-                ->where('movie_id', $jsonData['movieId'])
-                ->whereDate('date', $jsonData['date'])
-                ->first();
-            $amount = $data['amount'];
+            $amount = $jsonData['totalPrice'];
             $points = intval($amount / 1000);
             $this->handlePoints($customer, $points);
             $ticketIds = [];
@@ -100,10 +92,10 @@ class PaymentController extends Controller
                     'seat_id' => $seatId,
                     'customer_id' => $customer->id,
                     'price' => $jsonData['totalPrice'],
-                    'schedule_id' => $schedule->id,
+                    'schedule_id' => $jsonData['scheduleId'],
                     'showtime_id' => $jsonData['showtimeId'],
+                    'auditorium_id' => $jsonData['auditoriumId'],
                     'voucher_id' => $jsonData['voucherId'] ?? null,
-                    'auditorium_id' => $auditorium->id,
                     'status' => 'ordered',
                     'movie_id' => $jsonData['movieId'],
                     'created_at' => now(),
@@ -113,7 +105,7 @@ class PaymentController extends Controller
                 $ticketIds[] = $ticket->id;
             }
 
-            if (isset($jsonData['voucherId']) && $jsonData['voucherId']) {
+            if (isset($jsonData['voucherId'])) {
                 $customer->vouchers()->updateExistingPivot($jsonData['voucherId'], ['status' => 1]);
             }
 
@@ -123,7 +115,7 @@ class PaymentController extends Controller
                 'start_time' => $jsonData['startTime'],
                 'end_time' => $jsonData['endTime'],
                 'price' => $jsonData['defaultPrice'],
-                'auditorium' => $auditorium->name,
+                'auditorium' => $jsonData['auditoriumName'],
                 'quantity' => count($jsonData['seatIds']),
                 'ticket_ids' => implode(',', $ticketIds),
                 'voucher' => $jsonData['discount'] ?? 0,
@@ -163,7 +155,7 @@ class PaymentController extends Controller
             $customerPoint->increment('total_points', $points);
             $customerPoint->increment('points_earned', $points);
             $customerPoint->update([
-                'date_expire' => now()->addDay(),
+                'date_expire' => now()->addMonth(),
                 'last_updated' => now(),
             ]);
 
@@ -181,7 +173,7 @@ class PaymentController extends Controller
                 'customer_id' => $customer->id,
                 'total_points' => $points,
                 'points_earned' => $points,
-                'date_expire' => now()->addDay(),
+                'date_expire' => now()->addMonth(),
                 'last_updated' => now(),
             ]);
         }
