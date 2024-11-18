@@ -107,8 +107,7 @@ class MovieController extends Controller
             ->groupBy('auditorium_id')
             ->map(fn($group) => $group->count());
 
-        $showtimes = $showtimes->map(function ($showtime) use ($tickets, $seats) {
-            $auditoriumIds = $showtime->schedules->pluck('auditorium_id');
+        $showtimes = $showtimes->map(function ($showtime) use ($tickets, $seats, $auditoriumIds) {
             $orderedCount = $tickets->get($showtime->id, 0);
             $seats = $auditoriumIds->reduce(fn($carry, $auditoriumId) => $carry + $seats->get($auditoriumId, 0), 0);
 
