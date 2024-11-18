@@ -62,15 +62,6 @@
                 <div class="mt-2">
                     <p>2D Phụ Đề</p>
                     <div class="mt-2 grid grid-cols-6 gap-4" id="showtimes-container">
-                        @foreach ($showtimes as $showtime)
-                            <button type="button"
-                                onclick="fetchSeats('{{ $today }}',{{ $movie->id }},{{ $showtime->id }}, this)"
-                                class="showtime-btn rounded border border-gray-300 px-2 py-2 hover:bg-gray-300"
-                                id="{{ $showtime->id }}" start-time="{{ $showtime->start_time }}"
-                                end-time="{{ $showtime->end_time }}" data-bs-toggle="modal" data-bs-target="#seats-modal">
-                                {{ \Carbon\Carbon::parse($showtime->start_time)->format("H:i") }}
-                            </button>
-                        @endforeach
                     </div>
                 </div>
             </div>
