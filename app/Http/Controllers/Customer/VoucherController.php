@@ -15,7 +15,7 @@ class VoucherController extends Controller
         $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id');
         $vouchers = Voucher::whereDate('expires_at', '>=', today())
             ->where('quantity', '>', 0)
-            ->where('points_required', '=', '0')
+            ->where('points_required', 0)
             ->get();
         return view('customer.voucher', compact('customer', 'customerVouchers', 'vouchers'));
     }
@@ -33,6 +33,18 @@ class VoucherController extends Controller
         return redirect()->route('vouchers')->with('success', 'Voucher saved successfully!');
     }
 
+    public function exchangeVoucher()
+    {
+        $customer = auth('customer')->user();
+        $customerPoint = $customer->point;
+        $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id')->toArray();
+        $vouchers = Voucher::whereDate('expires_at', '>=', today())
+            ->where('quantity', '>', 0)
+            ->where('points_required', '>', 0)
+            ->orderBy('points_required', 'desc')
+            ->get();
+        return view('home.vouchers.exchange', compact('customer', 'customerPoint', 'customerVouchers', 'vouchers'));
+    }
 
     public function exchange(Request $request, $id)
     {
@@ -42,7 +54,7 @@ class VoucherController extends Controller
         $customerPoints = $customer->point;
 
         if ($customerPoints->points_earned < $points) {
-            return redirect()->route('vouchers')->with('error', 'You do not have enough points to redeem this voucher!');
+            return redirect()->route('home.vouchers.exchange')->with('warning', 'You don’t have enough points to exchange this voucher!');
         }
 
         DB::transaction(function () use ($voucher, $customer, $points, $customerPoints) {
@@ -52,6 +64,6 @@ class VoucherController extends Controller
             $voucher->customers()->attach($customer->id);
         });
 
-        return redirect()->route('collection')->with('success', 'Points exchanged successfully!');
+        return redirect()->route('home.vouchers.exchange')->with('success', 'The voucher was exchanged successfully!');
     }
 }

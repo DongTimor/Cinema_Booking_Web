@@ -12,10 +12,9 @@
                     </h1>
                 </div>
             @endif
-            <h2 class="text-2xl font-semibold mt-8 mb-4">Free to Get</h2>
             <div class="my-3 grid grid-cols-1 justify-center gap-20 md:grid-cols-2">
                 @foreach ($vouchers as $voucher)
-                    <form action="{{ route('vouchers.save', $voucher->id) }}" method="POST">
+                    <form action="{{ route('customer.vouchers.save', $voucher->id) }}" method="POST">
                         @csrf
                         <input type="hidden" name="voucher_id" value="{{ $voucher->id }}">
                         <div class="voucher-card my-2">
