@@ -51,7 +51,7 @@ Route::get('/collection', [CollectionController::class, 'index'])->name('collect
 Route::get('/', [HomeController::class, 'homepage'])->name('home');
 Route::get('/favorite-all', [HomeController::class, 'favoriteMovieAll'])->name('favorite');
 Route::get('/vouchers-now', [HomeController::class, 'voucherNowAll'])->name('vouchers-now');
-Route::get('/movies/discounted', [HomeController::class, 'discountMovieAll'])->name('movies');
+Route::get('/movies/discounted', [HomeController::class, 'discountMovieAll'])->name('discounted');
 Route::get('/events/now', [HomeController::class, 'eventNowAll'])->name('events');
 Route::get('/movie',[HomeMovieController::class,'index'])->name('movies');
 Route::middleware('auth.jwt')->group(function () {
@@ -61,7 +61,7 @@ Route::middleware('auth.jwt')->group(function () {
     Route::post('/vouchers/exchange/{id}', [CustomerVoucherController::class, 'exchange'])->name('vouchers.exchange');
 });
 // admin
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('auth.jwt')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/{id}', [ProfileController::class, 'update'])->name('profile.update');
     Route::prefix('roles')->group(function () {

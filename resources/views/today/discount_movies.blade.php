@@ -10,11 +10,16 @@
             @foreach ($discountMovies as $movie)
                 <div class="movie-card bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out">
                     <img src="{{ $movie['image_url'] }}" alt="{{ $movie['name'] }}" class="w-full h-48 object-cover rounded-md mb-4">
-                    <h3 class="font-semibold text-lg mb-2">{{ $movie['name'] }}</h3>
+                    <h3 class="font-semibold text-lg mb-2" title="{{ $movie['name'] }}">
+                        {{ \Illuminate\Support\Str::limit($movie['name'], 20, '...') }}
+                    </h3>
                     <p class="text-gray-700">Original Price: <span class="line-through text-red-500">{{ $movie['price'] }}</span></p>
                     <p class="text-gray-700">Discount: {{ $movie['discount_percentage'] }}%</p>
-                    <p class="text-gray-600">Valid from: {{ \Carbon\Carbon::parse($movie['start_date'])->format('d-m-Y') }} to {{ \Carbon\Carbon::parse($movie['end_date'])->format('d-m-Y') }}</p>
+                    <p class="text-gray-600">From: {{ \Carbon\Carbon::parse($movie['start_date'])->format('d-m-Y') }} to {{ \Carbon\Carbon::parse($movie['end_date'])->format('d-m-Y') }}</p>
                     <p class="text-xl font-semibold text-green-600">Discounted Price: {{ $movie['discounted_price'] }}VNĐ</p>
+                    <a href="{{ route('detail', ['id' => $movie['id']]) }}" class="mt-4 inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-center">
+                        See Now
+                    </a>
                 </div>
             @endforeach
         </div>

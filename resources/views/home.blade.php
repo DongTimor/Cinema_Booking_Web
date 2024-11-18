@@ -21,25 +21,20 @@
             </div>
         </div>
 
-        <div class="swiper-container mt-10">
+        <div class=" mt-10">
             <h1>Favorite Movies</h1>
-            <div class="swiper-wrapper">
+            <div class="card-slider-wrapper">
                 @foreach ($favoriteMovies as $movie)
-                    <div class="swiper-slide">
-                        <div class="card max-w-sm rounded overflow-hidden shadow-lg bg-white">
-                            <img src="{{ $movie->image_url }}" alt="{{ $movie->movie_name }}" class="w-full h-48 object-cover">
-                            <div class="px-6 py-4">
-                                <h3 class="font-bold text-xl mb-2">{{ $movie->movie_name }}</h3>
-                                <p class="text-gray-700 text-base">Số vé bán: {{ $movie->total_tickets }}</p>
-                            </div>
+                    <div class="card">
+                        <img src="{{ $movie->image_url }}" alt="{{ $movie->movie_name }}" class="card-image">
+                        <div class="card-content">
+                            <h3 class="card-title">{{ $movie->movie_name }}</h3>
+                            <p class="card-description">Số vé bán: {{ $movie->total_tickets }}</p>
                         </div>
                     </div>
                 @endforeach
             </div>
-            <button onclick="window.location.href='{{ route('favorite') }}'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">See More</button>
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
-            <div class="swiper-pagination"></div>
+            <button onclick="window.location.href='{{ route('favorite') }}'" class="see-more-btn">See More</button>
         </div>
 
         <div class="swiper-container mt-10">
@@ -80,7 +75,7 @@
                     @endforeach
                 @endforeach
             </div>
-            <button onclick="window.location.href='{{ route('movies') }}'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">See More</button>
+            <button onclick="window.location.href='{{ route('discounted') }}'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">See More</button>
             <div class="swiper-button-next"></div>
             <div class="swiper-button-prev"></div>
             <div class="swiper-pagination"></div>
@@ -108,7 +103,9 @@
         </div>
     </div>
 @endsection
-
+@section('styles')
+    <link rel="stylesheet" href="{{ asset('css/home/favorite_movie.css') }}">
+@endsection
 @section('scripts')
     <script src="{{ asset('js/home/swipe-banner.js') }}"></script>
     <script>

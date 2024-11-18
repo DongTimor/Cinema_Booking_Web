@@ -141,8 +141,8 @@ class HomeController extends Controller
     {
         $customer = auth('customer')->user();
         $favoriteMovies = Ticket::join('movies', 'tickets.movie_id', '=', 'movies.id')
-            ->select('movies.id as movie_id', 'movies.name as movie_name', DB::raw('count(tickets.id) as total_tickets'))
-            ->groupBy('movies.id', 'movies.name')
+            ->select('movies.id as movie_id', 'movies.name as movie_name', 'movies.price' , DB::raw('count(tickets.id) as total_tickets'))
+            ->groupBy('movies.id', 'movies.name', 'movies.price')
             ->orderBy('total_tickets', 'desc')
             ->take(20)
             ->get();
@@ -168,10 +168,10 @@ class HomeController extends Controller
 
                 $voucher->customers()->attach($customer->id, ['voucher_id' => $voucherId]);
 
-                return redirect()->route('vouchers')->with('success', 'Voucher saved successfully.');
+                return redirect()->route('vouchers-now')->with('success', 'Voucher saved successfully.');
             }
 
-            return redirect()->route('vouchers')->with('error', 'Voucher could not be saved.');
+            return redirect()->route('vouchers-now')->with('error', 'Voucher could not be saved.');
         }
 
         $vouchers = Voucher::whereDate('expires_at', '=', $today)->get();

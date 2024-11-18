@@ -15,9 +15,7 @@
         <th>Address</th>
         <th>Gender</th>
         <th>Day Of Birth</th>
-        <th>Email</th>
-        <th>Status</th>
-        <th>Action</th>
+        <th class="text-center">Action</th>
     </tr>
     @foreach ($customers as $item)
         <tr>
@@ -38,29 +36,21 @@
                 {{ $item->birth_date }}
             </td>
             <td>
-                {{ $item->email }}
-            </td>
-            <td>
-                {{ $item->status }}
-            </td>
-            <td>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        ...
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item" href="{{ route('customers.edit', $item->id) }}">Edit</a>
-                        </li>
-                        <li>
-                            <form action="{{ route('customers.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this role: {{ $item->name }}?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="dropdown-item">Delete</button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+                <ul class="d-flex justify-content-center mb-0">
+                    <li>
+                        <a class="btn btn-outline-primary mr-2" href="{{ route('customers.edit', $item->id) }}"
+                            role="button"><i class="fas fa-tools"></i> Edit</a>
+                    </li>
+                    <li>
+                        <form action="{{ route('customers.destroy', $item->id) }}" method="POST"
+                            onsubmit="return confirm('Are you sure you want to delete this voucher: {{ $item->name }}?');">
+                            @csrf
+                            @method("DELETE")
+                            <button type="submit" class="btn btn-outline-danger"><i class="far fa-trash-alt"></i>
+                                Delete</button>
+                        </form>
+                    </li>
+                </ul>
             </td>
         </tr>
     @endforeach

@@ -11,7 +11,7 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Action</th>
+            <th class="text-center">Action</th>
         </tr>
          @foreach ($permissions as $item)
             <tr>
@@ -22,23 +22,23 @@
                 <a class="dropdown-item" href="{{ route('permissions.show', $item->id) }}">{{ $item->name }}</a>
               </td>
               <td>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        ...
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('permissions.show', $item->id) }}">Edit</a></li>
-                        <li>
-                            <form action="{{ route('permissions.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this role: {{ $item->name }}?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="dropdown-item">Delete</button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
-              </td>
-            </tr>
+                <ul class="d-flex justify-content-center mb-0">
+                    <li>
+                        <a class="btn btn-outline-primary mr-2" href="{{ route('permissions.show', $item->id) }}"
+                            role="button"><i class="fas fa-tools"></i> Edit</a>
+                    </li>
+                    <li>
+                        <form action="{{ route('permissions.destroy', $item->id) }}" method="POST"
+                            onsubmit="return confirm('Are you sure you want to delete this voucher: {{ $item->name }}?');">
+                            @csrf
+                            @method("DELETE")
+                            <button type="submit" class="btn btn-outline-danger"><i class="far fa-trash-alt"></i>
+                                Delete</button>
+                        </form>
+                    </li>
+                </ul>
+            </td>
+        </tr>
         @endforeach
     </table>
 @endsection

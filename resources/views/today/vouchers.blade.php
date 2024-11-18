@@ -6,44 +6,50 @@
     @if ($vouchers->isEmpty())
         <p class="text-center mt-4">No vouchers are valid at this time.</p>
     @else
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mx-2 mt-4">
-            @foreach ($vouchers as $voucher)
-            <form action="{{ route('vouchers.save') }}" method="POST" class="mx-2 container">
-                @csrf
-                <input type="hidden" name="voucher_id" value="{{ $voucher->id }}">
-                <div
-                    class="max-w-sm rounded overflow-hidden shadow-lg bg-gradient-to-r from-blue-400 to-blue-600 my-4 relative ticket-style">
-                    <div class="px-6 py-4">
-                        <div class="font-bold text-2xl mb-2 font-mono text-center"
-                            style="color: {{ $voucher->value >= 50 ? 'red' : 'green' }}">
-                            {{ $voucher->description }}
+        <div class="">
+            <div class="mx-auto max-w-4xl mt-10">
+                <div>
+                    @if ($vouchers->isEmpty())
+                        <div class="flex flex-col items-center justify-center">
+                            <img src="https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif" class="w-50"
+                                alt="404">
+                            <h1 class="text-xl font-bold text-center mt-4">Run out of vouchers, wait for new voucher to update..
+                            </h1>
                         </div>
-                        <p class="ml-2 text-gray-100 text-lg font-bold uppercase">
-                            {{ $voucher->code }}
-                        </p>
-                    </div>
-                    <div class="px-6 pt-1 pb-2">
-                        <span
-                            class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Quantity:
-                            {{ $voucher->quantity }}</span>
-                        <span
-                            class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
-                            style="color: {{ $voucher->value >= 50 ? 'red' : 'green' }}">Discount:
-                            {{ $voucher->value }}%</span>
-                        <span
-                            class="inline-block bg-white rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">Expiry:
-                            {{ $voucher->expires_at }}</span>
-                    </div>
-                    @if ($customerVouchers->contains($voucher->id))
-                        <span class="px-4 py-2 rounded-md bg-gray-400 absolute right-2 bottom-3 font-bold">Saved</span>
-                    @elseif($voucher->quantity == 0)
-                        <span class="px-4 py-2 rounded-md bg-gray-400 absolute right-2 bottom-3 font-bold">Out of turn</span>
-                    @else
-                        <button type="submit" class="px-4 py-2 rounded-md bg-yellow-400 absolute right-2 bottom-3 font-bold">Save</button>
                     @endif
+                    <div class="my-3 grid grid-cols-1 justify-center gap-20 md:grid-cols-2">
+                        @foreach ($vouchers->where('points_required', 0) as $voucher)
+                            <form action="{{ route('vouchers.save', $voucher->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="voucher_id" value="{{ $voucher->id }}">
+                                <div class="voucher-card my-2">
+                                    <div class="voucher-title">{{ $voucher->description }}</div>
+                                    <div class="text-uppercase h3 text-white">{{ $voucher->code }}</div>
+                                    <div class="voucher-details flex flex-wrap gap-3">
+                                        <span class="voucher-badge">Quantity: {{ $voucher->quantity }}</span>
+                                        <span class="voucher-badge badge-discount">Discount:
+                                            {{ $voucher->type == 'percent' ? $voucher->value . '%' : number_format($voucher->value) . ' VND' }}</span>
+                                        <span class="voucher-badge">Expiry:
+                                            {{ \Carbon\Carbon::parse($voucher->expires_at)->format('d/m/Y') }}</span>
+                                    </div>
+                                    @if ($customerVouchers->contains($voucher->id))
+                                        <span
+                                            class="px-4 py-2 rounded-md bg-gray-400 absolute right-2 bottom-3 font-bold">Saved</span>
+                                    @elseif($voucher->quantity == 0)
+                                        <span class="px-4 py-2 rounded-md bg-gray-400 absolute right-2 bottom-3 font-bold">Out of turn</span>
+                                    @else
+                                        <button type="submit"
+                                            class="px-4 py-2 rounded-md bg-yellow-400 absolute right-2 bottom-3 font-bold hover:bg-yellow-500">Save</button>
+                                    @endif
+                                </div>
+                            </form>
+                        @endforeach
+                    </div>
                 </div>
-            </form>
-        @endforeach
+            </div>
         </div>
     @endif
+@endsection
+@section('styles')
+    <link rel="stylesheet" href="{{ asset('css/vouchers/collection.css') }}">
 @endsection

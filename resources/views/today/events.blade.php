@@ -6,7 +6,7 @@
     @if ($events->isEmpty())
         <p>No events are currently ongoing.</p>
     @else
-        <div class=" mt-4 container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="mt-4 container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach ($events as $event)
                 <div class="event-card bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out mx-2 mt-2">
                     <h3 class="font-semibold text-lg mb-2">{{ $event->title }}</h3>
