@@ -36,7 +36,6 @@ class TicketRequest extends FormRequest
             $rules['order_date'] = 'required|date';
             $rules['customer_email'] = 'required|email';
             $rules['movie'] = 'required|string';
-            $rules['date'] = 'required|string';
             $rules['auditorium'] = 'required|string';
             $rules['showtime'] = 'required|string';
             $rules['seats'] = 'required|array';

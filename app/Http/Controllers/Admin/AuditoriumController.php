@@ -118,9 +118,9 @@ class AuditoriumController extends Controller
         return response()->json($auditoriums);
     }
 
-    public function seats($auditorium) {
+    public function seats($auditorium, $orderedSeats) {
         $seats = Seat::with('tickets')->where('auditorium_id', $auditorium)->get();
         $rows = $seats->groupBy('row')->count();
-        return view('admin.tickets.seats', compact('seats', 'rows'));
+        return view('admin.tickets.seats', compact('seats', 'rows', 'orderedSeats'));
     }
 }

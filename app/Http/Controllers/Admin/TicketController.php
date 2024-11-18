@@ -15,6 +15,7 @@ use App\Models\Voucher;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -64,7 +65,6 @@ class TicketController extends Controller
                 ->where('auditorium_id', $request->auditorium_id)
                 ->whereDate('date', Carbon::now())
                 ->value('id');
-
             foreach ($seats as $seat) {
                 $tickets['user_id'] = auth()->user()->id;
                 $tickets['seat_id'] = $seat;
@@ -78,8 +78,17 @@ class TicketController extends Controller
                 $voucher->quantity -= 1;
                 $voucher->save();
             }
+
+            if ($request->voucher_id !== null) {
+                $customer = Customer::find($request->customer_id);
+                if ($customer && $customer->vouchers()->where('voucher_id', $request->voucher_id)->exists()) {
+                    $customer->vouchers()->updateExistingPivot($request->voucher_id, ['status' => '1']);
+                }
+            }
+
             return redirect()->route('tickets.index')->with('success', 'Ticket created successfully!');
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -136,15 +145,22 @@ class TicketController extends Controller
         }
         $tickets = Ticket::where('schedule_id', $schedule->id)
             ->where('showtime_id', $showtime) // Replace with the correct column name
-            ->get();
-        return response()->json($tickets);
+            ->get()
+            ->pluck('seat_id');
+        if ($tickets->count() > 0) {
+            return $tickets;
+        } else {
+            return null;
+        }
     }
 
-    public function ticketConfirmationMail(TicketRequest $request)
+    public function ticketConfirmationMail(Request $request)
     {
         try {
-            Mail::to($request->customer_email)->send(new TicketConfirmation($request));
-            return response()->json(['message' => 'Mail sent successfully']);
+            if ($request->customer_email) {
+                Mail::to($request->customer_email)->send(new TicketConfirmation($request));
+                return response()->json(['message' => 'Mail sent successfully']);
+            }
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -169,5 +185,17 @@ class TicketController extends Controller
         }
 
         return view('admin.tickets.customer', compact('customer'));
+    }
+
+    public function getVoucherList($customer_id)
+    {
+        $customer = Customer::find($customer_id);
+        $vouchers = $customer
+            ->vouchers()
+            ->wherePivot('status', '0')
+            ->get();
+
+        return view('admin.tickets.voucher-list', compact('vouchers'));
+
     }
 }
