@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Point;
-use Carbon\Carbon;
+use App\Models\Voucher;
 
 class CollectionController extends Controller
 {
@@ -14,11 +13,17 @@ class CollectionController extends Controller
         $vouchers = $customer->vouchers
             ->where('expires_at', '>=', now()->format('Y-m-d'))
             ->where('quantity', '>', 0);
-        $customerPoint = Point::where('customer_id', $customer->id)->first();
-        if($customerPoint->date_expire && Carbon::now()->greaterThan($customerPoint->date_expire)){
-            $customerPoint->total_points = 0;
-            $customerPoint->save();
+        $exchangeVouchers = Voucher::whereDate('expires_at', '>=', today())
+            ->where('quantity', '>', 0)
+            ->where('points_required', '>', 0)
+            ->get();
+        $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id')->toArray();
+
+        $customerPoint = $customer->point;
+        if (now()->gt($customerPoint->date_expire)) {
+            $customerPoint->update(['total_points' => 0]);
         }
+
         switch ($customerPoint->ranking_level) {
             case 'Bronze':
                 $points = 150;
@@ -37,6 +42,6 @@ class CollectionController extends Controller
                 break;
         }
 
-        return view('customer.collection', compact('customerPoint', 'points', 'nextLevel', 'color', 'vouchers', 'customer'));
+        return view('customer.collection', compact('customerPoint', 'points', 'nextLevel', 'color', 'vouchers', 'customer', 'exchangeVouchers', 'customerVouchers'));
     }
 }
