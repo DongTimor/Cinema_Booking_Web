@@ -36,7 +36,10 @@ class MovieController extends Controller
             ->sortBy('value');
         $movie = Movie::findOrFail($id);
         $dates = collect(range(0, 6))->map(fn(int $day) => today()->addDays($day));
-        $showtimes = $this->handleShowtimes($id, today());
+        $showtimes = $this->handleShowtimes($id, today())
+            ->filter(function ($showtime) {
+                return $showtime->start_time >= now()->format('H:i');
+            });
 
         return view('home.movies.detail', compact('movie', 'vouchers', 'showtimes', 'dates', 'customer'));
     }
@@ -87,8 +90,15 @@ class MovieController extends Controller
             ->where('movie_id', $movie_id)
             ->whereDate('date', $date)
             ->get();
+        $currentDate = now()->toDateString();
+        $currentTime = now()->format('H:i');
         $showtimes = $schedules->flatMap(fn($schedule) => $schedule->showtimes)
-            ->where('start_time', '>=', now()->format('H:i'))
+            ->filter(function ($showtime) use ($date, $currentDate, $currentTime) {
+                if ($date === $currentDate) {
+                    return $showtime->start_time >= $currentTime;
+                }
+                return true;
+            })
             ->unique('id')
             ->sortBy('start_time');
 
@@ -106,13 +116,14 @@ class MovieController extends Controller
             ->get()
             ->groupBy('auditorium_id')
             ->map(fn($group) => $group->count());
-
-        $showtimes = $showtimes->map(function ($showtime) use ($tickets, $seats, $auditoriumIds) {
+        $showtimes = $showtimes->map(function ($showtime) use ($tickets, $seats, $schedules) {
             $orderedCount = $tickets->get($showtime->id, 0);
-            $seats = $auditoriumIds->reduce(fn($carry, $auditoriumId) => $carry + $seats->get($auditoriumId, 0), 0);
-
+            $totalSeats = $schedules->filter(
+                fn($schedule) =>
+                $schedule->showtimes->contains('id', $showtime->id)
+            )->pluck('auditorium_id')->sum(fn($auditoriumId) => $seats->get($auditoriumId, 0));
             $showtime->count = $orderedCount;
-            $showtime->seats = $seats;
+            $showtime->seats = $totalSeats;
 
             return $showtime;
         });
