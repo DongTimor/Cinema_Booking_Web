@@ -80,9 +80,9 @@
                         Mirabo Tech
                     </h6>
                     <p>
-                        Mirabo Cine is your go-to destination for an unparalleled movie experience. 
-                        Located in the heart of the city, we offer a wide range of films from the latest blockbusters to timeless classics. 
-                        Our state-of-the-art facilities include comfortable seating, high-definition screens, and immersive sound systems to ensure you enjoy every moment. 
+                        Mirabo Cine is your go-to destination for an unparalleled movie experience.
+                        Located in the heart of the city, we offer a wide range of films from the latest blockbusters to timeless classics.
+                        Our state-of-the-art facilities include comfortable seating, high-definition screens, and immersive sound systems to ensure you enjoy every moment.
                     </p>
                 </div>
                 <div class="flex flex-col justify-start">

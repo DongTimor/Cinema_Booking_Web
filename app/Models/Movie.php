@@ -80,5 +80,4 @@ class Movie extends Model
             ]);
         });
     }
-
 }

@@ -48,6 +48,7 @@
     @endif
     </div>
     <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
         <x-adminlte-select name="roles[]" class='select2' multiple>
             @foreach ($roles as $item)
                 <option value="{{ $item->id }}" {{ in_array($item->id, $ids) ? 'selected' : '' }}>

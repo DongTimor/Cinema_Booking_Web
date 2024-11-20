@@ -43,11 +43,16 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/momo-payment', [PaymentController::class, 'momo_payment'])->name('momo-payment');
 Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMoReturn']);
 Route::get('/showtimes', [HomeMovieController::class, 'getShowtimes']);
 Route::get('/seats', [HomeMovieController::class, 'getSeats']);
+Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
+Route::get('/', [HomeController::class, 'homepage'])->name('home');
+Route::get('/favorite-all', [HomeController::class, 'favoriteMovieAll'])->name('favorite');
+Route::get('/vouchers-now', [HomeController::class, 'voucherNowAll'])->name('vouchers-now');
+Route::get('/movies/discounted', [HomeController::class, 'discountMovieAll'])->name('discounted');
+Route::get('/events/now', [HomeController::class, 'eventNowAll'])->name('events');
 Route::get('/movie',[HomeMovieController::class,'index'])->name('movies');
 Route::middleware('auth.jwt')->group(function () {
     Route::get('/booking/{id}', [HomeMovieController::class, 'detail'])->name('detail');
@@ -58,7 +63,7 @@ Route::middleware('auth.jwt')->group(function () {
     Route::post('/vouchers/exchange/{id}', [CustomerVoucherController::class, 'exchange'])->name('customer.vouchers.exchange');
 });
 // admin
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('auth.jwt')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/{id}', [ProfileController::class, 'update'])->name('profile.update');
     Route::prefix('roles')->group(function () {
