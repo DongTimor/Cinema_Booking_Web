@@ -80,57 +80,6 @@ class HomeController extends Controller
         return response()->json(['seats' => $seats, 'price' => $price]);
     }
 
-    // public function homepage()
-    // {
-    //     $today = Carbon::today();
-    //     $events = Event::whereDate('start_date', '<=', $today)
-    //                     ->whereDate('end_date', '>=', $today)
-    //                     ->get();
-
-    //     $favoriteMovies = Ticket::where('tickets.created_at', '<=', now())
-    //         ->join('movies', 'tickets.movie_id', '=', 'movies.id')
-    //         ->select('movies.id as movie_id', 'movies.name as movie_name', DB::raw('count(tickets.id) as total_tickets'))
-    //         ->groupBy('movies.id', 'movies.name')
-    //         ->orderBy('total_tickets', 'desc')
-    //         ->limit(20)
-    //         ->get();
-
-    //     $customer = auth('customer')->user();
-    //     $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id');
-    //     $vouchers = Voucher::whereDate('expires_at', '=', Carbon::now())->get();
-
-    //     return view('home', [
-    //         'events' => $events->map(function ($event) {
-    //             return [
-    //                 'event_id' => $event->id,
-    //                 'title' => $event->title,
-    //                 'description' => $event->description,
-    //                 'all_day' => $event->all_day,
-    //                 'discount_percentage' => $event->discount_percentage,
-    //                 'number_of_tickets' => $event->number_of_tickets,
-    //                 'start_date' => $event->start_date,
-    //                 'end_date' => $event->end_date,
-    //                 'start_time' => $event->start_time,
-    //                 'end_time' => $event->end_time,
-    //                 'movies' => $event->movies->map(function ($movie) {
-    //                     return [
-    //                         'id' => $movie->id,
-    //                         'name' => $movie->name,
-    //                         'price' => $movie->price,
-    //                         'start_date' => $movie->start_date,
-    //                         'end_date' => $movie->end_date,
-    //                         'image_url' => $movie->images()->first()->url ?? asset('default.jpg'),
-    //                     ];
-    //                 }),
-    //             ];
-    //         }),
-    //         'favoriteMovies' => $favoriteMovies,
-    //         'customerVouchers' => $customerVouchers,
-    //         'vouchers' => $vouchers,
-    //         'customer' => $customer
-    //     ]);
-    // }
-
     public function homepage()
     {
         $today = Carbon::today();
