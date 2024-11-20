@@ -14,6 +14,11 @@ if (voucher) {
     voucherType = voucher.type;
 }
 
+function paramsBuilder(action, params) {
+    const queryString = new URLSearchParams(params).toString();
+    return queryString + '&action=' + action;
+}
+
 function convertTimeToHourAndMinute(timeString) {
     const [hours, minutes] = timeString.split(':');
     return `${hours}:${minutes}`;
@@ -268,8 +273,13 @@ async function getPrice(id) {
     return price;
 }
 
-async function getShowtimesOfMovieAndDate(date, movie) {
-    const response = await fetch(`${baseUrl}/showtimes/getShowtimesOfMovieAndDate/${date}/${movie}`);
+async function fetchShowtimes(date, movie) {
+    const params = {
+        date: date,
+        movie: movie
+    };
+    const queryString = paramsBuilder('for-movie', params);
+    const response = await fetch(`${baseUrl}/showtimes/get-showtimes?${queryString}`);
     const showtimes = await response.json();
     return showtimes;
 }
@@ -298,8 +308,12 @@ async function getScheduleId(movie, date, auditorium) {
     return scheduleId;
 }
 
-async function getShowtimeOfSchedule(schedule) {
-    const response = await fetch(`${baseUrl}/showtimes/getShowtimeOfSchedule/${schedule}`);
+async function fetchShowtimeOfSchedule(schedule) {
+    const params = {
+        schedule: schedule
+    };
+    const queryString = paramsBuilder('for-schedule', params);
+    const response = await fetch(`${baseUrl}/showtimes/get-showtimes?${queryString}`);
     const showtime = await response.json();
     return showtime;
 }
@@ -343,7 +357,7 @@ async function filter() {
                 }
             });
         }
-        const showtimes = await getShowtimesOfMovieAndDate($('#date').val(), $('#movie_id').val());
+        const showtimes = await fetchShowtimes($('#date').val(), $('#movie_id').val());
         $('#showtime_id').prop('disabled', false);
         $('#showtime_id').append('<option value="">Select showtime</option>');
         showtimes.forEach(showtime => {
@@ -533,7 +547,7 @@ $(document).ready(async function () {
     $('#date').on('change', async function () {
         changeSeatStatus()
         if (currentFilter == 'date') {
-            const showtimes = await getShowtimesOfMovieAndDate($('#date').val(), $('#movie_id').val());
+            const showtimes = await fetchShowtimes($('#date').val(), $('#movie_id').val());
             $('#showtime_id').empty();
             $('#showtime_id').append('<option value="">Select showtime</option>');
             $('#auditorium_id').prop('disabled', true);
@@ -547,7 +561,7 @@ $(document).ready(async function () {
         } else if (currentFilter == 'auditorium') {
             if ($('#date').val() != '') {
                 const schedule = await getScheduleId($('#movie_id').val(), $('#date').val(), $('#auditorium_id').val());
-                const showtime = await getShowtimeOfSchedule(schedule);
+                const showtime = await fetchShowtimeOfSchedule(schedule);
                 $('#showtime_id').empty();
                 $('#showtime_id').append('<option value="">Select showtime</option>');
                 showtime.forEach(showtime => {

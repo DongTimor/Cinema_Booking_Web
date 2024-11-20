@@ -24,7 +24,7 @@ class ScheduleRequest extends FormRequest
     {
         $rules = [
             'movie_id' => 'required|exists:movies,id',
-            'date' =>  ['required', new ValidDate],
+            'date' =>  ['required', new ValidDate($this->movie_id)],
             'auditorium_id' => 'required|exists:auditoriums,id',
             'showtime_id' => 'required|exists:showtimes,id',
         ];

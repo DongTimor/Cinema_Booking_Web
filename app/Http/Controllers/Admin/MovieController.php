@@ -218,6 +218,7 @@ class MovieController extends Controller
             $query->where('start_date', '>', $end_date)
                 ->orWhere('end_date', '<', $start_date);
         })
+            ->where('event_id', null)
             ->get();
         return response()->json($movies);
     }

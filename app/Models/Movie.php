@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -20,6 +21,7 @@ class Movie extends Model
         'duration',
         'status',
         'price',
+        'event_id',
     ];
 
     public function images(): HasMany
@@ -48,9 +50,9 @@ class Movie extends Model
         return $this->hasMany(Schedule::class);
     }
 
-    public function events(): BelongsToMany
+    public function event(): BelongsTo
     {
-        return $this->belongsToMany(Event::class);
+        return $this->belongsTo(Event::class);
     }
 
      protected static function boot()

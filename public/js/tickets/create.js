@@ -4,14 +4,24 @@ let successTicketConfirmationMail = [];
 let voucherId = null;
 let voucherValue = null;
 let voucherType = null;
-let events = [];
+let events = null;
 let price = 0;
 let eventDiscount = 0;
 let voucherDiscount = 0;
 
-async function getShowtimesOfMovieAndDate(date, movie) {
+function paramsBuilder(action, params) {
+    const queryString = new URLSearchParams(params).toString();
+    return queryString + '&action=' + action;
+}
+
+async function fetchShowtimes(date, movie) {
+    const params = {
+        date: date,
+        movie: movie
+    };
+    const queryString = paramsBuilder('for-movie', params);
     const response = await fetch(
-        `${baseUrl}/showtimes/getShowtimesOfMovieAndDate/${date}/${movie}`
+        `${baseUrl}/showtimes/get-showtimes?${queryString}`
     );
     const showtimes = await response.json();
     return showtimes;
@@ -101,59 +111,55 @@ async function priceCalculation() {
                 voucherDiscount += parseInt(voucherValue);
             }
         }
-        events.forEach((event) => {
-            if (event.number_of_tickets === 1) {
-                if (event.quantity !== 0 && event.all_day) {
-                    eventDiscount += (event.discount_percentage / 100) * filmPrice;
+        if(events){
+            if (events.number_of_tickets === 1) {
+                if (events.quantity !== 0 && events.all_day) {
+                    eventDiscount += (events.discount_percentage / 100) * filmPrice;
                 }
-                if (!event.all_day && $("#showtime_id").val() !== "") {
+                if (!events.all_day && $("#showtime").val() !== "") {
                     if (
                         convertTimeToDecimal(
-                            $("#showtime_id")
+                            $("#showtime")
                                 .find("option:selected")
                                 .data("start-time")
-                                .toString()
-                        ) >= convertTimeToDecimal(event.start_time.toString()) &&
+                        ) >= convertTimeToDecimal(events.start_time.toString()) &&
                         convertTimeToDecimal(
-                            $("#showtime_id")
+                            $("#showtime")
                                 .find("option:selected")
                                 .data("end-time")
-                                .toString()
-                        ) <= convertTimeToDecimal(event.end_time.toString())
+                        ) <= convertTimeToDecimal(events.end_time.toString())
                     ) {
                         eventDiscount +=
-                            (event.discount_percentage / 100) * filmPrice;
+                            (events.discount_percentage / 100) * filmPrice;
                     }
                 }
             } else {
-                if (selectedSeats.length >= event.number_of_tickets) {
-                    if (event.quantity !== 0 && event.all_day) {
+                if (selectedSeats.length >= events.number_of_tickets) {
+                    if (events.quantity !== 0 && events.all_day) {
                         eventDiscount +=
-                            (event.discount_percentage / 100) * filmPrice;
+                            (events.discount_percentage / 100) * filmPrice;
                     }
-                    if (!event.all_day && $("#showtime_id").val() !== "") {
+                    if (!events.all_day && $("#showtime").val() !== "") {
                         if (
                             convertTimeToDecimal(
-                                $("#showtime_id")
+                                $("#showtime")
                                     .find("option:selected")
                                     .data("start-time")
-                                    .toString()
                             ) >=
-                                convertTimeToDecimal(event.start_time.toString()) &&
+                                convertTimeToDecimal(events.start_time.toString()) &&
                             convertTimeToDecimal(
-                                $("#showtime_id")
+                                $("#showtime")
                                     .find("option:selected")
                                     .data("end-time")
-                                    .toString()
-                            ) <= convertTimeToDecimal(event.end_time.toString())
+                            ) <= convertTimeToDecimal(events.end_time.toString())
                         ) {
                             eventDiscount +=
-                                (event.discount_percentage / 100) * filmPrice;
+                                (events.discount_percentage / 100) * filmPrice;
                         }
                     }
                 }
             }
-        });
+        }
         price = filmPrice - eventDiscount - voucherDiscount;
         getDiscount();
     }else{
@@ -270,7 +276,7 @@ $(document).ready(function () {
         $("#seats").empty();
         if ($(this).val() !== "") {
             await getEventsOfDateAndMovie(date, $(this).val());
-            const showtimes = await getShowtimesOfMovieAndDate(date, $(this).val());
+            const showtimes = await fetchShowtimes(date, $(this).val());
             $("#showtime").empty();
             $("#showtime").append('<option value="">-Select Showtime-</option>');
             showtimes.forEach((showtime) => {
@@ -281,7 +287,7 @@ $(document).ready(function () {
                 "HH:mm"
             );
             $("#showtime").append(
-                `<option value="${showtime.id}">${startTime} - ${endTime}</option>`
+                `<option data-start-time="${showtime.start_time}" data-end-time="${showtime.end_time}" value="${showtime.id}">${startTime} - ${endTime}</option>`
                 );
             });
         }
