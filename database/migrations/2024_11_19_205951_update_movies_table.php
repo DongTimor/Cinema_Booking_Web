@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('event_movie', function (Blueprint $table) {
-            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
-            $table->foreignId('movie_id')->constrained('movies')->onDelete('cascade');
+        Schema::table('movies', function (Blueprint $table) {
+            $table->foreignId('event_id')->nullable()->constrained('events');
         });
     }
 
@@ -22,6 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('event_movie');
+        Schema::table('movies', function (Blueprint $table) {
+            $table->dropForeign(['event_id']);
+            $table->dropColumn('event_id');
+        });
     }
 };

@@ -5,6 +5,11 @@ let duration = 0;
 const allOptions = [];
 let clicked = false;
 
+function paramsBuilder(action, params) {
+    const queryString = new URLSearchParams(params).toString();
+    return queryString + '&action=' + action;
+}
+
 function convertTimeToDecimalHour(timeString) {
     const [hours, minutes, seconds] = timeString.split(':').map(Number);
     return hours + (minutes / 60) + (seconds / 3600);
@@ -123,7 +128,12 @@ $(document).ready(function () {
             async function fetchShowtimes() {
                 try {
                     const formattedDate = moment($('#date').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
-                    const response = await fetch(baseUrl + "/admin/showtimes/getDullicateShowtimes/" + auditoriumId + "/" + formattedDate);
+                    const params = {
+                        auditorium: auditoriumId,
+                        date: formattedDate
+                    };
+                    const queryString = paramsBuilder('for-duplicate', params);
+                    const response = await fetch(baseUrl + "/admin/showtimes/get-showtimes?" + queryString);
                     const data = await response.json();
                     if (data) {
                         data.forEach(showtime => {
@@ -142,7 +152,13 @@ $(document).ready(function () {
                     const showtimeSelect = $('#showtime');
                     showtimeSelect.empty();
                     const formattedDate = moment($('#date').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
-                    const response = await fetch(baseUrl + "/admin/showtimes/getAvailableShowtimes/" + auditoriumId + "/" + formattedDate + "/" + duration);
+                    const params = {
+                        auditorium: auditoriumId,
+                        date: formattedDate,
+                        duration: duration
+                    };
+                    const queryString = paramsBuilder('for-available', params);
+                    const response = await fetch(baseUrl + "/admin/showtimes/get-showtimes?" + queryString);
                     const data = await response.json();
                     if (data) {
                         data.forEach(function (showtime) {

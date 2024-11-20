@@ -80,21 +80,6 @@ class ShowtimeController extends Controller
         return redirect()->route('showtimes.index');
     }
 
-    public function getSeats(string $id)
-    {
-        $showtime = Showtime::find($id);
-        $seats = Seat::whereBelongsTo($showtime->auditorium)
-            ->whereDoesntHave('ticket')
-            ->get();
-        return response()->json($seats);
-    }
-
-    public function getShowtimesOfDuration($duration)
-    {
-        $showtimes = Showtime::whereRaw('TIMESTAMPDIFF(MINUTE, start_time, end_time) > ?', [$duration])->get();
-        return response()->json($showtimes);
-    }
-
     public function getDullicateShowtimes($auditoriums, $date)
     {
         $showtimes = Schedule::whereDate('date', $date)
@@ -111,81 +96,10 @@ class ShowtimeController extends Controller
             })
             ->unique('id');
 
-        return response()->json($showtimes);
+        return $showtimes;
     }
 
-    public function getAvailableShowtimes($auditoriums, $date, $duration)
-    {
-        $duplicateShowtimes = Schedule::whereDate('date', $date)
-            ->where('auditorium_id', $auditoriums)
-            ->whereHas('showtimes')
-            ->with(['showtimes'])
-            ->get()
-            ->pluck('showtimes')
-            ->flatten()
-            ->unique('id');
-
-        $showtimes = Showtime::whereNotIn('id', $duplicateShowtimes->pluck('id'))
-            ->where(function ($query) use ($duplicateShowtimes) {
-                foreach ($duplicateShowtimes as $duplicate) {
-                    $query->where(function ($subQuery) use ($duplicate) {
-                        if (Carbon::parse($duplicate->start_time)->lte(Carbon::parse('00:15'))) {
-                            $subQuery->where('start_time', '>=', Carbon::parse($duplicate->end_time)->addMinutes(15));
-                        } elseif (Carbon::parse($duplicate->end_time)->gte(Carbon::parse('23:45'))) {
-                            $subQuery->where('end_time', '<=', Carbon::parse($duplicate->start_time)->subMinutes(15));
-                        } else {
-                            $subQuery->where(function ($innerQuery) use ($duplicate) {
-                                $innerQuery->where('start_time', '>=', Carbon::parse($duplicate->end_time)->addMinutes(15))
-                                    ->orWhere('end_time', '<=', Carbon::parse($duplicate->start_time)->subMinutes(15));
-                            });
-                        }
-                    });
-                }
-            })
-            ->whereRaw('TIMESTAMPDIFF(MINUTE, start_time, end_time) > ?', [$duration])
-            ->get();
-
-        return response()->json($showtimes);
-    }
-
-    public function getAvailableShowtimesOfSchedule($schedule, $auditoriums, $date, $duration)
-    {
-        $schedule = (int) $schedule;
-        $duplicateShowtimes = Schedule::whereDate('date', $date)
-            ->where('auditorium_id', $auditoriums)
-            ->whereHas('showtimes')
-            ->with(['showtimes'])
-            ->get()
-            ->pluck('showtimes')
-            ->flatten()
-            ->filter(function ($showtime) use ($schedule) {
-                return $showtime->pivot->schedule_id !== $schedule;
-            })
-            ->unique('id');
-
-        $showtimes = Showtime::whereNotIn('id', $duplicateShowtimes->pluck('id'))
-            ->where(function ($query) use ($duplicateShowtimes) {
-                foreach ($duplicateShowtimes as $duplicate) {
-                    $query->where(function ($subQuery) use ($duplicate) {
-                        if (Carbon::parse($duplicate->start_time)->lte(Carbon::parse('00:15'))) {
-                            $subQuery->where('start_time', '>=', Carbon::parse($duplicate->end_time)->addMinutes(15));
-                        } elseif (Carbon::parse($duplicate->end_time)->gte(Carbon::parse('23:45'))) {
-                            $subQuery->where('end_time', '<=', Carbon::parse($duplicate->start_time)->subMinutes(15));
-                        } else {
-                            $subQuery->where(function ($innerQuery) use ($duplicate) {
-                                $innerQuery->where('start_time', '>=', Carbon::parse($duplicate->end_time)->addMinutes(15))
-                                    ->orWhere('end_time', '<=', Carbon::parse($duplicate->start_time)->subMinutes(15));
-                            });
-                        }
-                    });
-                }
-            })
-            ->whereRaw('TIMESTAMPDIFF(MINUTE, start_time, end_time) > ?', [$duration])
-            ->get();
-        return response()->json($showtimes);
-    }
-
-    public function getShowtimesOfAuditorium($auditorium)
+    public function withAuditorium($auditorium)
     {
         $showtimes = Schedule::where('auditorium_id', $auditorium)
             ->whereHas('showtimes')
@@ -202,23 +116,82 @@ class ShowtimeController extends Controller
                 });
             });
 
-        return response()->json($showtimes);
+        return $showtimes;
     }
 
-    public function getShowtimesOfMovieAndDate($date, $movie)
+    public function withMovieAndDate($date, $movie)
     {
         $schedules = Schedule::whereDate('date', $date)
             ->where('movie_id', $movie)
-            ->with('showtimes')
-            ->get();
+            ->first();
 
-        $showtimes = $schedules->flatMap(fn ($schedule) => $schedule->showtimes);
-        return response()->json($showtimes);
+        $showtimes = $schedules
+            ->showtimes()
+            ->get()
+            ->filter(fn($showtime) => Carbon::parse($showtime->start_time)->gt(Carbon::now()))
+            ->values();
+
+        return $showtimes;
     }
 
-    public function getShowtimeOfSchedule($schedule)
+    public function withSchedule($schedule)
     {
         $showtime = Schedule::find($schedule)->showtimes;
-        return response()->json($showtime);
+        return $showtime;
+    }
+
+    public function availableShowtimes($auditorium, $date, $duration, $schedule = null)
+    {
+        try {
+            if ($schedule) {
+                $excludedShowtimes = Showtime::whereHas('schedules', function ($query) use ($auditorium, $date, $schedule) {
+                $query->where('date', $date)
+                    ->where('auditorium_id', $auditorium)
+                    ->whereNot('id', (int) $schedule);
+            })
+                ->select(['start_time', 'end_time']);
+        } else {
+            $excludedShowtimes = Showtime::whereHas('schedules', function ($query) use ($auditorium, $date, $schedule) {
+                $query->where('date', $date)
+                    ->where('auditorium_id', $auditorium);
+            })
+                ->select(['start_time', 'end_time']);
+        }
+
+        $showtimes = Showtime::whereNotExists(function ($query) use ($excludedShowtimes) {
+            $query->selectRaw(1)
+                ->fromSub($excludedShowtimes, 'excluded')
+                ->whereColumn('showtimes.start_time', '<', 'excluded.end_time')
+                ->whereColumn('showtimes.end_time', '>', 'excluded.start_time');
+        })
+            ->whereRaw('TIMESTAMPDIFF(MINUTE, start_time, end_time) >= ?', [$duration])
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+            return $showtimes;
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getShowtimes(Request $request)
+    {
+        $action = $request->action;
+        switch ($action) {
+            case 'for-movie':
+                return response()->json($this->withMovieAndDate($request->date, (int) $request->movie));
+            case 'for-auditorium':
+                return response()->json($this->withAuditorium($request->auditorium));
+            case 'for-available':
+                if ($request->has('schedule')) {
+                    return response()->json($this->availableShowtimes($request->auditorium, $request->date, $request->duration, $request->schedule));
+                } else {
+                    return response()->json($this->availableShowtimes($request->auditorium, $request->date, $request->duration));
+                }
+            case 'for-schedule':
+                return response()->json($this->withSchedule($request->schedule));
+            case 'for-duplicate':
+                return response()->json($this->getDullicateShowtimes($request->auditorium, $request->date));
+            }
     }
 }

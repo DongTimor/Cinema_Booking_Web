@@ -28,8 +28,15 @@ class EventController extends Controller
     {
         try {
             $event = Event::create($request->all());
-            foreach ($request->movies as $movie) {
-                $event->movies()->attach($movie);
+            if ($request->all_movies) {
+                Movie::whereNot(function ($query) use ($request) {
+                    $query->where('start_date', '>', $request->end_date)
+                        ->orWhere('end_date', '<', $request->start_date);
+                })->where('event_id', null)->update(['event_id' => $event->id]);
+            } else {
+                foreach ($request->movies as $movie) {
+                    Movie::findOrFail($movie)->update(['event_id' => $event->id]);
+                }
             }
             return response()->json(['success' => 'Successfully created event']);
         } catch (\Exception $e) {
@@ -44,21 +51,20 @@ class EventController extends Controller
     public function update(Request $request, $event)
     {
         $event = Event::findorFail($event);
+
         try {
             $event->update($request->all());
-            $movies = [];
-            if ($request->has('start_date')) {
-                $movies = Movie::whereNot(function ($query) use ($request) {
-                    $query->where('start_date', '>', $request->end_date)
-                        ->orWhere('end_date', '<', $request->start_date);
-                })
-                    ->pluck('id');
-                $event->movies()->detach($event->movies()->whereNotIn('id', $movies)->pluck('id'));
+
+            if ($request->all_movies) {
+                Movie::whereNot(function ($query) use ($event) {
+                    $query->where('start_date', '>', $event->end_date)
+                        ->orWhere('end_date', '<', $event->start_date);
+                })->where('event_id', null)
+                        ->update(['event_id' => $event->id]);
             } else {
-                if ($request->all_movies) {
-                    $event->movies()->sync([]);
-                } else {
-                    $event->movies()->sync($request->movies);
+                $event->movies()->update(['event_id' => null]);
+                foreach ($request->movies as $movie) {
+                    Movie::findOrFail($movie)->update(['event_id' => $event->id]);
                 }
             }
             return response()->json(['success' => 'Successfully updated event']);
@@ -75,6 +81,7 @@ class EventController extends Controller
         $event = Event::findorFail($event);
         try {
             $event->delete();
+            $event->movies()->update(['event_id' => null]);
             return response()->json(['success' => 'Successfully deleted event']);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -92,16 +99,15 @@ class EventController extends Controller
 
     public function getEventsOfDateAndMovie($date, $movie)
     {
-        $events = Event::where('start_date', '<=', $date)
-            ->where('end_date', '>=', $date)
-            ->where(function ($query) use ($movie) {
-                $query->whereHas('movies', function ($query) use ($movie) {
-                    $query->where('id', $movie);
-                })
-                ->orWhere('all_movies', true);
-            })
-            ->with('movies')
-            ->get();
-        return response()->json($events);
+        try {
+            $event = Movie::findOrFail($movie)
+                ->event()
+                ->where('end_date', '>=', $date)
+                ->first();
+
+            return response()->json($event);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

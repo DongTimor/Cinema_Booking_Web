@@ -2,12 +2,19 @@
 
 namespace App\Rules;
 
+use App\Models\Event;
+use App\Models\Movie;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class ValidDate implements ValidationRule
 {
+    protected $movieId;
+    public function __construct($movieId)
+    {
+        $this->movieId = $movieId;
+    }
     /**
      * Run the validation rule.
      *
@@ -23,8 +30,11 @@ class ValidDate implements ValidationRule
     public function passes($attribute, $value)
     {
         try {
-            Carbon::createFromFormat('m/d/Y', $value);
-            return true;
+            $date = Carbon::createFromFormat('m/d/Y', $value);
+
+            $movie = Movie::find($this->movieId);
+
+            return $movie && $date->lessThanOrEqualTo(Carbon::parse($movie->end_date));
         } catch (\Exception $e) {
             return false;
         }
@@ -35,6 +45,6 @@ class ValidDate implements ValidationRule
      */
     public function message()
     {
-        return 'The :attribute field must be a valid date in the format mm/dd/yyyy.';
+        return 'The :attribute field must be less than or equal to the movie\'s end date.';
     }
 }

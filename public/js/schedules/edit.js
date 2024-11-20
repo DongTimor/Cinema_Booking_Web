@@ -10,12 +10,14 @@ const timeline = $('.timeline');
 showtimes.forEach(showtime => {
     dullicateShowtimes.push({ start_time: showtime.start_time, end_time: showtime.end_time, id: showtime.id })
 });
+function paramsBuilder(action, params) {
+    const queryString = new URLSearchParams(params).toString();
+    return queryString + '&action=' + action;
+}
 
 function renderTimeline(showtimes1, showtimes2) {
     let index = 0;
     timeline.html('');
-
-    // Kết hợp hai mảng
     const combinedShowtimes = [...showtimes1.map(showtime => ({ ...showtime, type: 'showtime1' })),
                                ...showtimes2.map(showtime => ({ ...showtime, type: 'showtime2' }))];
     combinedShowtimes.sort((a, b) => {
@@ -111,16 +113,23 @@ function handleShowtimeChange() {
 }
 
 async function fetchAvailableShowtimes() {
+    console.log("fetchAvailableShowtimes");
     const showtimeSelect = $('#showtime');
     showtimeSelect.empty();
     const formattedDate = moment($('#date').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
-    const response = await fetch(baseUrl + "/admin/showtimes/getAvailableShowtimesOfSchedule/" + scheduleId + "/" + auditoriumId + "/" + formattedDate + "/" + duration);
+    const params = {
+        schedule: scheduleId,
+        auditorium: auditoriumId,
+        date: formattedDate,
+        duration: duration
+    };
+    const queryString = paramsBuilder('for-available', params);
+    const response = await fetch(baseUrl + "/admin/showtimes/get-showtimes?" + queryString);
+
     const data = await response.json();
     if (data) {
-        dullicateShowtimes.forEach(showtime => {
-            console.log("showtime", showtime.id);
-        });
         await data.forEach(function (showtime) {
+            console.log("showtime----", showtime.id);
             const isSelected = dullicateShowtimes.some(existingShowtime => existingShowtime.id === showtime.id);
             console.log("isSelected", isSelected, showtime.id);
             showtimeSelect.append('<option data-start="' + showtime.start_time + '" data-end="' + showtime.end_time + '" value="' + showtime.id + '"' +
@@ -137,7 +146,12 @@ async function fetchAvailableShowtimes() {
 async function fetchShowtimes() {
     const formattedDate = moment($('#date').val(), 'MM/DD/YYYY').format('YYYY-MM-DD');
     auditoriumId = $('#auditorium').val();
-    const response = await fetch(baseUrl + "/admin/showtimes/getDullicateShowtimes/" + auditoriumId + "/" + formattedDate);
+    const params = {
+        auditorium: auditoriumId,
+        date: formattedDate
+    };
+    const queryString = paramsBuilder('for-duplicate', params);
+    const response = await fetch(baseUrl + "/admin/showtimes/get-showtimes?" + queryString);
     const data = await response.json();
     if (data) {
         await data.forEach(showtime => {
@@ -146,7 +160,6 @@ async function fetchShowtimes() {
                 anotherDullicateShowtimes.push({ start_time: showtime.start_time, end_time: showtime.end_time });
             }
         });
-        console.log("anotherDullicateShowtimes", anotherDullicateShowtimes);
         renderTimeline(dullicateShowtimes, anotherDullicateShowtimes);
     } else {
 

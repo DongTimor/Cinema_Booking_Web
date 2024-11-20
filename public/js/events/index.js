@@ -45,12 +45,15 @@ const calendar = new FullCalendar.Calendar(calendarEl, {
         }
     },
     eventClick: async function (info) {
+        console.log("event click");
         $('#customEventModal').modal('show');
         editing_event_start_date = info.event.startStr;
         editing_event_end_date = info.event.endStr;
         editing_event_id = info.event.id;
         const available_movies = await getMoviesOfDates(editing_event_start_date, editing_event_end_date);
         const movies_of_event = await getMoviesOfEvent(editing_event_id);
+        available_movies.push(...movies_of_event);
+        console.log(available_movies);
         $('#edit_movies').empty();
         available_movies.forEach(movie => {
             if (movies_of_event.some(m => m.id === movie.id)) {
@@ -78,7 +81,6 @@ const calendar = new FullCalendar.Calendar(calendarEl, {
         if (event.all_movies) {
             $('#edit_all_movies').prop('checked', true);
             $('#edit_movies').prop('disabled', true);
-            $('#edit_movies').val(null).trigger('change');
         } else {
             $('#edit_all_movies').prop('checked', false);
             $('#edit_movies').prop('disabled', false);
@@ -304,6 +306,7 @@ async function applyEvent() {
                 text: data.success,
                 icon: "success",
             })
+            console.log(data);
             const events = await getEvents("all");
             const events_formatted_2 = events.map(event => ({
                 id: event.id,
@@ -435,39 +438,17 @@ async function closeEditModal() {
 async function editEvent(id, title, description, number_of_tickets, quantity, discount_percentage, start_time, end_time, allday, all_movies, movies) {
     const url = `/admin/events/${id}`;
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    let startTime = null;
-    let endTime = null;
-    let discountPercentage = null;
-    let Quantity = null;
-    let numberOfTickets = null;
-    if (allday) {
-        startTime = null;
-        endTime = null;
-    } else {
-        startTime = start_time;
-        endTime = end_time;
-    }
-    if (all_movies) {
-        movies = [];
-    }
-    if (discount_percentage === '') {
-        discountPercentage = 0;
-    } else {
-        discountPercentage = discount_percentage;
-    }
-    if (quantity === '') {
-        Quantity = -1;
-    } else {
-        Quantity = quantity;
-    }
-    if (number_of_tickets === '') {
-        numberOfTickets = 1;
-    } else {
-        numberOfTickets = number_of_tickets;
-    }
+
+    const startTime = allday ? null : start_time;
+    const endTime = allday ? null : end_time;
+    const discountPercentage = discount_percentage || 0;
+    const Quantity = quantity || -1;
+    const numberOfTickets = number_of_tickets || 1;
+    const movieList = all_movies ? [] : movies;
+
     const data = {
-        title: title,
-        description: description,
+        title,
+        description,
         number_of_tickets: numberOfTickets,
         quantity: Quantity,
         discount_percentage: discountPercentage,
@@ -475,8 +456,9 @@ async function editEvent(id, title, description, number_of_tickets, quantity, di
         end_time: endTime,
         all_day: allday,
         all_movies: all_movies,
-        movies: movies,
+        movies: movieList,
     };
+
     await fetch(url, {
         method: 'PUT',
         headers: {
@@ -496,7 +478,23 @@ async function editEvent(id, title, description, number_of_tickets, quantity, di
                 title: "Success!",
                 text: data.success,
                 icon: "success",
-            })
+            });
+            const events = await getEvents("all");
+            const events_formatted_2 = events.map(event => ({
+                id: event.id,
+                title: event.title,
+                start: `${event.start_date}`,
+                end: `${getNextDay(event.end_date)}`,
+                allDay: event.all_day,
+                extendedProps: {
+                    start_time: event.start_time,
+                    end_time: event.end_time,
+                    all_day: event.all_day,
+                },
+            }));
+            calendar.removeAllEventSources();
+            calendar.addEventSource(events_formatted_2);
+            calendar.refetchEvents();
         })
         .catch(error => {
             Swal.fire({

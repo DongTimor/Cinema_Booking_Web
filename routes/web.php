@@ -164,18 +164,11 @@ Route::prefix('admin')->group(function () {
     Route::group(['prefix' => 'showtimes', 'as' => 'showtimes.'], function () {
         Route::get('/', [ShowtimeController::class, 'index'])->name('index');
         Route::get('/create', [ShowtimeController::class, 'create'])->name('create');
-        Route::post('/store', [ShowtimeController::class, 'store'])->name('store');
-        Route::get('getSeats/{id}', [ShowtimeController::class, 'getSeats'])->name('getSeats');
+        Route::post('/create', [ShowtimeController::class, 'store'])->name('store');
         Route::get('/edit/{showtime}', [ShowtimeController::class, 'edit'])->name('edit');
-        Route::put('/update/{showtime}', [ShowtimeController::class, 'update'])->name('update');
+        Route::put('/edit/{showtime}', [ShowtimeController::class, 'update'])->name('update');
         Route::delete('/{showtime}', [ShowtimeController::class, 'destroy'])->name('destroy');
-        Route::get('/getShowtimesOfDuration/{duration}', [ShowtimeController::class, 'getShowtimesOfDuration'])->name('getShowtimesOfDuration');
-        Route::get('/getDullicateShowtimes/{auditoriums}/{date}', [ShowtimeController::class, 'getDullicateShowtimes'])->name('getDullicateShowtimes');
-        Route::get('/getAvailableShowtimes/{auditoriums}/{date}/{duration}', [ShowtimeController::class, 'getAvailableShowtimes'])->name('getAvailableShowtimes');
-        Route::get('/getAvailableShowtimesOfSchedule/{schedule}/{auditoriums}/{date}/{duration}', [ShowtimeController::class, 'getAvailableShowtimesOfSchedule'])->name('getAvailableShowtimesOfSchedule');
-        Route::get('/getShowtimesOfAuditorium/{auditorium}', [ShowtimeController::class, 'getShowtimesOfAuditorium'])->name('getShowtimesOfAuditorium');
-        Route::get('/getShowtimesOfMovieAndDate/{date}/{movie}', [ShowtimeController::class, 'getShowtimesOfMovieAndDate'])->name('getShowtimesOfAuditoriumAndDate');
-        Route::get('/getShowtimeOfSchedule/{schedule}', [ShowtimeController::class, 'getShowtimeOfSchedule'])->name('getShowtimeOfSchedule');
+        Route::get('/get-showtimes', [ShowtimeController::class, 'getShowtimes'])->name('getShowtimes');
     });
     Route::get('/', [DashboardController::class, 'index'])->middleware('permissions')->name('dashboards.index');
 

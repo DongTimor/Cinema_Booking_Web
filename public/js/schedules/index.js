@@ -37,6 +37,7 @@ const calendar = new FullCalendar.Calendar(calendarEl, {
             text: 'Week',
             click: async function () {
                 const response = await getShowtimes($('#auditoriumFilter').val());
+                console.log(response);
                 if (Array.isArray(response)) {
                     events2.length = 0;
                     fillEvents2(response);
@@ -82,6 +83,11 @@ const calendar = new FullCalendar.Calendar(calendarEl, {
         }
     }
 });
+
+function paramsBuilder(action, params) {
+    const queryString = new URLSearchParams(params).toString();
+    return queryString + '&action=' + action;
+}
 
 function convertTimeToHourAndMinute(timeString) {
     const [hours, minutes] = timeString.split(':');
@@ -141,7 +147,11 @@ async function getDates(movie_id) {
 }
 
 async function getShowtimes(auditorium_id) {
-    const response = await fetch(`/admin/showtimes/getShowtimesOfAuditorium/${auditorium_id}`);
+    const params = {
+        auditorium: auditorium_id
+    };
+    const queryString = paramsBuilder('for-auditorium', params);
+    const response = await fetch(`/admin/showtimes/get-showtimes?${queryString}`);
     return response.json();
 }
 
