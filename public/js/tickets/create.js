@@ -79,6 +79,7 @@ $("#showtime").on("change", async function () {
     if (this.value) {
         const movie = $("#movie").val();
         const auditoriums = await fetchAuditoriums(movie, date, this.value);
+        $("#seats").html("");
         $("#auditorium").html(auditoriums);
     }
 });
