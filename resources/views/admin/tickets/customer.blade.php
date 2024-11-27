@@ -1,9 +1,9 @@
 <div class="row my-3">
-    <input type="hidden" name="customer_id" value="{{ $customer->id }}" />
+    <input type="hidden" name="customer_id" id="customer" value="{{ $customer->id }}" />
     <div class="col-4">
         <label for="name">Name</label>
         <div class="input-group">
-            <input id="customer-name" class="form-control" type="text" name="name" value="{{ $customer->name }}" disabled>
+            <input class="form-control" type="text" name="name" value="{{ $customer->name }}" disabled>
         </div>
     </div>
     <div class="col-4">
@@ -16,8 +16,7 @@
     <div class="col-4">
         <label for="email">Email</label>
         <div class="input-group">
-            <input id="customer-email" class="form-control" type="text" name="email" value="{{ $customer->email }}" disabled>
+            <input class="form-control" type="text" name="email" value="{{ $customer->email }}" disabled>
         </div>
     </div>
-    <div class="hidden" id="customer_id">{{ $customer->id }}</div>
 </div>

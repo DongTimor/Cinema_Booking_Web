@@ -35,9 +35,10 @@ class TicketController extends Controller
      */
     public function create()
     {
-        $movies = Movie::whereDate('end_date', '>=', Carbon::now())
+        $movies = Movie::whereDate('start_date', '<=', today())
+            ->whereDate('end_date', '>=', today())
             ->get();
-        $vouchers = Voucher::whereDate('expires_at', '>=', Carbon::now())
+        $vouchers = Voucher::whereDate('expires_at', '>=', today())
             ->where('quantity', '>', 0)
             ->orderBy('type')
             ->orderByDesc('value')
@@ -52,45 +53,51 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'movie_id' => 'required',
-                'showtime_id' => 'required',
-                'seats' => 'required',
-            ]);
+        $request->validate([
+            'movie_id' => 'required',
+            'showtime_id' => 'required',
+            'auditorium_id' => 'required',
+        ]);
 
-            $seats = $request->input('seats');
-            $tickets = $request->except('seats');
-            $schedule_id = Schedule::where('movie_id', $request->movie_id)
-                ->where('auditorium_id', $request->auditorium_id)
-                ->whereDate('date', Carbon::now())
-                ->value('id');
-            foreach ($seats as $seat) {
-                $tickets['user_id'] = auth()->user()->id;
-                $tickets['seat_id'] = $seat;
-                $tickets['status'] = 'ordered';
-                $tickets['schedule_id'] = $schedule_id;
-                Ticket::create($tickets);
-            }
+        $movie_id = $request->input('movie_id');
+        $orderData = json_decode(base64_decode($request->input('order_id')), true);
 
-            $voucher = Voucher::find($request->voucher_id);
-            if ($voucher) {
-                $voucher->quantity -= 1;
-                $voucher->save();
-            }
+        $schedule_id = Schedule::where('movie_id', $movie_id)
+            ->where('auditorium_id', $request->input('auditorium_id'))
+            ->whereDate('date', today())
+            ->value('id');
 
-            if ($request->voucher_id !== null) {
-                $customer = Customer::find($request->customer_id);
-                if ($customer && $customer->vouchers()->where('voucher_id', $request->voucher_id)->exists()) {
-                    $customer->vouchers()->updateExistingPivot($request->voucher_id, ['status' => '1']);
-                }
-            }
+        $customer_id = $request->input('customer_id');
+        $customer = Customer::find($customer_id);
 
-            return redirect()->route('tickets.index')->with('success', 'Ticket created successfully!');
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return redirect()->back()->with('error', $e->getMessage());
+        if (isset($jsonData['voucherId'])) {
+            $customer->vouchers()->updateExistingPivot($jsonData['voucherId'], ['status' => 1]);
         }
+
+        $ticketData = [
+            'user_id' => auth()->id(),
+            'customer_id' => $customer_id,
+            'movie_id' => $movie_id,
+            'showtime_id' => $request->input('showtime_id'),
+            'auditorium_id' => $request->input('auditorium_id'),
+            'schedule_id' => $schedule_id,
+            'price' => $orderData['price'] / count($orderData['seats']),
+        ];
+
+        $tickets = array_map(function ($seat) use ($ticketData) {
+            return array_merge($ticketData, ['seat_id' => $seat['seatId']]);
+        }, $orderData['seats']);
+
+        Ticket::insert($tickets);
+
+        if ($customer->email) {
+            $movie = Movie::find($movie_id);
+            $orderData['movie'] = $movie->name;
+            $orderData['customer'] = $customer->name;
+            Mail::to($customer->email)->send(new TicketConfirmation($customer, $orderData));
+        }
+
+        return redirect()->route('tickets.index')->with('success', 'Ticket created successfully!');
     }
 
     /**
@@ -154,29 +161,14 @@ class TicketController extends Controller
         }
     }
 
-    public function ticketConfirmationMail(Request $request)
+    public function ticketConfirmationPdf($data)
     {
-        try {
-            if ($request->customer_email) {
-                Mail::to($request->customer_email)->send(new TicketConfirmation($request));
-                return response()->json(['message' => 'Mail sent successfully']);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
-    }
-
-    public function ticketConfirmationPdf(Request $request)
-    {
-        $data = [
-            'title' => 'Ticket Confirmation',
-            'data' => $request->all()
-        ];
+        $data = json_decode(base64_decode($data), true);
         $pdf = PDF::loadView('pdfs.ticket-confirmation', compact('data'));
         return $pdf->download('ticket-confirmation.pdf');
     }
 
-    public function search($phone)
+    public function fetchCustomer($phone)
     {
         $customer = Customer::where('phone_number', $phone)->first();
 
@@ -187,15 +179,59 @@ class TicketController extends Controller
         return view('admin.tickets.customer', compact('customer'));
     }
 
-    public function getVoucherList($customer_id)
+    public function fetchShowtimes($movie_id, $date)
+    {
+        $schedules = Schedule::with('showtimes')
+            ->where('movie_id', $movie_id)
+            ->whereDate('date', $date)
+            ->get();
+        $showtimes = $schedules->flatMap(fn($schedule) => $schedule->showtimes)
+            ->where('start_time', '>=', now()->format('H:i'))
+            ->unique('id')
+            ->sortBy('start_time');
+        return view('admin.tickets.showtimes', compact('showtimes'));
+    }
+
+    public function fetchAuditoriums($movie_id, $date, $showtime_id)
+    {
+        $schedules = Schedule::with('auditorium')
+            ->whereDate('date', $date)
+            ->where('movie_id', $movie_id)
+            ->whereRelation('showtimes', 'showtime_id', $showtime_id)
+            ->get();
+        $auditoriums = $schedules->pluck('auditorium');
+        return view('admin.tickets.auditoriums', compact('auditoriums'));
+    }
+
+    public function fetchSeats($movie_id, $date, $showtime_id, $auditorium_id)
+    {
+        $scheduleIds = Schedule::whereDate('date', $date)
+            ->where('movie_id', $movie_id)
+            ->whereRelation('showtimes', 'showtime_id', $showtime_id)
+            ->pluck('id')->toArray();
+        $orderedSeats = Ticket::where('movie_id', $movie_id)
+            ->where('auditorium_id', $auditorium_id)
+            ->whereIn('schedule_id', $scheduleIds)
+            ->where('showtime_id', $showtime_id)
+            ->pluck('seat_id')
+            ->toArray();
+        $seats = Seat::where('auditorium_id', $auditorium_id)->get();
+        $rows = $seats->groupBy('row')->count();
+        return view('admin.tickets.seats', compact('orderedSeats', 'seats', 'rows'));
+    }
+
+    public function fetchVouchers($customer_id)
     {
         $customer = Customer::find($customer_id);
-        $vouchers = $customer
-            ->vouchers()
-            ->wherePivot('status', '0')
-            ->get();
+        $vouchers = $customer->vouchers()
+            ->whereDate('expires_at', '>=', today())
+            ->where('quantity', '>', 0)
+            ->wherePivot('status', 0)
+            ->get()
+            ->groupBy('type')
+            ->flatten()
+            ->sortBy('value');
 
-        return view('admin.tickets.voucher-list', compact('vouchers'));
-
+        return view('admin.tickets.vouchers', compact('vouchers'));
     }
 }

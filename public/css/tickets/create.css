@@ -372,7 +372,7 @@ html {
     color: green;
 }
 
-.save-btn {
+.use-btn {
     padding: 0.5rem 1rem;
     background-color: #facc15;
     font-weight: 500;
@@ -381,6 +381,6 @@ html {
     bottom: 1rem;
 }
 
-.save-btn:hover {
+.use-btn:hover {
     background-color: #fbbf24;
 }

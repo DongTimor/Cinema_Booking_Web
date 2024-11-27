@@ -50,7 +50,7 @@ Route::get('/momopayment/paymentsuccess', [PaymentController::class, 'handleMoMo
 Route::get('/showtimes', [HomeController::class, 'getTimeslotsByDate']);
 Route::get('/seats', [HomeController::class, 'getSeats']);
 Route::get('/collection', [CollectionController::class, 'index'])->name('collection');
-Route::get('/ticket-confirmation-pdf', [TicketController::class, 'ticketConfirmationPdf'])->name('ticket-confirmation-pdf');
+Route::get('/ticket-confirmation-pdf/{data}', [TicketController::class, 'ticketConfirmationPdf'])->name('ticket-confirmation-pdf');
 Route::middleware('auth.jwt')->group(function () {
     Route::get('/booking/{id}', [HomeController::class, 'detail'])->name('detail');
     Route::get('/vouchers', [CustomerVoucherController::class, 'index'])->name('vouchers');
@@ -104,8 +104,11 @@ Route::prefix('admin')->group(function () {
         Route::delete('/{ticket}', [TicketController::class, 'destroy'])->name('destroy');
         Route::get('/getTicketsOfSchedule/{movie}/{date}/{auditorium}/{showtime}', [TicketController::class, 'getTicketsOfSchedule'])->name('getTicketsOfSchedule');
         Route::post('/ticketConfirmationMail', [TicketController::class, 'ticketConfirmationMail'])->name('ticketConfirmationMail');
-        Route::get('/search/{phone}', [TicketController::class, 'search'])->name('search');
-        Route::get('/voucher-list/{customer_id}', [TicketController::class, 'getVoucherList'])->name('getVoucherList');
+        Route::get('/{phone}/customer', [TicketController::class, 'fetchCustomer'])->name('tickets.customer');
+        Route::get('/{movie}/{date}/showtimes', [TicketController::class, 'fetchShowtimes'])->name('tickets.showtimes');
+        Route::get('/{movie}/{date}/{showtime}/auditoriums', [TicketController::class, 'fetchAuditoriums'])->name('tickets.auditoriums');
+        Route::get('/{movie}/{date}/{showtime}/{auditorium}/seats', [TicketController::class, 'fetchSeats'])->name('tickets.seats');
+        Route::get('/{customer}/vouchers', [TicketController::class, 'fetchVouchers'])->name('tickets.vouchers');
     });
     Route::group(['prefix' => 'seats', 'as' => 'seats.'], function () {
         Route::get('/', [SeatController::class, 'index'])->name('index');

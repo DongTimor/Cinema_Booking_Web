@@ -18,14 +18,16 @@ class TicketConfirmation extends Mailable
      *
      * @var mixed
      */
-    public $request;
+    public $customer;
+    public $orderData;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($request)
+    public function __construct($customer, $orderData)
     {
-        $this->request = $request;
+        $this->customer = $customer;
+        $this->orderData = $orderData;
     }
 
     /**
@@ -46,7 +48,8 @@ class TicketConfirmation extends Mailable
         return new Content(
             view: 'mails.ticket-confirmation',
             with: [
-                'request' => $this->request,
+                'customer' => $this->customer,
+                'ticketData' => $this->orderData
             ],
         );
     }

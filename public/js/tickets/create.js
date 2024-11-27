@@ -1,340 +1,204 @@
-const baseUrl = "http://localhost/admin";
-let selectedSeats = [];
-let successTicketConfirmationMail = [];
-let voucherId = null;
-let voucherValue = null;
-let voucherType = null;
-let events = [];
-let price = 0;
-let eventDiscount = 0;
-let voucherDiscount = 0;
+let count = 0;
+const date = moment().format("Y-M-D");
 
-async function getShowtimesOfMovieAndDate(date, movie) {
-    const response = await fetch(
-        `${baseUrl}/showtimes/getShowtimesOfMovieAndDate/${date}/${movie}`
-    );
-    const showtimes = await response.json();
+function formatNumber(number) {
+    return new Intl.NumberFormat("vi-VN").format(number);
+}
+
+async function fetchCustomer(phone) {
+    const response = await fetch(`/admin/tickets/${phone}/customer`);
+
+    if (!response.ok) {
+        const { message } = await response.json();
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: message,
+        });
+        return;
+    }
+    const customer = await response.text();
+    return customer;
+}
+
+async function fetchShowtimes(movie, date) {
+    const response = await fetch(`/admin/tickets/${movie}/${date}/showtimes`);
+    const showtimes = await response.text();
     return showtimes;
 }
 
-async function getAuditoriumsOfShowtime(date, movie, showtime) {
+async function fetchAuditoriums(movie, date, showtime) {
     const response = await fetch(
-        `${baseUrl}/auditoriums/getAuditoriumsOfShowtime/${date}/${movie}/${showtime}`
+        `/admin/tickets/${movie}/${date}/${showtime}/auditoriums`
     );
-    const auditoriumes = await response.json();
+    const auditoriumes = await response.text();
     return auditoriumes;
 }
 
-async function getSchedule(id) {
+async function fetchSeats(movie, date, showtime, auditorium) {
     const response = await fetch(
-        `${baseUrl}/movies/features/getSchedule/${id}`
-    );
-    const schedule = await response.json();
-    return schedule;
-}
-
-async function getSeatsOfAuditorium(auditorium, orderedSeats) {
-    const response = await fetch(
-        `${baseUrl}/auditoriums/seats/${auditorium}/${orderedSeats}`
+        `/admin/tickets/${movie}/${date}/${showtime}/${auditorium}/seats`
     );
     const seats = await response.text();
     return seats;
 }
 
-async function getTicketOfSchedule(movie, date, auditorium, showtime) {
-    const response = await fetch(
-        `${baseUrl}/tickets/getTicketsOfSchedule/${movie}/${date}/${auditorium}/${showtime}`
-    );
-    const ticket = await response.text();
-    return ticket;
-}
-
-async function getPrice(id) {
-    const response = await fetch(`${baseUrl}/movies/features/getPrice/${id}`);
-    const price = await response.json();
-    return price;
-}
-
-async function getEventsOfDateAndMovie(date, movie) {
-    const response = await fetch(
-        `${baseUrl}/events/getEventsOfDateAndMovie/${date}/${movie}`
-    );
-    events = await response.json();
-}
-
-async function getVouchersOfCustomer(customer) {
-    const response = await fetch(
-        `${baseUrl}/vouchers/getVoucherOfCustomer/${customer}`
-    );
-    const vouchers = await response.json();
+async function fetchVouchers(customer) {
+    const response = await fetch(`/admin/tickets/${customer}/vouchers`);
+    const vouchers = await response.text();
     return vouchers;
 }
 
-async function getVoucherInfo(id) {
-    const response = await fetch(`${baseUrl}/vouchers/getVoucherInfo/${id}`);
-    const voucher = await response.json();
-    return voucher;
+$(".search-btn").click(async function (event) {
+    event.preventDefault();
+    const phone = $(this).prev("input").val();
+    const customer = await fetchCustomer(phone);
+    if (customer) {
+        $(".info").html(customer);
+    }
+});
+
+$(".phone-number").on("keydown", async function (event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        const customer = await fetchCustomer($(this).val());
+        if (customer) {
+            $(".info").html(customer);
+        }
+    }
+});
+
+$("#movie").on("change", async function () {
+    if (this.value) {
+        const showtimes = await fetchShowtimes(this.value, date);
+        $("#showtime").html(showtimes);
+    }
+});
+
+$("#showtime").on("change", async function () {
+    if (this.value) {
+        const movie = $("#movie").val();
+        const auditoriums = await fetchAuditoriums(movie, date, this.value);
+        $("#auditorium").html(auditoriums);
+    }
+});
+
+$("#auditorium").on("change", async function () {
+    if (this.value) {
+        const movie = $("#movie").val();
+        const showtime = $("#showtime").val();
+        const seats = await fetchSeats(movie, date, showtime, this.value);
+        $("#seats").html(seats);
+    }
+});
+
+$(document).on("click", ".seat", function () {
+    const price = $("#movie option:selected").data("price");
+
+    count = document.querySelectorAll(".seat.bg-primary").length;
+
+    if ($(this).hasClass("bg-secondary-subtle")) {
+        return;
+    }
+
+    if ($(this).hasClass("bg-primary")) {
+        count -= 1;
+    } else {
+        count += 1;
+    }
+
+    if (count > 0 && $("#customer").val()) {
+        $(".voucher").removeClass("hidden");
+    } else {
+        $(".voucher").addClass("hidden");
+    }
+
+    handlePrice(price, count);
+
+    $(this).toggleClass("bg-primary");
+});
+
+$(document).on("click", ".voucher", async function () {
+    if ($(".use-btn").hasClass("bg-secondary-subtle")) {
+        return;
+    }
+    const vouchers = await fetchVouchers($("#customer").val());
+    $("#vouchers").html(vouchers);
+});
+
+function handlePrice(price, count) {
+    let discount = 0;
+    const eventPrice = $("#movie option:selected").data("event-price");
+    const voucher = $(".use-btn.bg-secondary-subtle");
+    const value = voucher.data("value");
+    const type = voucher.data("type");
+    let total = price * count;
+
+    if (type === "percent") {
+        discount = (value / 100) * total;
+    } else {
+        discount = value;
+    }
+
+    if (eventPrice) {
+        $(".event-price").text(`${formatNumber(total)} VND`);
+        total = eventPrice * count;
+    }
+
+    $(".price").text(`${formatNumber(total)} VND`);
+
+    if (discount > 0) {
+        $(".discount").parent().removeClass("hidden");
+        $(".discount").text(`- ${formatNumber(discount)} VND`);
+        $(".total").data("total", total - discount);
+        $(".total").text(`Total: ${formatNumber(total - discount)} VND`);
+    } else {
+        $(".discount").parent().addClass("hidden");
+        $(".total").data("total", total);
+        $(".total").text(`Total: ${formatNumber(total)} VND`);
+    }
 }
 
-async function getSeatNumber(id) {
-    const response = await fetch(`${baseUrl}/seats/getSeatNumber/${id}`);
-    const seat = await response.json();
-    return seat;
+$(document).on("click", ".use-btn", function () {
+    const price = $("#movie option:selected").data("price");
+    count = document.querySelectorAll(".seat.bg-primary").length;
+    $(".use-btn").not(this).removeClass("bg-secondary-subtle");
+    $(this).toggleClass("bg-secondary-subtle");
+    handlePrice(price, count);
+});
+
+function utf8ToBase64(str) {
+    return btoa(encodeURIComponent(str));
 }
 
-function convertTimeToDecimal(timeString) {
-    const [hours, minutes, seconds] = timeString.split(":").map(Number);
-    const decimalHours = hours + minutes / 60 + seconds / 3600;
-    return decimalHours;
-}
+$(".ticket-form").on("submit", function (event) {
+    event.preventDefault();
+    const price = $(".total").data("total");
+    const eventPrice = $("#movie option:selected").data("event-price");
+    const seats = Array.from(document.querySelectorAll(".seat.bg-primary")).map(
+        (seat) => ({ seatId: seat.dataset.id, seatName: seat.dataset.name })
+    );
+    const voucherId = $(".use-btn.bg-secondary-subtle").data("id");
+    const auditorium = $("#auditorium option:selected").text();
+    const showtime = $("#showtime option:selected").text();
+    const discount = $(".discount").text();
+    let eventDiscount = price - eventPrice;
 
-async function priceCalculation() {
-    if(count !== 0) {
-        const filmPrice = $("#movie option:selected").data("price");
-        voucherDiscount = 0;
+    if (eventDiscount == price) {
         eventDiscount = 0;
-        if (voucherId) {
-            $('.voucher-id').val(voucherId);
-            if (voucherType === "percent") {
-                voucherDiscount += filmPrice * (voucherValue / 100);
-            } else {
-                voucherDiscount += parseInt(voucherValue);
-            }
-        }
-        events.forEach((event) => {
-            if (event.number_of_tickets === 1) {
-                if (event.quantity !== 0 && event.all_day) {
-                    eventDiscount += (event.discount_percentage / 100) * filmPrice;
-                }
-                if (!event.all_day && $("#showtime_id").val() !== "") {
-                    if (
-                        convertTimeToDecimal(
-                            $("#showtime_id")
-                                .find("option:selected")
-                                .data("start-time")
-                                .toString()
-                        ) >= convertTimeToDecimal(event.start_time.toString()) &&
-                        convertTimeToDecimal(
-                            $("#showtime_id")
-                                .find("option:selected")
-                                .data("end-time")
-                                .toString()
-                        ) <= convertTimeToDecimal(event.end_time.toString())
-                    ) {
-                        eventDiscount +=
-                            (event.discount_percentage / 100) * filmPrice;
-                    }
-                }
-            } else {
-                if (selectedSeats.length >= event.number_of_tickets) {
-                    if (event.quantity !== 0 && event.all_day) {
-                        eventDiscount +=
-                            (event.discount_percentage / 100) * filmPrice;
-                    }
-                    if (!event.all_day && $("#showtime_id").val() !== "") {
-                        if (
-                            convertTimeToDecimal(
-                                $("#showtime_id")
-                                    .find("option:selected")
-                                    .data("start-time")
-                                    .toString()
-                            ) >=
-                                convertTimeToDecimal(event.start_time.toString()) &&
-                            convertTimeToDecimal(
-                                $("#showtime_id")
-                                    .find("option:selected")
-                                    .data("end-time")
-                                    .toString()
-                            ) <= convertTimeToDecimal(event.end_time.toString())
-                        ) {
-                            eventDiscount +=
-                                (event.discount_percentage / 100) * filmPrice;
-                        }
-                    }
-                }
-            }
-        });
-        price = filmPrice - eventDiscount - voucherDiscount;
-        getDiscount();
-    }else{
-        price = 0;
-        eventDiscount = 0;
-        voucherDiscount = 0;
     }
-}
 
-async function ticketConfirmationMail() {
-    const url = "/admin/tickets/ticketConfirmationMail";
-    const csrfToken = document
-        .querySelector('meta[name="csrf-token"]')
-        .getAttribute("content");
-    try {
-        for (let i = 0; i < selectedSeats.length; i++) {
-            selectedSeats[i] = await getSeatNumber(selectedSeats[i]);
-        }
-        let voucher = null;
-        if (voucherId) {
-            voucher = await getVoucherInfo(voucherId);
-        }
-        const data = {
-            action: "ticketConfirmationMail",
-            order_date: new Date().toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-            }),
-            customer: $("#customer-name").val() ? $("#customer-name").val() : null,
-            customer_email: $("#customer-email").val() ? $("#customer-email").val() : null,
-            movie: $("#movie").find("option:selected").text(),
-            auditorium: $("#auditorium")
-                .find("option:selected")
-                .text(),
-            showtime:
-                $("#showtime").find("option:selected").text(),
-            seats: selectedSeats,
-            total:
-                ($("#movie option:selected").data("price")),
-            voucher: voucher,
-            event_discount: eventDiscount,
-            cost: price,
-        };
-        console.log("data", data);
-        await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": csrfToken,
-            },
-            body: JSON.stringify(data),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(response.status);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success",
-                    text: data.message,
-                });
-            })
-            .catch((error) => {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: error,
-                });
-            });
-    } catch (error) {
-        $("#loader").css("display", "none");
-        Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: error.message,
-        });
-    }
-}
+    const data = {
+        price,
+        seats,
+        voucherId,
+        auditorium,
+        showtime,
+        discount,
+        eventDiscount,
+        date,
+    };
 
-function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-function selectVoucher(selectedVoucher) {
-    console.log("selectedVoucher", selectedVoucher);
-    $(document).find('.save-btn').not("#voucher-btn-" + selectedVoucher.id).removeClass('bg-secondary-subtle');
-    $(`#voucher-btn-${selectedVoucher.id}`).toggleClass('bg-secondary-subtle');
-    if( $(`#voucher-btn-${selectedVoucher.id}`).hasClass('bg-secondary-subtle')){
-        voucherId = selectedVoucher.id;
-        voucherValue = selectedVoucher.value;
-        voucherType = selectedVoucher.type;
-    }else{
-        voucherId = null;
-        voucherValue = null;
-        voucherType = null;
-    }
-    priceCalculation();
-}
-
-$(document).ready(function () {
-    $("#movie").on("change", async function () {
-        const date = $(this).data("date");
-        $("#showtime").empty();
-        $("#showtime").append('<option value="">-Select Showtime-</option>');
-        $("#auditorium").empty();
-        $("#auditorium").append('<option value="">-Select Auditorium-</option>');
-        $("#seats").empty();
-        if ($(this).val() !== "") {
-            await getEventsOfDateAndMovie(date, $(this).val());
-            const showtimes = await getShowtimesOfMovieAndDate(date, $(this).val());
-            $("#showtime").empty();
-            $("#showtime").append('<option value="">-Select Showtime-</option>');
-            showtimes.forEach((showtime) => {
-            const startTime = moment(showtime.start_time, "HH:mm:ss").format(
-                "HH:mm"
-            );
-            const endTime = moment(showtime.end_time, "HH:mm:ss").format(
-                "HH:mm"
-            );
-            $("#showtime").append(
-                `<option value="${showtime.id}">${startTime} - ${endTime}</option>`
-                );
-            });
-        }
-    });
-
-    $("#showtime").on("change", async function () {
-        const showtime = $(this).val();
-        $("#auditorium").empty();
-        $("#auditorium").append('<option value="">-Select Auditorium-</option>');
-        $("#seats").empty();
-        if (showtime !== "") {
-            const date = $(this).data("date");
-            const movie_id =  $("#movie").val();
-            const auditoriums = await getAuditoriumsOfShowtime(
-            date,
-            movie_id,
-            showtime
-        );
-        $("#auditorium").empty();
-        $("#auditorium").append(
-            '<option value="">-Select Auditorium-</option>'
-        );
-        auditoriums.forEach((auditorium) => {
-            $("#auditorium").append(
-                `<option value="${auditorium.auditorium_id}">${auditorium.auditorium}</option>`
-            );
-            });
-        }
-    });
-
-    $("#auditorium").on("change", async function () {
-        const auditorium = $(this).val();
-        if (auditorium !== "" && showtime !== "") {
-            const movie_id = $("#movie").val();
-            const date = formatDate(new Date());
-            const showtime = $("#showtime").val();
-            const orderedSeats = await getTicketOfSchedule(movie_id, date, auditorium, showtime);
-            let seats;
-            if (orderedSeats !== "") {
-                seats = await getSeatsOfAuditorium(auditorium, orderedSeats);
-            }else{
-                seats = await getSeatsOfAuditorium(auditorium, "null");
-            }
-                $('#seats').html(seats);
-                $('#seats .row').append('<div class="voucher"></div>');
-        }else{
-            $("#seats").empty();
-        }
-    });
-
-    $(".ticket-form").on("submit", function (e) {
-        if ($("#customer-email").val() !== undefined) {
-            ticketConfirmationMail();
-        }
-    });
+    $("#order_id").val(btoa(JSON.stringify(data)));
+    $(this).off("submit").submit();
 });
