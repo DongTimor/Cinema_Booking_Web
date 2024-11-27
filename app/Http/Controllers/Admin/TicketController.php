@@ -15,7 +15,6 @@ use App\Models\Voucher;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -56,7 +55,6 @@ class TicketController extends Controller
         $request->validate([
             'movie_id' => 'required',
             'showtime_id' => 'required',
-            'auditorium_id' => 'required',
         ]);
 
         $movie_id = $request->input('movie_id');
@@ -79,7 +77,6 @@ class TicketController extends Controller
             'customer_id' => $customer_id,
             'movie_id' => $movie_id,
             'showtime_id' => $request->input('showtime_id'),
-            'auditorium_id' => $request->input('auditorium_id'),
             'schedule_id' => $schedule_id,
             'price' => $orderData['price'] / count($orderData['seats']),
         ];
@@ -205,13 +202,12 @@ class TicketController extends Controller
 
     public function fetchSeats($movie_id, $date, $showtime_id, $auditorium_id)
     {
-        $scheduleIds = Schedule::whereDate('date', $date)
+        $schedule = Schedule::whereDate('date', $date)
             ->where('movie_id', $movie_id)
             ->whereRelation('showtimes', 'showtime_id', $showtime_id)
-            ->pluck('id')->toArray();
+            ->first();
         $orderedSeats = Ticket::where('movie_id', $movie_id)
-            ->where('auditorium_id', $auditorium_id)
-            ->whereIn('schedule_id', $scheduleIds)
+            ->where('schedule_id', $schedule->id)
             ->where('showtime_id', $showtime_id)
             ->pluck('seat_id')
             ->toArray();
