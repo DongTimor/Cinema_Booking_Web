@@ -20,6 +20,8 @@ class Voucher extends Model
         'value',
         'type',
         'points_required',
+        'rank_required',
+        'is_purchasable',
     ];
 
     public function users(): BelongsToMany

@@ -12,10 +12,27 @@ class VoucherController extends Controller
     public function index()
     {
         $customer = auth('customer')->user();
+        $customerPoint = $customer->point;
+        switch ($customerPoint->ranking_level) {
+            case 'Bronze':
+                $ranks = ['Bronze'];
+                break;
+            case 'Silver':
+                $ranks = ['Silver', 'Bronze'];
+                break;
+            case 'Gold':
+                $ranks = ['Gold', 'Silver', 'Bronze'];
+                break;
+            default:
+                $ranks = [$customerPoint->ranking_level];
+                break;
+        }
         $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id');
         $vouchers = Voucher::whereDate('expires_at', '>=', today())
             ->where('quantity', '>', 0)
             ->where('points_required', 0)
+            ->where('is_purchasable', 1)
+            ->whereIn('rank_required', $ranks)
             ->get();
         return view('customer.voucher', compact('customer', 'customerVouchers', 'vouchers'));
     }
@@ -37,10 +54,25 @@ class VoucherController extends Controller
     {
         $customer = auth('customer')->user();
         $customerPoint = $customer->point;
+        switch ($customerPoint->ranking_level) {
+            case 'Bronze':
+                $ranks = ['Bronze'];
+                break;
+            case 'Silver':
+                $ranks = ['Silver', 'Bronze'];
+                break;
+            case 'Gold':
+                $ranks = ['Gold', 'Silver', 'Bronze'];
+                break;
+            default:
+                $ranks = [$customerPoint->ranking_level];
+                break;
+        }
         $customerVouchers = $customer->vouchers->pluck('pivot.voucher_id')->toArray();
         $vouchers = Voucher::whereDate('expires_at', '>=', today())
             ->where('quantity', '>', 0)
             ->where('points_required', '>', 0)
+            ->whereIn('rank_required', $ranks)
             ->orderBy('points_required', 'desc')
             ->get();
         return view('home.vouchers.exchange', compact('customer', 'customerPoint', 'customerVouchers', 'vouchers'));

@@ -34,6 +34,14 @@
                 @endif
             </div>
             <div class="mb-3">
+                <label for="rank_required" class="form-label">Rank Required</label>
+                <select class="form-control" name="rank_required">
+                    <option value="Bronze" {{ old('rank_required', $voucher->rank_required ?? '') == 'Bronze' ? 'selected' : '' }}>Bronze</option>
+                    <option value="Silver" {{ old('rank_required', $voucher->rank_required ?? '') == 'Silver' ? 'selected' : '' }}>Silver</option>
+                    <option value="Gold" {{ old('rank_required', $voucher->rank_required ?? '') == 'Gold' ? 'selected' : '' }}>Gold</option>
+                </select>
+            </div>
+            <div class="mb-3">
                 <label for="type" class="form-label">Type</label>
                 <select class="form-control" name="type">
                     <option value="percent">Percent</option>

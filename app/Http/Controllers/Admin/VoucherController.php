@@ -38,6 +38,7 @@ class VoucherController extends Controller
                 },
             ],
             'points_required' => 'integer|min:0',
+            'rank_required' => 'required',
             'expires_at' => 'required',
         ]);
 
@@ -66,6 +67,7 @@ class VoucherController extends Controller
                 },
             ],
             'points_required' => 'integer|min:0',
+            'rank_required' => 'required',
             'expires_at' => 'required',
         ]);
 
