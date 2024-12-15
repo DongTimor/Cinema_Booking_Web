@@ -26,26 +26,18 @@ class CheckBirthdays extends Command
         }
 
         foreach ($customers as $customer) {
-            $birthdayVoucher = Voucher::where('description', 'Birthday')
-            ->whereHas('customers', function ($query) use ($customer) {
-                $query->where('customer_id', $customer->id);
-            })
-            ->first();
-
-            if (!$birthdayVoucher) {
-            $voucher = new Voucher();
-            $voucher->code = Str::random(6); 
-            $voucher->description = 'Birthday';
-            $voucher->quantity = 1;
-            $voucher->value = 20; 
-            $voucher->type = 'percent';
-            $voucher->points_required = 0;
-            $voucher->is_purchasable = 0; 
-            $voucher->rank_required = 'Bronze';
-            $voucher->expires_at = Carbon::now()->addDays(7);
-            $voucher->save();
-            $voucher->customers()->attach($customer->id);
-            }
+            $customer->vouchers()->firstOrCreate([
+                'description' => 'Birthday',
+            ], [
+                'code' => Str::random(6),
+                'quantity' => 1,
+                'value' => 20,
+                'type' => 'percent',
+                'points_required' => 0,
+                'is_purchasable' => 0,
+                'rank_required' => 'Bronze',
+                'expires_at' => Carbon::now()->addDays(7),
+            ]);
             Mail::to($customer->email)->send(new BirthdayNotification($customer));
         }
         $this->info('Birthday notifications sent to customers.');
